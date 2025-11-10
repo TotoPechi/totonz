@@ -1,0 +1,359 @@
+Descripcion,Ticker,Tipo de Instrumento,Concertacion,Cantidad,Precio,Liquidacion,Moneda,Importe
+Cargo por Descubierto del 31/10/2025,,,2025-10-31,0,-1,2025-10-31,Pesos,-51.33
+Renta / BPOC7,BPOC7,Bonos,2025-10-31,0,-1,2025-10-31,Pesos,-728.62
+Renta / BPOC7,BPOC7,Bonos,2025-10-31,0,-1,2025-10-31,Dólares,141.6
+Boleto / 10513414 / COMPRA / 0 / YPFD / usd,YPFD,Acciones,2025-10-27,57,-1,2025-10-27,Pesos,-4269.25
+Boleto / 10513414 / COMPRA / 0 / YPFD / usd,YPFD,Acciones,2025-10-27,57,34.746491,2025-10-27,Dólares,-1988.47
+Boleto / 10517516 / COMPRA / 0 / YPFD / usd,YPFD,Acciones,2025-10-27,59,-1,2025-10-27,Pesos,-4424.79
+Boleto / 10517516 / COMPRA / 0 / YPFD / usd,YPFD,Acciones,2025-10-27,59,34.782881,2025-10-27,Dólares,-2060.4
+Boleto / 10394848 / COMPRA / 0 / AL30 / usd,AL30,Bonos,2025-10-23,2728,-1,2025-10-23,Pesos,-55.62
+Boleto / 10394848 / COMPRA / 0 / AL30 / usd,AL30,Bonos,2025-10-23,2728,0.5477,2025-10-23,Dólares,-1500.11
+Boleto / 10394849 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-10-23,-2728,859,2025-10-23,Pesos,2333920.01
+Comprobante de Pago / 2637113,,,2025-10-23,0,-1,2025-10-23,Pesos,-2333764.19
+Movimiento Manual / Pago de dividendos - VOO.E,,,2025-10-01,0,-1,2025-10-01,US Dollar (Cable),17.4
+Movimiento Manual / Retención de impuestos -VOO.E,,,2025-10-01,0,-1,2025-10-01,US Dollar (Cable),-5.22
+Boleto / 9170918 / COMPRA / 0 / AL30 / usd,AL30,Bonos,2025-09-24,8594,-1,2025-09-24,Pesos,-171.1
+Boleto / 9170918 / COMPRA / 0 / AL30 / usd,AL30,Bonos,2025-09-24,8594,0.581726,2025-09-24,Dólares,-5019.36
+Boleto / 9071626 / COMPRA / 1 / TZXD6 / $,TZXD6,Bonos,2025-09-22,2980100,1.7145,2025-09-23,Pesos,-5129946.71
+Comprobante de Pago / 2289834,,,2025-09-22,0,-1,2025-09-22,Pesos,-2000000
+Movimiento Manual / Pago de dividendos - SOXX.E,,,2025-09-19,0,-1,2025-09-19,US Dollar (Cable),5.27
+Movimiento Manual / Retención de impuestos -SOXX.E,,,2025-09-19,0,-1,2025-09-19,US Dollar (Cable),-1.58
+Boleto / 8901965 / VENTA / 0 / TGSU2 / $,TGSU2,Acciones,2025-09-18,-384,6455,2025-09-18,Pesos,2464623.52
+Boleto / 8901966 / COMPRA / 0 / AL30 / $,AL30,Bonos,2025-09-18,21964,720,2025-09-18,Pesos,-15877731.67
+Boleto / 8901967 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-09-18,-10000,722.5,2025-09-18,Pesos,7195919.37
+Boleto / 8901968 / VENTA / 0 / GD35 / $,GD35,Bonos,2025-09-18,-8435,763.167042,2025-09-18,Pesos,6411403.81
+Boleto / 8908004 / VENTA / 0 / AL30 / usd,AL30,Bonos,2025-09-18,-32705,-1,2025-09-18,Pesos,-577.71
+Boleto / 8908004 / VENTA / 0 / AL30 / usd,AL30,Bonos,2025-09-18,-32705,0.479197,2025-09-18,Dólares,15609.45
+Liquidación de Rescate / 1549702 / BALANZ EQUITY SELECTION clase A,EQUITYS A,Fondos,2025-09-18,-744221.1599,9.321061,2025-09-19,Pesos,6936930.83
+Rescate a Balanz,EQUITYSA,Fondos,2025-09-18,-744221.1599,9.321061,2025-09-19,Pesos,-6936930.83
+Renta / YMCXO,YMCXO,Corporativos,2025-09-12,0,-1,2025-09-12,Pesos,-442.53
+Renta / YMCXO,YMCXO,Corporativos,2025-09-12,0,-1,2025-09-12,Dólares C.V. 7000,87.19
+Boleto / 8405772 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2025-09-08,9462,-1,2025-09-08,Pesos,-165.45
+Boleto / 8405772 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2025-09-08,9462,0.5162,2025-09-08,US Dollar (Cable),-4903.82
+Boleto / 8405773 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-09-08,-4029,744.356044,2025-09-08,Pesos,2986939.48
+Comprobante de Pago / 2159285,,,2025-09-08,0,-1,2025-09-08,Pesos,-1991848.91
+Comprobante de Pago / 2159337,,,2025-09-08,0,-1,2025-09-08,Pesos,-994831.85
+Recibo de Cobro / 2310691,,,2025-09-05,0,-1,2025-09-05,US Dollar (Cable),4970
+Boleto / 6814533 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2025-08-01,7572,-1,2025-08-01,Pesos,-154.73
+Boleto / 6814533 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2025-08-01,7572,0.5949,2025-08-01,US Dollar (Cable),-4522.6
+Boleto / 6814534 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-08-01,-7572,808.511952,2025-08-01,Pesos,6097411.24
+Boleto / 6842876 / APCOLCON / 0 / $,,,2025-08-01,0,-1,2025-08-01,Pesos,-6096721.25
+Boleto / 6842877 / APCOLFUT / 3 / $,,,2025-08-01,0,-1,2025-08-04,Pesos,6109737.35
+Boleto / 6842878 / COMPRA / 1 / TZXD6 / $,TZXD6,Bonos,2025-08-01,3252568,1.870939,2025-08-04,Pesos,-6109850.5
+Movimiento Manual / Renta CV 7.000 a Cable,,,2025-08-01,0,-1,2025-08-01,Dólares C.V. 7000,-599.49
+Movimiento Manual / Renta CV 7.000 a Cable,,,2025-08-01,0,-1,2025-08-01,US Dollar (Cable),599.49
+Boleto / 6302524 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2025-07-21,13548,-1,2025-07-21,Pesos,-256.11
+Boleto / 6302524 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2025-07-21,13548,0.588,2025-07-21,US Dollar (Cable),-7998.08
+Boleto / 6302525 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-07-21,-13548,763.7,2025-07-21,Pesos,10304962.5
+Boleto / 6323328 / COMPRA / 1 / T30J6 / $,T30J6,Bonos,2025-07-21,9897185,1.037,2025-07-22,Pesos,-10304690.95
+Renta / TLC1O,TLC1O,Corporativos,2025-07-21,0,-1,2025-07-21,Pesos,-416.78
+Renta / TLC1O,TLC1O,Corporativos,2025-07-21,0,-1,2025-07-21,Dólares C.V. 7000,91.28
+Cargo por Descubierto del 18/7/2025,,,2025-07-18,0,-1,2025-07-18,Pesos,-28.21
+Boleto / 6228569 / VENTA / 1 / YMCIO / U$S,YMCIO,Corporativos,2025-07-17,-6000,-1,2025-07-18,Pesos,-196.34
+Boleto / 6228569 / VENTA / 1 / YMCIO / U$S,YMCIO,Corporativos,2025-07-17,-6000,1.038,2025-07-18,US Dollar (Cable),6203.09
+Boleto / 6255533 / Licitación MAE / 3 / YM39O / U$S,YM39O,Corporativos,2025-07-17,6200,1,2025-07-22,US Dollar (Cable),-6200
+Recibo de Cobro / 1818715,,,2025-07-16,0,-1,2025-07-16,US Dollar (Cable),5000
+Recibo de Cobro / 1821990,,,2025-07-16,0,-1,2025-07-16,US Dollar (Cable),4970
+Boleto / 6107753 / COMPRA / 0 / AL30 / usd,AL30,Bonos,2025-07-15,2088,-1,2025-07-15,Pesos,-39.83
+Boleto / 6107753 / COMPRA / 0 / AL30 / usd,AL30,Bonos,2025-07-15,2088,0.5961,2025-07-15,Dólares,-1249.64
+Boleto / 6107754 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-07-15,-2088,770.6,2025-07-15,Pesos,1602536.52
+Comprobante de Pago / 1691763,,,2025-07-15,0,-1,2025-07-15,Pesos,-1592693.7
+Cargo por Descubierto del 11/7/2025,,,2025-07-11,0,-1,2025-07-11,Pesos,-16.32
+Renta / GD35,GD35,Bonos,2025-07-10,0,-1,2025-07-10,Dólares C.V. 7000,173.88
+Renta / GD35,GD35,Bonos,2025-07-10,0,-1,2025-07-10,Pesos,-110.91
+Renta y Amortización / AL30,AL30,Bonos,2025-07-10,0,-1,2025-07-10,Pesos,-32.2
+Renta y Amortización / AL30,AL30,Bonos,2025-07-10,0,-1,2025-07-10,Dólares,1275.12
+Boleto / 5939207 / COMPRAEXT / 1 / GBTC.E / U$S,GBTC.E,Acciones,2025-07-08,93,-1,2025-07-09,Pesos,-8414.45
+Boleto / 5939207 / COMPRAEXT / 1 / GBTC.E / U$S,GBTC.E,Acciones,2025-07-08,93,85.94,2025-07-09,US Dollar (Cable),-8034.12
+Recibo de Cobro / 1753865,,,2025-07-08,0,-1,2025-07-08,US Dollar (Cable),5000
+Recibo de Cobro / 1737437,,,2025-07-07,0,-1,2025-07-07,US Dollar (Cable),4970
+Movimiento Manual / Pago de dividendos - VOO.E,,,2025-07-02,0,-1,2025-07-02,US Dollar (Cable),17.45
+Movimiento Manual / Retención de impuestos -VOO.E,,,2025-07-02,0,-1,2025-07-02,US Dollar (Cable),-5.23
+Renta / YMCIO,YMCIO,Corporativos,2025-06-30,0,-1,2025-06-30,Pesos,-1138.73
+Renta / YMCIO,YMCIO,Corporativos,2025-06-30,0,-1,2025-06-30,Dólares C.V. 7000,269.05
+Boleto / 5308308 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2025-06-18,7475,-1,2025-06-18,Pesos,-146.19
+Boleto / 5308308 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2025-06-18,7475,0.6744,2025-06-18,US Dollar (Cable),-5061.3
+Boleto / 5308309 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-06-18,-1280,780.8,2025-06-18,Pesos,995401.31
+Comprobante de Pago / 1502852,,,2025-06-18,0,-1,2025-06-18,Pesos,-1083041.1
+Movimiento Manual / Renta CV 7.000 a Cable,,,2025-06-18,0,-1,2025-06-18,Dólares C.V. 7000,-46.61
+Movimiento Manual / Renta CV 7.000 a Cable,,,2025-06-18,0,-1,2025-06-18,US Dollar (Cable),46.61
+Dividendo en efectivo / TGSU2,TGSU2,Acciones,2025-06-11,0,-1,2025-06-11,Pesos,101777.53
+Movimiento Manual / Ret IIGG y BBPP - TGSU2,,,2025-06-11,0,-1,2025-06-11,Pesos,-14142.02
+Boleto / 4861844 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-06-02,-3956,808.7,2025-06-02,Pesos,3186340.35
+Comprobante de Pago / 1390469,,,2025-06-02,0,-1,2025-06-02,Pesos,-3186336.09
+Recibo de Cobro / 1458145,,,2025-06-02,0,-1,2025-06-02,US Dollar (Cable),5000
+Boleto / 4413435 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-05-15,-1292,773.6,2025-05-15,Pesos,995468.25
+Comprobante de Pago / 1281561,,,2025-05-15,0,-1,2025-05-15,Pesos,-995470.05
+Comprobante de Pago / 1281564,,,2025-05-15,0,-1,2025-05-15,Dólares,-143.2
+Boleto / 4273685 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-05-12,-1921,780.3,2025-05-12,Pesos,1492923
+Comprobante de Pago / 1252788,,,2025-05-12,0,-1,2025-05-12,Pesos,-1492333.81
+Renta / BPOC7,BPOC7,Bonos,2025-04-30,0,-1,2025-04-30,Pesos,-586.87
+Renta / BPOC7,BPOC7,Bonos,2025-04-30,0,-1,2025-04-30,Dólares,141.6
+Boleto / 3636704 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-04-16,-1879,797.5,2025-04-16,Pesos,1492471.03
+Comprobante de Pago / 1072090,,,2025-04-16,0,-1,2025-04-16,Pesos,-1492473.2
+Movimiento Manual / Pago de dividendos - VOO.E,,,2025-03-31,0,-1,2025-03-31,US Dollar (Cable),18.12
+Movimiento Manual / Retención de impuestos -VOO.E,,,2025-03-31,0,-1,2025-03-31,US Dollar (Cable),-5.44
+Boleto / 2917083 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-03-27,-1798,834.4,2025-03-27,Pesos,1494212.69
+Comprobante de Pago / 865280,,,2025-03-27,0,-1,2025-03-27,Pesos,-1491082.53
+Movimiento Manual / Pago de dividendos - SOXX.E,,,2025-03-21,0,-1,2025-03-21,US Dollar (Cable),2.87
+Movimiento Manual / Retención de impuestos -SOXX.E,,,2025-03-21,0,-1,2025-03-21,US Dollar (Cable),-0.86
+Renta / YMCXO,YMCXO,Corporativos,2025-03-12,0,-1,2025-03-12,Pesos,-332.67
+Renta / YMCXO,YMCXO,Corporativos,2025-03-12,0,-1,2025-03-12,Dólares C.V. 7000,87.19
+Boleto / 2359329 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-03-10,-1227,802.348981,2025-03-10,Pesos,980519.66
+Boleto / 2377202 / COMPRAEXT / 1 / GBTC.E / U$S,GBTC.E,Acciones,2025-03-10,67,-1,2025-03-11,Pesos,-2795.08
+Boleto / 2377202 / COMPRAEXT / 1 / GBTC.E / U$S,GBTC.E,Acciones,2025-03-10,67,61.93,2025-03-11,US Dollar (Cable),-4171.79
+Comprobante de Pago / 699541,,,2025-03-10,0,-1,2025-03-10,Pesos,-977796.1
+Movimiento Manual / Renta CV 7.000 a Cable,,,2025-03-10,0,-1,2025-03-10,Dólares C.V. 7000,-65.4
+Movimiento Manual / Renta CV 7.000 a Cable,,,2025-03-10,0,-1,2025-03-10,US Dollar (Cable),65.4
+Recibo de Cobro / 755473,,,2025-03-10,0,-1,2025-03-10,US Dollar (Cable),4000
+Boleto / 2315773 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2025-03-07,5858,-1,2025-03-07,Pesos,-102.44
+Boleto / 2315773 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2025-03-07,5858,0.6571,2025-03-07,US Dollar (Cable),-3864.69
+Boleto / 2098212 / COMPRAEXT / 1 / TSLA.E / U$S,TSLA.E,Acciones,2025-02-27,14,-1,2025-02-28,Pesos,-2622.23
+Boleto / 2098212 / COMPRAEXT / 1 / TSLA.E / U$S,TSLA.E,Acciones,2025-02-27,14,286.37,2025-02-28,US Dollar (Cable),-4030.96
+Recibo de Cobro / 655389,,,2025-02-27,0,-1,2025-02-27,US Dollar (Cable),4170
+Boleto / 2006013 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-02-25,-2155,779.3,2025-02-25,Pesos,1672631.95
+Comprobante de Pago / 585063,,,2025-02-25,0,-1,2025-02-25,Pesos,-1672639.69
+Recibo de Cobro / 633443,,,2025-02-25,0,-1,2025-02-25,US Dollar (Cable),3770
+Boleto / 1234569 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-02-04,-3823,774.940361,2025-02-04,Pesos,2950672.55
+Comprobante de Pago / 363193,,,2025-02-04,0,-1,2025-02-04,Pesos,-2950273.07
+Renta / TLC1O,TLC1O,Corporativos,2025-01-22,0,-1,2025-01-22,Pesos,-341.92
+Renta / TLC1O,TLC1O,Corporativos,2025-01-22,0,-1,2025-01-22,Dólares C.V. 7000,91.28
+Boleto / 488940 / COMPRA / 0 / AL30 / usd,AL30,Bonos,2025-01-14,273,-1,2025-01-14,Pesos,-4.85
+Boleto / 488940 / COMPRA / 0 / AL30 / usd,AL30,Bonos,2025-01-14,273,0.6834,2025-01-14,Dólares,-187.32
+Boleto / 430864 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-01-13,-1872,791.3,2025-01-13,Pesos,1475351.32
+Boleto / 440890 / COMPRA / 0 / AL30 / usd,AL30,Bonos,2025-01-13,2550,-1,2025-01-13,Pesos,-44.86
+Boleto / 440890 / COMPRA / 0 / AL30 / usd,AL30,Bonos,2025-01-13,2550,0.6769,2025-01-13,Dólares,-1733
+Comprobante de Pago / 137128,,,2025-01-13,0,-1,2025-01-13,Pesos,-1474892.78
+Boleto / 383640 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2025-01-10,521,-1,2025-01-10,Pesos,-8.96
+Boleto / 383640 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2025-01-10,521,0.6627,2025-01-10,US Dollar (Cable),-346.65
+Boleto / 383641 / COMPRA / 0 / AL30 / usd,AL30,Bonos,2025-01-10,2745,-1,2025-01-10,Pesos,-48.13
+Boleto / 383641 / COMPRA / 0 / AL30 / usd,AL30,Bonos,2025-01-10,2745,0.676,2025-01-10,Dólares,-1863.04
+Movimiento Manual / Conversión CV 7.000 a CV 10.000 (dólar mep),,,2025-01-10,0,-1,2025-01-14,Dólares C.V. 7000,-173.88
+Movimiento Manual / Conversión CV 7.000 a CV 10.000 (dólar mep),,,2025-01-10,0,-1,2025-01-14,Dólares,173.88
+Renta / GD35,GD35,Bonos,2025-01-10,0,-1,2025-01-10,Pesos,-91.94
+Renta / GD35,GD35,Bonos,2025-01-10,0,-1,2025-01-10,Dólares C.V. 7000,173.88
+Movimiento Manual / Conversión CV 7.000 a CV 10.000 (dólar mep),,,2025-01-09,0,-1,2025-01-13,Dólares C.V. 7000,-1732.47
+Movimiento Manual / Conversión CV 7.000 a CV 10.000 (dólar mep),,,2025-01-09,0,-1,2025-01-13,Dólares,1732.47
+Movimiento Manual / Conversión CV 7.000 a Dólar Cable,,,2025-01-09,0,-1,2025-01-09,Dólares C.V. 7000,-335
+Movimiento Manual / Conversión CV 7.000 a Dólar Cable,,,2025-01-09,0,-1,2025-01-09,US Dollar (Cable),335
+Recibo de Cobro / 129640,,,2025-01-09,0,-1,2025-01-09,Dólares,450
+Renta y Amortización / AL30,AL30,Bonos,2025-01-09,0,-1,2025-01-09,Dólares,1428.61
+Renta y Amortización / AL30,AL30,Bonos,2025-01-09,0,-1,2025-01-09,Pesos,-32.47
+Boleto / 280553 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2025-01-08,3376,-1,2025-01-08,Pesos,-65.31
+Boleto / 280553 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2025-01-08,3376,0.7469,2025-01-08,US Dollar (Cable),-2531.62
+Boleto / 204224 / VENTA / 0 / AL30 / $,AL30,Bonos,2025-01-07,-2206,894.8,2025-01-07,Pesos,1965983.73
+Comprobante de Pago / 69033,,,2025-01-07,0,-1,2025-01-07,Pesos,-1979094.37
+Recibo de Cobro / 87175,,,2025-01-07,0,-1,2025-01-07,US Dollar (Cable),2500
+Intereses devengados / TLC1O,TLC1O,Corporativos,2025-01-06,0,-1,2025-01-06,Dólares C.V. 7000,57.55
+Intereses devengados / TLC1O,TLC1O,Corporativos,2025-01-06,0,-1,2025-01-06,Pesos,-212.74
+Movimiento Manual / Ajuste - Rescate parcial / TLC1O,TLC1O,Corporativos,2025-01-06,-1,-1,2025-01-06,,0
+Prima por rescate / TLC1O,TLC1O,Corporativos,2025-01-06,0,-1,2025-01-06,Dólares C.V. 7000,9.29
+Rescate parcial / TLC1O,TLC1O,Corporativos,2025-01-06,-1709,-1,2025-01-06,,0
+Renta / YMCIO,YMCIO,Corporativos,2024-12-30,0,-1,2024-12-30,Dólares C.V. 7000,269.05
+Renta / YMCIO,YMCIO,Corporativos,2024-12-30,0,-1,2024-12-30,Pesos,-993.2
+Movimiento Manual / Pago de dividendos - VOO.E,,,2024-12-26,0,-1,2024-12-26,US Dollar (Cable),17.39
+Movimiento Manual / Retención de impuestos -VOO.E,,,2024-12-26,0,-1,2024-12-26,US Dollar (Cable),-5.22
+Rescate / TLC1O,TLC1O,Corporativos,2024-12-24,0,-1,2024-12-24,Dólares C.V. 7000,1731.58
+Boleto / 11501636 / COMPRA / 0 / TGSU2 / $,TGSU2,Acciones,2024-12-20,384,6660.3125,2024-12-20,Pesos,-2572414.31
+Boleto / 11501637 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-12-20,-3050,840.9,2024-12-20,Pesos,2554421.9
+Movimiento Manual / Pago de dividendos - SOXX.E,,,2024-12-20,0,-1,2024-12-20,US Dollar (Cable),3.94
+Movimiento Manual / Retención de impuestos -SOXX.E,,,2024-12-20,0,-1,2024-12-20,US Dollar (Cable),-1.18
+Boleto / 11425161 / COMPRA / 0 / PAMP / $,PAMP,Acciones,2024-12-19,600,4010.333333,2024-12-19,Pesos,-2420175.21
+Boleto / 11425162 / COMPRA / 0 / YPFD / $,YPFD,Acciones,2024-12-19,55,51249.09091,2024-12-19,Pesos,-2835071.01
+Boleto / 11425163 / COMPRA / 0 / VIST / $,VIST,Cedears,2024-12-19,120,21318.75,2024-12-19,Pesos,-2573108.32
+Boleto / 11425164 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-12-19,14900,-1,2024-12-19,Pesos,-278.85
+Boleto / 11425164 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-12-19,14900,0.732115,2024-12-19,US Dollar (Cable),-10952.15
+Boleto / 11425165 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-12-19,-9281,850.393169,2024-12-19,Pesos,7860731.69
+Boleto / 11349698 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-12-18,-693,854.7,2024-12-18,Pesos,589923.06
+Comprobante de Pago / 3429218,,,2024-12-18,0,-1,2024-12-18,Pesos,-589923.35
+Recibo de Cobro / 3923045,,,2024-12-18,0,-1,2024-12-18,US Dollar (Cable),10000
+Boleto / 10973325 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-12-09,-1305,756.6,2024-12-09,Pesos,983388.87
+Comprobante de Pago / 3323545,,,2024-12-09,0,-1,2024-12-09,Pesos,-983343.2
+Boleto / 10639380 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-11-29,2852,-1,2024-11-29,Pesos,-49.82
+Boleto / 10639380 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-11-29,2852,0.6925,2024-11-29,US Dollar (Cable),-1982.91
+Boleto / 10639381 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-11-29,-2580,765.5,2024-11-29,Pesos,1967040.67
+Comprobante de Pago / 3219521,,,2024-11-29,0,-1,2024-11-29,Pesos,-1966972.84
+Recibo de Cobro / 3661021,,,2024-11-29,0,-1,2024-11-29,US Dollar (Cable),2970
+Cargo por Descubierto del 15/11/2024,,,2024-11-15,0,-1,2024-11-15,Pesos,-9.34
+Boleto / 10030578 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-11-12,3343,-1,2024-11-12,Pesos,-55.37
+Boleto / 10030578 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-11-12,3343,0.6639,2024-11-12,US Dollar (Cable),-2228.3
+Boleto / 10030579 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-11-12,-1288,767,2024-11-12,Pesos,983919.72
+Comprobante de Pago / 3048045,,,2024-11-12,0,-1,2024-11-12,Dólares,-232.85
+Comprobante de Pago / 3052940,,,2024-11-12,0,-1,2024-11-12,Pesos,-981968.66
+Cargo por Descubierto del 08/11/2024,,,2024-11-08,0,-1,2024-11-08,Pesos,-2.23
+Boleto / 9843520 / COMPRAEXT / 1 / VOO.E / U$S,VOO.E,Acciones,2024-11-06,5,542.68,2024-11-07,US Dollar (Cable),-2728.7
+Boleto / 9843520 / COMPRAEXT / 1 / VOO.E / U$S,VOO.E,Acciones,2024-11-06,5,-1,2024-11-07,Pesos,-1106.88
+Recibo de Cobro / 3419953,,,2024-11-06,0,-1,2024-11-06,US Dollar (Cable),4970
+Renta / BPOC7,BPOC7,Bonos,2024-10-31,0,-1,2024-10-31,Dólares,232.85
+Renta / BPOC7,BPOC7,Bonos,2024-10-31,0,-1,2024-10-31,Pesos,-825.61
+Boleto / 9583810 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-10-30,1238,-1,2024-10-30,Pesos,-19.54
+Boleto / 9583810 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-10-30,1238,0.6385,2024-10-30,US Dollar (Cable),-793.62
+Boleto / 9161811 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-10-16,-2704,730.109246,2024-10-16,Pesos,1966269.18
+Comprobante de Pago / 2781804,,,2024-10-16,0,-1,2024-10-16,Pesos,-1966265.5
+Boleto / 9055936 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-10-14,-696,708.8,2024-10-14,Pesos,491339.17
+Comprobante de Pago / 2749146,,,2024-10-14,0,-1,2024-10-14,Dólares,-164.03
+Comprobante de Pago / 2749254,,,2024-10-14,0,-1,2024-10-14,Pesos,-491103.38
+Boleto / 9017600 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-10-10,8308,-1,2024-10-10,Pesos,-120.46
+Boleto / 9017600 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-10-10,8308,0.594217,2024-10-10,US Dollar (Cable),-4956.5
+Recibo de Cobro / 3155726,,,2024-10-10,0,-1,2024-10-10,US Dollar (Cable),4970
+Boleto / 8853639 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-10-07,8515,-1,2024-10-07,Pesos,-120.37
+Boleto / 8853639 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-10-07,8515,0.58026,2024-10-07,US Dollar (Cable),-4960.67
+Boleto / 8853640 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-10-07,-6952,710.6,2024-10-07,Pesos,4920207.34
+Comprobante de Pago / 2681319,,,2024-10-07,0,-1,2024-10-07,Pesos,-4920152.53
+Recibo de Cobro / 3105215,,,2024-10-07,0,-1,2024-10-07,US Dollar (Cable),4970
+Movimiento Manual / Pago de dividendos - VOO.E,,,2024-10-01,0,-1,2024-10-01,US Dollar (Cable),8.19
+Movimiento Manual / Retención de impuestos -VOO.E,,,2024-10-01,0,-1,2024-10-01,US Dollar (Cable),-2.46
+Movimiento Manual / Pago de dividendos - SOXX.E,,,2024-09-30,0,-1,2024-09-30,US Dollar (Cable),6.08
+Movimiento Manual / Retención de impuestos -SOXX.E,,,2024-09-30,0,-1,2024-09-30,US Dollar (Cable),-1.82
+Boleto / 8576897 / COMPRA / 1 / YMCXO / U$S,YMCXO,Corporativos,2024-09-27,2000,-1,2024-09-30,Pesos,-49.51
+Boleto / 8576897 / COMPRA / 1 / YMCXO / U$S,YMCXO,Corporativos,2024-09-27,2000,1.0225,2024-09-30,US Dollar (Cable),-2053.18
+Boleto / 8369967 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-09-20,-1135,695.434097,2024-09-20,Pesos,786140.7
+Comprobante de Pago / 2520693,,,2024-09-20,0,-1,2024-09-20,Pesos,-786115.24
+Recibo de Cobro / 2776575,,,2024-09-06,0,-1,2024-09-06,US Dollar (Cable),1980
+Boleto / 7834041 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-09-05,2053,-1,2024-09-05,Pesos,-26.77
+Boleto / 7834041 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-09-05,2053,0.5465,2024-09-05,US Dollar (Cable),-1126.45
+Boleto / 7834042 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-09-05,-2000,693.8,2024-09-05,Pesos,1382014.91
+Comprobante de Pago / 2346156,,,2024-09-05,0,-1,2024-09-05,Pesos,-1382341.86
+Movimiento Manual / Conversión CV 7.000 a CV 10.000 (dólar mep),,,2024-09-05,0,-1,2024-09-10,Dólares C.V. 7000,-159.44
+Movimiento Manual / Conversión CV 7.000 a CV 10.000 (dólar mep),,,2024-09-05,0,-1,2024-09-10,Dólares,159.44
+Recibo de Cobro / 2653425,,,2024-08-29,0,-1,2024-08-29,US Dollar (Cable),1980
+Movimiento Manual / Devolución IVA - Renta YMCIO,,,2024-08-26,0,-1,2024-08-26,Pesos,340.5
+Boleto / 7209779 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-08-16,-800,640.3,2024-08-16,Pesos,510178.23
+Boleto / 7209780 / COMPRA / 0 / YMCIO / usd,YMCIO,Corporativos,2024-08-16,480,-1,2024-08-16,Pesos,-11.61
+Boleto / 7209780 / COMPRA / 0 / YMCIO / usd,YMCIO,Corporativos,2024-08-16,480,1.028,2024-08-16,Dólares,-495.41
+Comprobante de Pago / 2143110,,,2024-08-16,0,-1,2024-08-16,Pesos,-510179.82
+Recibo de Cobro / 2530078,,,2024-08-16,0,-1,2024-08-16,Dólares,500
+Boleto / 7016582 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-08-12,-1726,629.417729,2024-08-12,Pesos,1082002.34
+Comprobante de Pago / 2080909,,,2024-08-12,0,-1,2024-08-12,Pesos,-1081484.09
+Boleto / 6261413 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-07-22,-1600,628.6,2024-07-22,Pesos,1001711.82
+Comprobante de Pago / 1838444,,,2024-07-22,0,-1,2024-07-22,Pesos,-1001602.44
+Renta / TLC1O,TLC1O,Corporativos,2024-07-19,0,-1,2024-07-19,Dólares C.V. 7000,159.44
+Renta / TLC1O,TLC1O,Corporativos,2024-07-19,0,-1,2024-07-19,Pesos,-518.28
+Boleto / 5938202 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-07-12,804,-1,2024-07-12,Pesos,-9.25
+Boleto / 5938202 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-07-12,804,0.5002,2024-07-12,US Dollar (Cable),-403.77
+Cargo por Descubierto del 12/07/2024,,,2024-07-12,0,-1,2024-07-12,Pesos,-7.27
+Comprobante de Pago / 1740132,,,2024-07-12,0,-1,2024-07-12,Dólares,-525.8
+Movimiento Manual / Conversión CV 7.000 a Dólar Cable,,,2024-07-12,0,-1,2024-07-12,Dólares C.V. 7000,-400.31
+Movimiento Manual / Conversión CV 7.000 a Dólar Cable,,,2024-07-12,0,-1,2024-07-12,US Dollar (Cable),400.31
+Boleto / 5787909 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-07-10,-2300,697.9,2024-07-10,Pesos,1598709.19
+Comprobante de Pago / 1699708,,,2024-07-10,0,-1,2024-07-10,Pesos,-1597514.07
+Renta / GD35,GD35,Bonos,2024-07-10,0,-1,2024-07-10,Dólares C.V. 7000,152.8
+Renta / GD35,GD35,Bonos,2024-07-10,0,-1,2024-07-10,Pesos,-71.59
+Renta y Amortización / AL30,AL30,Bonos,2024-07-10,0,-1,2024-07-10,Pesos,-21.1
+Renta y Amortización / AL30,AL30,Bonos,2024-07-10,0,-1,2024-07-10,Dólares,525.68
+Cargo por Descubierto del 05/07/2024,,,2024-07-05,0,-1,2024-07-05,Pesos,-4.43
+Boleto / 5499507 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-07-02,4644,-1,2024-07-02,Pesos,-56.76
+Boleto / 5499507 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-07-02,4644,0.53489,2024-07-02,US Dollar (Cable),-2493.97
+Movimiento Manual / Pago de dividendos - VOO.E,,,2024-07-02,0,-1,2024-07-02,US Dollar (Cable),8.92
+Movimiento Manual / Retención de impuestos -VOO.E,,,2024-07-02,0,-1,2024-07-02,US Dollar (Cable),-2.68
+Recibo de Cobro / 1892818,,,2024-07-02,0,-1,2024-07-02,US Dollar (Cable),2470
+Renta / YMCIO,YMCIO,Corporativos,2024-07-02,0,-1,2024-07-02,Pesos,-1151.22
+Renta / YMCIO,YMCIO,Corporativos,2024-07-02,0,-1,2024-07-02,Dólares C.V. 7000,247.51
+Movimiento Manual / Pago de dividendos - SOXX.E,,,2024-06-17,0,-1,2024-06-17,US Dollar (Cable),3.41
+Movimiento Manual / Retención de impuestos -SOXX.E,,,2024-06-17,0,-1,2024-06-17,US Dollar (Cable),-1.02
+Boleto / 4982896 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-06-14,-3500,696.193429,2024-06-14,Pesos,2426869.37
+Comprobante de Pago / 1479293,,,2024-06-14,0,-1,2024-06-14,Pesos,-2426705.49
+Boleto / 4834944 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-06-11,9372,-1,2024-06-11,Pesos,-111.68
+Boleto / 4834944 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-06-11,9372,0.528437,2024-06-11,US Dollar (Cable),-4972.32
+Boleto / 4784628 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-06-10,3134,-1,2024-06-10,Pesos,-35.77
+Boleto / 4784628 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-06-10,3134,0.5078,2024-06-10,US Dollar (Cable),-1597.82
+Boleto / 4784629 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-06-10,-1634,664.2,2024-06-10,Pesos,1080934.46
+Comprobante de Pago / 1425875,,,2024-06-10,0,-1,2024-06-10,Pesos,-1080928.51
+Recibo de Cobro / 1617105,,,2024-06-10,0,-1,2024-06-10,US Dollar (Cable),5000
+Recibo de Cobro / 1578881,,,2024-06-06,0,-1,2024-06-06,US Dollar (Cable),1600
+Boleto / 4419718 / CSBNG / 1 / TLC1O / U$S,TLC1O,Corporativos,2024-05-29,4000,1.01,2024-05-30,US Dollar (Cable),-4040
+Boleto / 4419719 / CSBNG / 1 / YMCIO / U$S,YMCIO,Corporativos,2024-05-29,5520,1.045,2024-05-30,US Dollar (Cable),-5768.4
+Boleto / 4365092 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-05-28,367,-1,2024-05-28,Pesos,-4.41
+Boleto / 4365092 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-05-28,367,0.538,2024-05-28,US Dollar (Cable),-198.24
+Boleto / 4365093 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-05-28,-367,664.2,2024-05-28,Pesos,242780.26
+Comprobante de Pago / 1307398,,,2024-05-28,0,-1,2024-05-28,Pesos,-242727.01
+Recibo de Cobro / 1456020,,,2024-05-28,0,-1,2024-05-28,US Dollar (Cable),10000
+Boleto / 3628975 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-05-03,4437,-1,2024-05-03,Pesos,-54.59
+Boleto / 3628975 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-05-03,4437,0.5605,2024-05-03,US Dollar (Cable),-2496.89
+Boleto / 3628976 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-05-03,-4437,626.6,2024-05-03,Pesos,2769033.79
+Comprobante de Pago / 1081300,,,2024-05-03,0,-1,2024-05-03,Pesos,-2777939.8
+Recibo de Cobro / 1211202,,,2024-05-02,0,-1,2024-05-02,US Dollar (Cable),2470
+Boleto / 3229565 / COMPRA / 0 / GD35 / $,GD35,Bonos,2024-04-18,2012,490.539016,2024-04-18,Pesos,-990937.03
+Boleto / 3238967 / COMPRA / 0 / GD35 / U$S,GD35,Bonos,2024-04-18,6423,-1,2024-04-18,Pesos,-65.27
+Boleto / 3238967 / COMPRA / 0 / GD35 / U$S,GD35,Bonos,2024-04-18,6423,0.4675,2024-04-18,US Dollar (Cable),-3014.76
+Recibo de Cobro / 1088814,,,2024-04-18,0,-1,2024-04-18,US Dollar (Cable),3000
+Liquidación de Suscripción / 627785 / BALANZ EQUITY SELECTION clase A,EQUITYS A,Fondos,2024-04-12,744221.1599,6.718433,2024-04-12,Pesos,-5000000
+Suscripción desde Balanz,EQUITYSA,Fondos,2024-04-12,744221.1599,6.718433,2024-04-12,Pesos,5000000
+Boleto / 3039739 / COMPRA / 0 / GD30 / U$S,GD30,Bonos,2024-04-11,11307,-1,2024-04-11,Pesos,-137.9
+Boleto / 3039739 / COMPRA / 0 / GD30 / U$S,GD30,Bonos,2024-04-11,11307,0.563971,2024-04-11,US Dollar (Cable),-6402.33
+Boleto / 3039740 / VENTA / 0 / GD30 / $,GD30,Bonos,2024-04-11,-11307,585.145246,2024-04-11,Pesos,6589606.94
+Comprobante de Pago / 912173,,,2024-04-11,0,-1,2024-04-11,Pesos,-589455.46
+Recibo de Cobro / 992321,,,2024-04-08,0,-1,2024-04-08,US Dollar (Cable),4970
+Cargo por Descubierto del 05/04/2024,,,2024-04-05,0,-1,2024-04-05,Pesos,-23.53
+Recibo de Cobro / 969793,,,2024-04-05,0,-1,2024-04-05,US Dollar (Cable),1480
+Boleto / 2766661 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-04-04,2822,-1,2024-04-04,Pesos,-32.12
+Boleto / 2766661 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-04-04,2822,0.5288,2024-04-04,US Dollar (Cable),-1498.24
+Boleto / 2766662 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-04-04,-2822,554.9,2024-04-04,Pesos,1559624.94
+Comprobante de Pago / 823902,,,2024-04-04,0,-1,2024-04-04,Pesos,-1558029.66
+Cargo por Descubierto del 29/03/2024,,,2024-03-29,0,-1,2024-03-29,Pesos,-7.79
+Recibo de Cobro / 904651,,,2024-03-28,0,-1,2024-04-03,US Dollar (Cable),1500
+Cargo por Descubierto del 27/03/2024,,,2024-03-27,0,-1,2024-03-27,Pesos,-19.36
+Movimiento Manual / Pago de dividendos - SOXX.E,,,2024-03-27,0,-1,2024-03-27,US Dollar (Cable),2.47
+Movimiento Manual / Pago de dividendos - VOO.E,,,2024-03-27,0,-1,2024-03-27,US Dollar (Cable),7.71
+Movimiento Manual / Retención de impuestos -SOXX.E,,,2024-03-27,0,-1,2024-03-27,US Dollar (Cable),-0.74
+Movimiento Manual / Retención de impuestos -VOO.E,,,2024-03-27,0,-1,2024-03-27,US Dollar (Cable),-2.31
+Cargo por Descubierto del 22/03/2024,,,2024-03-22,0,-1,2024-03-22,Pesos,-26.37
+Cargo por Descubierto del 15/03/2024,,,2024-03-15,0,-1,2024-03-15,Pesos,-7.96
+Boleto / 2152470 / COMPRAEXT / 2 / SOXX.E / U$S,SOXX.E,Acciones,2024-03-11,11,224.6424,2024-03-13,US Dollar (Cable),-2485.2
+Boleto / 2152470 / COMPRAEXT / 2 / SOXX.E / U$S,SOXX.E,Acciones,2024-03-11,11,-1,2024-03-13,Pesos,-734.17
+Boleto / 2152471 / COMPRAEXT / 2 / VOO.E / U$S,VOO.E,Acciones,2024-03-11,5,469.17,2024-03-13,US Dollar (Cable),-2359.98
+Boleto / 2152471 / COMPRAEXT / 2 / VOO.E / U$S,VOO.E,Acciones,2024-03-11,5,-1,2024-03-13,Pesos,-734.17
+Boleto / 2157210 / COMPRA / 2 / BPOC7 / U$S,BPOC7,Bonos,2024-03-11,5684,-1,2024-03-13,Pesos,-79.63
+Boleto / 2157210 / COMPRA / 2 / BPOC7 / U$S,BPOC7,Bonos,2024-03-11,5684,0.662,2024-03-13,US Dollar (Cable),-3777.86
+Cargo por Descubierto del 08/03/2024,,,2024-03-08,0,-1,2024-03-08,Pesos,-0.62
+Boleto / 1984692 / COMPRA / 0 / GD30 / U$S,GD30,Bonos,2024-03-06,3272,-1,2024-03-06,Pesos,-33.39
+Boleto / 1984692 / COMPRA / 0 / GD30 / U$S,GD30,Bonos,2024-03-06,3272,0.483,2024-03-06,US Dollar (Cable),-1586.7
+Boleto / 1984693 / VENTA / 0 / GD30 / $,GD30,Bonos,2024-03-06,-3272,494.573716,2024-03-06,Pesos,1611731.76
+Comprobante de Pago / 584403,,,2024-03-06,0,-1,2024-03-06,Pesos,-1611703.68
+Recibo de Cobro / 679099,,,2024-03-05,0,-1,2024-03-05,US Dollar (Cable),10000
+Cargo por Descubierto del 23/02/2024,,,2024-02-23,0,-1,2024-02-23,Pesos,-0.59
+Cargo por Descubierto del 16/02/2024,,,2024-02-16,0,-1,2024-02-16,Pesos,-0.29
+Boleto / 1331859 / COMPRA / 0 / GD30 / U$S,GD30,Bonos,2024-02-14,2925,-1,2024-02-14,Pesos,-26.69
+Boleto / 1331859 / COMPRA / 0 / GD30 / U$S,GD30,Bonos,2024-02-14,2925,0.439135,2024-02-14,US Dollar (Cable),-1289.61
+Boleto / 1331860 / VENTA / 0 / GD30 / $,GD30,Bonos,2024-02-14,-2925,496,2024-02-14,Pesos,1444960.53
+Comprobante de Pago / 384588,,,2024-02-14,0,-1,2024-02-14,Pesos,-1444953.8
+Cargo por Descubierto del 09/02/2024,,,2024-02-09,0,-1,2024-02-09,Pesos,-0.17
+Recibo de Cobro / 409141,,,2024-02-06,0,-1,2024-02-06,US Dollar (Cable),1500
+Cargo por Descubierto del 02/02/2024,,,2024-02-02,0,-1,2024-02-02,Pesos,-0.17
+Cargo por Descubierto del 26/01/2024,,,2024-01-26,0,-1,2024-01-26,Pesos,-0.3
+Boleto / 651706 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-01-22,830,-1,2024-01-22,Pesos,-6.36
+Boleto / 651706 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-01-22,830,0.374,2024-01-22,US Dollar (Cable),-311.66
+Boleto / 651707 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-01-22,-830,473,2024-01-22,Pesos,391009.83
+Comprobante de Pago / 190885,,,2024-01-22,0,-1,2024-01-22,Pesos,-390986
+Cargo por Descubierto del 19/01/2024,,,2024-01-19,0,-1,2024-01-19,Pesos,-0.07
+Cargo por Descubierto del 12/01/2024,,,2024-01-12,0,-1,2024-01-12,Pesos,-0.31
+Boleto / 200474 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-01-08,3475,-1,2024-01-08,Pesos,-26.07
+Boleto / 200474 / COMPRA / 0 / AL30 / U$S,AL30,Bonos,2024-01-08,3475,0.3695,2024-01-08,US Dollar (Cable),-1289.15
+Boleto / 200475 / VENTA / 0 / AL30 / $,AL30,Bonos,2024-01-08,-3475,418.35,2024-01-08,Pesos,1447914.84
+Comprobante de Pago / 66291,,,2024-01-08,0,-1,2024-01-08,Pesos,-1447909.13
+Recibo de Cobro / 79696,,,2024-01-08,0,-1,2024-01-08,US Dollar (Cable),1600
+Cargo por Descubierto del 05/01/2024,,,2024-01-05,0,-1,2024-01-05,Pesos,-0.08
+Cargo por Descubierto del 29/12/2023,,,2023-12-29,0,-1,2023-12-29,Pesos,-0.08
+Cargo por Descubierto del 22/12/2023,,,2023-12-22,0,-1,2023-12-22,Pesos,-0.3
+Boleto / 6597220 / COMPRA / 0 / X18E4 / U$S,X18E4,Letras,2023-12-20,288995,-1,2023-12-20,Pesos,-5.4
+Boleto / 6597220 / COMPRA / 0 / X18E4 / U$S,X18E4,Letras,2023-12-20,288995,0.00155,2023-12-20,US Dollar (Cable),-449.73
+Boleto / 6597221 / VENTA / 0 / X18E4 / $,X18E4,Letras,2023-12-20,-288995,1.49002,2023-12-20,Pesos,428879.44
+Comprobante de Pago / 1683686,,,2023-12-20,0,-1,2023-12-20,Pesos,-428858.22
+Cargo por Descubierto del 15/12/2023,,,2023-12-15,0,-1,2023-12-15,Pesos,-0.57
+Boleto / 6424267 / COMPRA / 0 / X18E4 / U$S,X18E4,Letras,2023-12-14,1008061,-1,2023-12-14,Pesos,-17.78
+Boleto / 6424267 / COMPRA / 0 / X18E4 / U$S,X18E4,Letras,2023-12-14,1008061,0.00147,2023-12-14,US Dollar (Cable),-1487.78
+Boleto / 6424268 / VENTA / 0 / X18E4 / $,X18E4,Letras,2023-12-14,-1008061,1.4865,2023-12-14,Pesos,1492466.27
+Comprobante de Pago / 1642638,,,2023-12-14,0,-1,2023-12-14,Pesos,-1492439.94
+Recibo de Cobro / 2251252,,,2023-12-14,0,-1,2023-12-14,US Dollar (Cable),1000
+Recibo de Cobro / 2251253,,,2023-12-14,0,-1,2023-12-14,US Dollar (Cable),900
+Boleto / 6228741 / COMPRA / 0 / X18E4 / U$S,X18E4,Letras,2023-12-07,3162036,-1,2023-12-07,Pesos,-27.26
+Boleto / 6228741 / COMPRA / 0 / X18E4 / U$S,X18E4,Letras,2023-12-07,3162036,0.00158,2023-12-07,US Dollar (Cable),-5016
+Boleto / 6228742 / VENTA / 0 / X18E4 / $,X18E4,Letras,2023-12-07,-3162036,1.4725,2023-12-07,Pesos,4637403.78
+Comprobante de Pago / 1586899,,,2023-12-07,0,-1,2023-12-07,Pesos,-4637402.51
+Comprobante de Pago / 1587604,,,2023-12-07,0,-1,2023-12-07,Pesos,-1023592.21
+Liquidación de Rescate / 1089560 / BALANZ MONEY MARKET A,BMM A,Fondos,2023-12-07,-218153.3272,4.692077,2023-12-07,Pesos,1023592.21
+Recibo de Cobro / 2192874,,,2023-12-07,0,-1,2023-12-07,US Dollar (Cable),5000
+Rescate a Balanz,BCMMA,Fondos,2023-12-07,-218153.3272,4.692077,2023-12-07,Pesos,-1023592.21
+Comprobante de Pago / 1565144,,,2023-12-06,0,-1,2023-12-06,Pesos,-520000
+Liquidación de Rescate / 1074603 / BALANZ MONEY MARKET A,BMM A,Fondos,2023-12-06,-106856.6721,4.679165,2023-12-06,Pesos,500000
+Rescate a Balanz,BCMMA,Fondos,2023-12-06,-106856.6721,4.679165,2023-12-06,Pesos,-500000
