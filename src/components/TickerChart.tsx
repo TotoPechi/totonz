@@ -15,7 +15,7 @@ interface TickerChartProps {
   ticker: string;
   ppc?: number; // Precio Promedio Ponderado
   operaciones?: Array<{
-    tipo: 'COMPRA' | 'VENTA';
+    tipo: 'COMPRA' | 'VENTA' | 'LIC';
     fecha: string;
     cantidad: number;
     precioUSD: number;
@@ -31,7 +31,7 @@ interface TickerChartProps {
   hoveredOperacionIndex?: number | null;
 }
 
-type TimeRange = '1W' | '1M' | '6M' | '1Y';
+type TimeRange = '1W' | '1M' | '6M' | '1Y' | '2Y';
 
 const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operaciones, dividendos, rentas, hoveredOperacionIndex }) => {
   const [timeRange, setTimeRange] = useState<TimeRange>('1Y');
@@ -49,6 +49,7 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
   };
 
   const decimals = getDecimalPlaces(ticker);
+
 
   if (!data || data.length === 0) {
     return (
@@ -91,12 +92,25 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
       case '1M': return 30;
       case '6M': return 180;
       case '1Y': return 365;
+      case '2Y': return 730;
       default: return 365;
     }
   };
 
   const daysToShow = getDaysForRange(timeRange);
-  const filteredData = data.slice(-daysToShow);
+  
+  // Filtrar por fecha real, no solo por cantidad de elementos
+  // Obtener la fecha más reciente de los datos
+  const latestDate = data.length > 0 ? new Date(data[data.length - 1].time) : new Date();
+  // Calcular la fecha de inicio (hace N días desde la fecha más reciente)
+  const startDate = new Date(latestDate);
+  startDate.setDate(startDate.getDate() - daysToShow);
+  
+  // Filtrar datos que estén dentro del rango de fechas
+  const filteredData = data.filter(item => {
+    const itemDate = new Date(item.time);
+    return itemDate >= startDate && itemDate <= latestDate;
+  });
 
   // Formatear datos para el gráfico
   const getDateFormat = (range: TimeRange) => {
@@ -107,6 +121,7 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
       case '6M':
         return { day: 'numeric', month: 'short' }; // "5 nov"
       case '1Y':
+      case '2Y':
       default:
         return { day: 'numeric', month: 'numeric', year: '2-digit' }; // "5/11/24"
     }
@@ -120,49 +135,88 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
     ppc: ppc, // Agregar PPC a cada punto
   }));
 
-  // Mapear operaciones a los puntos del gráfico
-  const operacionesPuntos = operaciones?.map(op => {
-    const opDate = new Date(op.fecha);
+  // Determinar rango de fechas del gráfico
+  const minChartDate = filteredData.length > 0 ? new Date(filteredData[0].time) : null;
+  const maxChartDate = filteredData.length > 0 ? new Date(filteredData[filteredData.length - 1].time) : null;
+
+  // Función para parsear DD/MM/YYYY a YYYY-MM-DD sin problemas de zona horaria
+  const parsearFechaYYYYMMDD = (fechaStr: string): string => {
+    if (!fechaStr) return '';
     
-    // Buscar el punto más cercano en filteredData (datos sin formatear)
-    let closestIndex = -1;
-    let minDiff = Infinity;
-    
-    filteredData.forEach((d, index) => {
-      const chartDate = new Date(d.time);
-      const diff = Math.abs(chartDate.getTime() - opDate.getTime());
-      if (diff < minDiff) {
-        minDiff = diff;
-        closestIndex = index;
-      }
-    });
-    
-    if (closestIndex >= 0 && minDiff < 30 * 24 * 60 * 60 * 1000) { // Dentro de 30 días
-      const closestPoint = filteredData[closestIndex];
-      const closestChartData = chartData[closestIndex];
-      return {
-        date: closestChartData.date,
-        fullDate: closestPoint.time,
-        price: op.precioUSD,
-        tipo: op.tipo,
-        cantidad: op.cantidad,
-        x: closestChartData.date, // Usar la fecha formateada como x
-        y: op.precioUSD, // Precio para el eje Y
-      };
+    // Si ya está en formato ISO (YYYY-MM-DD o YYYY-MM-DDTHH:mm:ss)
+    if (fechaStr.match(/^\d{4}-\d{2}-\d{2}/)) {
+      return fechaStr.slice(0, 10);
     }
     
-    return null;
+    // Si está en formato DD/MM/YYYY
+    const partes = fechaStr.split('/');
+    if (partes.length === 3) {
+      const [dia, mes, año] = partes;
+      const añoCompleto = año.length === 2 ? `20${año}` : año;
+      return `${añoCompleto.padStart(4, '0')}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+    }
+    
+    // Si es un objeto Date o timestamp, extraer la fecha en zona horaria local
+    try {
+      const date = new Date(fechaStr);
+      if (!isNaN(date.getTime())) {
+        // Usar getFullYear, getMonth, getDate para evitar problemas de zona horaria
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+    } catch (e) {
+      // Ignorar error de parsing
+    }
+    
+    return '';
+  };
+
+  // Filtrar operaciones por rango de fechas del gráfico antes de mapear
+  const operacionesPuntos = operaciones?.map((op, originalIdx) => {
+    const opDateStr = parsearFechaYYYYMMDD(op.fecha);
+    if (!opDateStr) {
+      console.warn('⚠️ Fecha de operación inválida:', op.fecha);
+      return null;
+    }
+    
+    // Buscar índice donde la fecha del histórico coincida EXACTAMENTE
+    const idx = filteredData.findIndex(d => {
+      const historicoDateStr = parsearFechaYYYYMMDD(d.time);
+      return historicoDateStr === opDateStr;
+    });
+    
+    // Si no hay match exacto, NO mostrar la operación
+    if (idx === -1) {
+      return null;
+    }
+    
+    const closestPoint = filteredData[idx];
+    const closestChartData = chartData[idx];
+    
+    return {
+      date: closestChartData.date,
+      fullDate: closestPoint.time,
+      price: op.precioUSD,
+      tipo: op.tipo,
+      cantidad: op.cantidad,
+      fechaOperacion: op.fecha, // Fecha original de la operación
+      x: closestChartData.date, // Usar la fecha formateada como x
+      y: op.precioUSD, // Precio para el eje Y
+    };
   }).filter(Boolean) || [];
   
 
-  // Mapear dividendos a los puntos del gráfico
+  // Mapear dividendos a los puntos del gráfico, solo si están dentro del rango
   const dividendosPuntos = dividendos?.map(div => {
     const divDate = new Date(div.fecha);
-    
+    if (!minChartDate || !maxChartDate || divDate < minChartDate || divDate > maxChartDate) {
+      return null;
+    }
     // Buscar el punto más cercano en filteredData
     let closestIndex = -1;
     let minDiff = Infinity;
-    
     filteredData.forEach((d, index) => {
       const chartDate = new Date(d.time);
       const diff = Math.abs(chartDate.getTime() - divDate.getTime());
@@ -171,7 +225,6 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
         closestIndex = index;
       }
     });
-    
     if (closestIndex >= 0 && minDiff < 30 * 24 * 60 * 60 * 1000) { // Dentro de 30 días
       const closestPoint = filteredData[closestIndex];
       const closestChartData = chartData[closestIndex];
@@ -188,14 +241,15 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
     return null;
   }).filter(Boolean) || [];
 
-  // Mapear rentas a los puntos del gráfico
+  // Mapear rentas a los puntos del gráfico, solo si están dentro del rango
   const rentasPuntos = rentas?.map(renta => {
     const rentaDate = new Date(renta.fecha);
-    
+    if (!minChartDate || !maxChartDate || rentaDate < minChartDate || rentaDate > maxChartDate) {
+      return null;
+    }
     // Buscar el punto más cercano en filteredData
     let closestIndex = -1;
     let minDiff = Infinity;
-    
     filteredData.forEach((d, index) => {
       const chartDate = new Date(d.time);
       const diff = Math.abs(chartDate.getTime() - rentaDate.getTime());
@@ -204,7 +258,6 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
         closestIndex = index;
       }
     });
-    
     if (closestIndex >= 0 && minDiff < 30 * 24 * 60 * 60 * 1000) { // Dentro de 30 días
       const closestPoint = filteredData[closestIndex];
       const closestChartData = chartData[closestIndex];
@@ -236,6 +289,7 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
       case '1M': return '1 Mes';
       case '6M': return '6 Meses';
       case '1Y': return '1 Año';
+      case '2Y': return '2 Años';
       default: return '1 Año';
     }
   };
@@ -247,6 +301,7 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
       case '1M': return Math.max(1, Math.floor(dataLength / 20)); 
       case '6M': return Math.max(1, Math.floor(dataLength / 15)); 
       case '1Y': return Math.max(1, Math.floor(dataLength / 10));
+      case '2Y': return Math.max(1, Math.floor(dataLength / 10));
       default: return Math.max(1, Math.floor(dataLength / 40));
     }
   };
@@ -258,7 +313,7 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
         
         {/* Botones de selección de período */}
         <div className="flex gap-2">
-          {(['1W', '1M', '6M', '1Y'] as TimeRange[]).map((range) => (
+          {(['1W', '1M', '6M', '1Y', '2Y'] as TimeRange[]).map((range) => (
             <button
               key={range}
               onClick={() => setTimeRange(range)}
@@ -273,7 +328,8 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
           ))}
         </div>
       </div>
-      <ResponsiveContainer width="100%" height={400}>
+      <div style={{ height: 'calc(530px - 100px)', maxHeight: '430px' }}>
+        <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
           <XAxis 
@@ -344,12 +400,13 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
                       {operacionesEnPunto.map((op: any, idx: number) => (
                         <div key={idx} className="mb-2">
                           <div className="flex items-center gap-2 mb-1">
-                            <div className={`w-3 h-3 rounded-full ${op.tipo === 'COMPRA' ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                            <span className={`font-semibold ${op.tipo === 'COMPRA' ? 'text-green-400' : 'text-red-400'}`}>
-                              {op.tipo}
+                            <div className={`w-3 h-3 rounded-full ${op.tipo === 'COMPRA' || op.tipo === 'LIC' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                            <span className={`font-semibold ${op.tipo === 'COMPRA' || op.tipo === 'LIC' ? 'text-green-400' : 'text-red-400'}`}>
+                              {op.tipo === 'LIC' ? 'LIC.' : op.tipo}
                             </span>
                           </div>
                           <div className="text-xs text-slate-400 ml-5">
+                            <div>Fecha: <span className="text-slate-300">{op.fechaOperacion}</span></div>
                             <div>Cantidad: <span className="text-slate-300">{op.cantidad}</span></div>
                             <div>Precio: <span className="text-slate-300">${op.price.toFixed(decimals)}</span></div>
                           </div>
@@ -427,7 +484,7 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
                 x={op.x}
                 y={op.y}
                 r={isHovered ? 10 : isMarkerHovered ? 9 : 6}
-                fill={op.tipo === 'COMPRA' ? '#10b981' : '#ef4444'}
+                fill={op.tipo === 'COMPRA' || op.tipo === 'LIC' ? '#10b981' : '#ef4444'}
                 stroke={isHovered || isMarkerHovered ? '#fbbf24' : '#fff'}
                 strokeWidth={isHovered || isMarkerHovered ? 3 : 2}
                 isFront={true}
@@ -487,7 +544,8 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
           })}
           
         </ComposedChart>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </div>
       
       {/* Leyenda */}
       <div className="flex justify-center gap-6 mt-4 text-sm flex-wrap">

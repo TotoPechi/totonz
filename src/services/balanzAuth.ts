@@ -1,4 +1,28 @@
 /**
+ * Realiza logout en la API de Balanz
+ * Es importante enviar el header Authorization con el accessToken actual
+ */
+export async function logoutBalanz(): Promise<void> {
+  const token = localStorage.getItem('balanz_access_token');
+  if (!token) {
+    throw new Error('No hay token de sesión para logout');
+  }
+  const response = await fetch('/api/v1/logout', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': token,
+      'Lang': 'es',
+    },
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('❌ Error en logout:', response.status, errorText);
+    throw new Error(`Error en logout: ${response.status} ${response.statusText}`);
+  }
+}
+/**
  * Servicio de autenticación para Balanz
  * Maneja el flujo de login automático en dos pasos:
  * 1. POST /auth/init - Obtiene el nonce
@@ -32,8 +56,6 @@ interface AuthLoginResponse {
  * Paso 1: Inicializa la autenticación y obtiene el nonce
  */
 async function authInit(user: string): Promise<string> {
-  console.log('🔐 Iniciando autenticación para usuario:', user);
-  
   const response = await fetch(`${API_BASE}/auth/init?avoidAuthRedirect=true`, {
     method: 'POST',
     headers: {
@@ -54,7 +76,6 @@ async function authInit(user: string): Promise<string> {
   }
 
   const responseText = await response.text();
-  console.log('📦 Response de auth/init:', responseText.substring(0, 200));
   
   let data: AuthInitResponse;
   try {
@@ -65,8 +86,6 @@ async function authInit(user: string): Promise<string> {
     throw new Error('La respuesta de auth/init no es JSON válido');
   }
   
-  console.log('✅ Nonce obtenido:', data.nonce);
-  
   return data.nonce;
 }
 
@@ -74,9 +93,6 @@ async function authInit(user: string): Promise<string> {
  * Paso 2: Realiza el login y obtiene el accessToken
  */
 async function authLogin(user: string, pass: string, nonce: string): Promise<string> {
-  console.log('🔑 Realizando login...');
-  console.log('📋 Datos de login:', { user, nonce, hasPass: !!pass });
-  
   const payload = {
     user,
     pass,
@@ -90,8 +106,6 @@ async function authLogin(user: string, pass: string, nonce: string): Promise<str
     VersionSO: '10.15.7',
     VersionAPP: '2.30.2'
   };
-  
-  console.log('📦 Payload de login:', JSON.stringify(payload, null, 2));
   
   const response = await fetch(`${API_BASE}/auth/login?avoidAuthRedirect=true`, {
     method: 'POST',
@@ -110,7 +124,6 @@ async function authLogin(user: string, pass: string, nonce: string): Promise<str
   }
 
   const responseText = await response.text();
-  console.log('📦 Response de auth/login:', responseText.substring(0, 200));
   
   let data: AuthLoginResponse;
   try {
@@ -120,8 +133,6 @@ async function authLogin(user: string, pass: string, nonce: string): Promise<str
     console.error('Respuesta completa:', responseText);
     throw new Error('La respuesta de auth/login no es JSON válido');
   }
-  
-  console.log('✅ AccessToken obtenido:', data.AccessToken);
   
   return data.AccessToken;
 }
@@ -170,22 +181,10 @@ let authPromise: Promise<string> | null = null;
 export async function getCachedAccessToken(): Promise<string> {
   // 1. Verificar si hay un intento de autenticación en progreso
   if (authPromise) {
-    console.log('⏳ Esperando autenticación en progreso...');
     return authPromise;
   }
 
-  // 2. Verificar cooldown después de fallo
-  const lastFail = localStorage.getItem(TOKEN_FAIL_KEY);
-  if (lastFail) {
-    const failAge = Date.now() - parseInt(lastFail);
-    if (failAge < TOKEN_FAIL_COOLDOWN_MS) {
-      const remainingSeconds = Math.round((TOKEN_FAIL_COOLDOWN_MS - failAge) / 1000);
-      throw new Error(`Autenticación falló recientemente. Espera ${remainingSeconds}s antes de reintentar.`);
-    } else {
-      // Cooldown expirado, limpiar
-      localStorage.removeItem(TOKEN_FAIL_KEY);
-    }
-  }
+
 
   // 3. Verificar caché de token válido
   const cachedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
@@ -195,10 +194,7 @@ export async function getCachedAccessToken(): Promise<string> {
     const tokenAge = Date.now() - parseInt(cachedTimestamp);
     
     if (tokenAge < TOKEN_EXPIRY_MS) {
-      console.log('✅ Usando accessToken en caché (válido por', Math.round((TOKEN_EXPIRY_MS - tokenAge) / 1000 / 60), 'minutos más)');
       return cachedToken;
-    } else {
-      console.log('⚠️ Token en caché expirado, renovando...');
     }
   }
 
@@ -232,5 +228,4 @@ export function clearTokenCache(): void {
   localStorage.removeItem(TOKEN_STORAGE_KEY);
   localStorage.removeItem(TOKEN_TIMESTAMP_KEY);
   localStorage.removeItem(TOKEN_FAIL_KEY);
-  console.log('🗑️ Token cache limpiado');
 }

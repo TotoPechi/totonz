@@ -86,14 +86,16 @@ const TickerHolding: React.FC<TickerHoldingProps> = ({ positions, selectedTicker
           <span className={`text-xs ${porcentajeConsolidado >= 0 ? 'text-green-400' : 'text-red-400'}`}>{porcentajeConsolidado >= 0 ? '+' : ''}{porcentajeConsolidado.toFixed(2)}%</span>
         </div>
         {showTooltip && (
-          <div className="absolute right-0 z-20 mt-2 w-[26rem] bg-slate-900 border border-slate-700 rounded-lg shadow-lg p-4 text-xs text-slate-200 text-left animate-fade-in">
+          <div className="absolute right-0 z-20 mt-2 w-[15rem] bg-slate-900 border border-slate-700 rounded-lg shadow-lg p-4 text-xs text-slate-200 text-left animate-fade-in">
+            <div className="mb-2">
+            <span className="text-slate-400 font-normal">diferencia por precio + dividendos</span>
+            </div>
             <div className="mb-2">
                 <span className={rendimiento >= 0 ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>
                 {rendimiento >= 0 ? '+' : ''}{rendimiento.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
-              <span className="text-slate-400 font-normal"> (precio)</span>
-              {totalDividendos > 0 && <span> +{totalDividendos.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-slate-400 font-normal">(div)</span></span>}
-              {totalRentas > 0 && <span> +{totalRentas.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-slate-400 font-normal">(dividendos/renta)</span></span>}
+              {totalDividendos > 0 && <span> +{totalDividendos.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-slate-400 font-normal"></span></span>}
+              {totalRentas > 0 && <span> +{totalRentas.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-slate-400 font-normal"></span></span>}
               <span> = </span>
               <span className={rendimientoConsolidado >= 0 ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>
                 USD {rendimientoConsolidado.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -103,8 +105,8 @@ const TickerHolding: React.FC<TickerHoldingProps> = ({ positions, selectedTicker
               <span className={rendimientoPorcentaje >= 0 ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>
                 {rendimientoPorcentaje >= 0 ? '+' : ''}{rendimientoPorcentaje.toFixed(2)}%
               </span>
-              <span className="text-slate-400 font-normal"> (precio)</span>
-              {porcentajeExtra > 0 && <span> +{porcentajeExtra.toFixed(2)}% <span className="text-slate-400 font-normal">(dividendos/renta)</span></span>}
+              {totalDividendos > 0 && <span> +{porcentajeExtra.toFixed(2)}% <span className="text-slate-400 font-normal"></span></span>}
+              {totalRentas > 0 && <span> +{porcentajeExtra.toFixed(2)}% <span className="text-slate-400 font-normal"></span></span>}
               <span> = </span>
               <span className={porcentajeConsolidado >= 0 ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>
                 {porcentajeConsolidado >= 0 ? '+' : ''}{porcentajeConsolidado.toFixed(2)}%

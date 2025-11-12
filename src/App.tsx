@@ -1,15 +1,27 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import CarteraActual from './components/CarteraActual';
 import TickerLookup from './components/TickerLookup';
-import balanzDataLocal from './data/balanz_data.json';
-import { BalanzData } from './types/balanz';
+import { getEstadoCuentaConCache } from './services/balanzApi';
 import { clearAllTickerCache } from './services/tickerApi';
 import { clearMovimientosCache, clearEstadoCuentaCache } from './services/balanzApi';
 import LogoutButton from './components/LogoutButton';
 import LoggedOut from './components/LoggedOut';
 
 function App() {
+  // Estado global para habilitar/deshabilitar caché (excepto login)
+  const [cacheEnabled, setCacheEnabled] = useState(() => {
+    const stored = localStorage.getItem('global_cache_enabled');
+    return stored === null ? true : stored === 'true';
+  });
+  // Sincronizar el flag con localStorage
+  useEffect(() => {
+    localStorage.setItem('global_cache_enabled', cacheEnabled ? 'true' : 'false');
+  }, [cacheEnabled]);
+  // Handler para el toggle de caché
+  const handleToggleCache = () => {
+    setCacheEnabled((prev) => !prev);
+  };
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -29,54 +41,42 @@ function App() {
     }
   }, []);
   
-  // Datos locales - siempre usamos estos para la estructura base de posiciones
-  const typedBalanzData = balanzDataLocal as BalanzData;
+  // Estado para posiciones y tickers disponibles desde la API
+  const [positions, setPositions] = useState<any[]>([]);
+  const [availableTickers, setAvailableTickers] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
 
-  // Extraer tickers únicos de la cartera y agruparlos por categoría
-  const availableTickers = useMemo(() => {
-    const positions = typedBalanzData.resultados_por_info_completa.resultados_por_lotes_finales;
-    
-    // Clasificar tickers por categoría
-    const acciones: string[] = [];
-    const bonos: string[] = [];
-    const corporativos: string[] = [];
-    const cedears: string[] = [];
-    
-    // Mapeo de tickers vistos para mantener orden de aparición en cartera
-    const tickersSet = new Set<string>();
-    
-    positions.forEach(position => {
-      const ticker = position.Ticker;
-      if (tickersSet.has(ticker)) return; // Ya procesado
-      tickersSet.add(ticker);
-      
-      const tipo = position.Tipo?.toLowerCase() || '';
-      
-      if (tipo.includes('acción') || tipo.includes('accion')) {
-        acciones.push(ticker);
-      } else if (tipo.includes('bono')) {
-        bonos.push(ticker);
-      } else if (tipo.includes('corporativo')) {
-        corporativos.push(ticker);
-      } else if (tipo.includes('cedear')) {
-        cedears.push(ticker);
-      } else {
-        // Si no tiene tipo definido, inferir por ticker
-        if (['VIST'].includes(ticker)) {
-          cedears.push(ticker);
-        } else if (['AL30', 'BPOC7', 'T30J6', 'TZXD6', 'YM39O'].includes(ticker)) {
-          bonos.push(ticker);
-        } else if (['YMCXO', 'TLC1O'].includes(ticker)) {
-          corporativos.push(ticker);
+  useEffect(() => {
+    async function fetchPositions() {
+      setLoading(true);
+      setApiError(null);
+      try {
+        const result = await getEstadoCuentaConCache();
+        if (result.data && result.data.tenencia) {
+          setPositions(result.data.tenencia);
+          // Extraer tickers únicos y ordenados
+          const tickers: string[] = [];
+          const seen = new Set<string>();
+          result.data.tenencia.forEach((t: any) => {
+            if (!seen.has(t.Ticker)) {
+              seen.add(t.Ticker);
+              tickers.push(t.Ticker);
+            }
+          });
+          setAvailableTickers(tickers);
         } else {
-          acciones.push(ticker); // Default a acciones
+          setPositions([]);
+          setAvailableTickers([]);
         }
+      } catch (e: any) {
+        setApiError(e?.message || 'Error al obtener la cartera de la API');
+      } finally {
+        setLoading(false);
       }
-    });
-    
-    // Concatenar en orden: Acciones, Bonos, Corporativos, CEDEARs
-    return [...acciones, ...bonos, ...corporativos, ...cedears];
-  }, [typedBalanzData]);
+    }
+    fetchPositions();
+  }, []);
 
   // Handler para cuando se hace click en un ticker de la cartera
   const handleTickerClick = (ticker: string) => {
@@ -105,7 +105,7 @@ function App() {
   return (
     <>
       {/* Botones fijos en la esquina superior derecha */}
-      <div className="fixed top-4 right-4 z-50 flex gap-2">
+      <div className="fixed top-4 right-4 z-50 flex gap-2 items-center">
         <button
           onClick={handleClearAllCache}
           className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white rounded-lg transition-colors text-sm font-semibold flex items-center gap-2 shadow-lg"
@@ -113,6 +113,20 @@ function App() {
         >
           🗑️ Limpiar Cachés
         </button>
+        <div className="flex items-center gap-1 bg-slate-700 px-3 py-2 rounded-lg text-xs text-slate-300 shadow-lg">
+          <label htmlFor="cache-toggle" className="cursor-pointer select-none">
+            <span className="mr-2">Caché</span>
+            <input
+              id="cache-toggle"
+              type="checkbox"
+              checked={cacheEnabled}
+              onChange={handleToggleCache}
+              className="accent-blue-500 align-middle"
+              style={{ verticalAlign: 'middle' }}
+            />
+            <span className="ml-2 font-mono">{cacheEnabled ? 'SÍ' : 'NO'}</span>
+          </label>
+        </div>
         <LogoutButton />
       </div>
       
@@ -120,7 +134,7 @@ function App() {
         <div className="max-w-7xl mx-auto space-y-6">
           <header className="text-center mb-8">
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
-              Totonz Trading Dashboard
+              Panel de Trading Totonz
             </h1>
             <p className="text-slate-400">
               Análisis de cartera e historial de operaciones
@@ -159,8 +173,10 @@ function App() {
               path="/cartera" 
               element={
                 <CarteraActual 
-                  positions={typedBalanzData.resultados_por_info_completa.resultados_por_lotes_finales}
+                  positions={positions}
                   onTickerClick={handleTickerClick}
+                  loading={loading}
+                  apiError={apiError}
                 />
               } 
             />
@@ -169,7 +185,9 @@ function App() {
               element={
                 <TickerLookup 
                   availableTickers={availableTickers}
-                  positions={typedBalanzData.resultados_por_info_completa.resultados_por_lotes_finales}
+                  positions={positions}
+                  loading={loading}
+                  apiError={apiError}
                 />
               } 
             />

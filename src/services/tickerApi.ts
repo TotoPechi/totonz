@@ -170,28 +170,24 @@ async function getBalanzInstrumentInfo(ticker: string): Promise<{
     const cachedData = localStorage.getItem(cacheKey);
     const cachedTimestamp = localStorage.getItem(cacheTimestampKey);
     
-    if (cachedData && cachedTimestamp) {
+    // Respetar el flag global de caché
+    const globalCacheEnabled = localStorage.getItem('global_cache_enabled') !== 'false';
+    if (cachedData && cachedTimestamp && globalCacheEnabled) {
       const cacheAge = Date.now() - parseInt(cachedTimestamp, 10);
       const cacheAgeHours = cacheAge / (1000 * 60 * 60);
-      
       // Si el caché tiene menos de 24 horas, usarlo
       if (cacheAgeHours < 24) {
-        console.log(`📦 Usando info del instrumento en caché para ${ticker} (${cacheAgeHours.toFixed(1)}h de antigüedad)`);
         try {
           const cachedFullData = JSON.parse(cachedData);
           return processInstrumentData(cachedFullData, ticker);
         } catch (e) {
           console.warn('⚠️ Error parseando caché de instrumento, consultando API...');
         }
-      } else {
-        console.log(`🔄 Caché de instrumento expirado (${cacheAgeHours.toFixed(1)}h), consultando API...`);
       }
     }
     
     // Primero intentamos sin mapeo especial para obtener la info
     const url = `/api/cotizacioninstrumento?plazo=1&idCuenta=222233&ticker=${ticker}`;
-    
-    console.log(`📋 Obteniendo info del instrumento: ${ticker}`);
     
     // Obtener token de autenticación
     const token = await getCachedAccessToken();
@@ -216,7 +212,6 @@ async function getBalanzInstrumentInfo(ticker: string): Promise<{
       
       // Si hay error pero tenemos caché antiguo, usarlo como fallback
       if (cachedData) {
-        console.log('📦 Usando caché antiguo como fallback después de error API');
         try {
           const cachedFullData = JSON.parse(cachedData);
           return processInstrumentData(cachedFullData, ticker);
@@ -235,7 +230,6 @@ async function getBalanzInstrumentInfo(ticker: string): Promise<{
       
       // Si no hay datos pero tenemos caché, usarlo
       if (cachedData) {
-        console.log('📦 Usando caché como fallback (no hay datos en API)');
         try {
           const cachedFullData = JSON.parse(cachedData);
           return processInstrumentData(cachedFullData, ticker);
@@ -254,7 +248,6 @@ async function getBalanzInstrumentInfo(ticker: string): Promise<{
     try {
       localStorage.setItem(cacheKey, JSON.stringify(data));
       localStorage.setItem(cacheTimestampKey, Date.now().toString());
-      console.log('💾 Info completa del instrumento guardada en caché (válido por 24h)');
     } catch (e) {
       console.warn('⚠️ Error guardando info del instrumento en caché:', e);
     }
@@ -269,26 +262,17 @@ async function getBalanzInstrumentInfo(ticker: string): Promise<{
       const currentCurrency = cotizacion.currencies.find((c: string[]) => c[0] === ticker);
       if (currentCurrency && currentCurrency[2]) {
         tickerCurrency = currentCurrency[2]; // ARS, USD, CCL, etc.
-        console.log(`💰 Moneda del ticker ${ticker}: ${tickerCurrency}`);
       }
       
       // Buscar ticker en USD
       const usdCurrency = cotizacion.currencies.find((c: string[]) => c[2] === 'USD');
       if (usdCurrency && usdCurrency[0]) {
         usdTicker = usdCurrency[0];
-        console.log(`💵 Ticker en USD encontrado: ${ticker} → ${usdTicker}`);
-      } else {
-        console.log(`⚠️ No se encontró ticker en USD en currencies, usando ticker original: ${ticker}`);
       }
-    } else {
-      console.log(`⚠️ No hay currencies disponibles, usando ticker original: ${ticker}`);
     }
     
     // Extraer ratio si existe
     const ratio = cotizacion.Ratio || undefined;
-    if (ratio) {
-      console.log(`📊 Ratio encontrado: ${ratio}`);
-    }
     
     // Descripción: usar solo Cotizacion.Descripcion (bond.description va en el tooltip)
     let description = cotizacion.Descripcion || '';
@@ -339,10 +323,6 @@ async function getBalanzInstrumentInfo(ticker: string): Promise<{
       bond: bondInfo
     };
     
-    console.log('✅ Info del instrumento obtenida:', result);
-    console.log('📊 Bond data:', bond ? 'EXISTE' : 'NO EXISTE', bond);
-    console.log('📊 bondInfo procesado:', bondInfo);
-    
     return result;
   } catch (error) {
     console.error('❌ Error obteniendo info del instrumento:', error);
@@ -351,7 +331,6 @@ async function getBalanzInstrumentInfo(ticker: string): Promise<{
     const cacheKey = `instrument_info_${ticker}`;
     const cachedData = localStorage.getItem(cacheKey);
     if (cachedData) {
-      console.log('📦 Usando caché como último recurso después de error');
       try {
         const cachedFullData = JSON.parse(cachedData);
         return processInstrumentData(cachedFullData, ticker);
@@ -367,9 +346,6 @@ async function getBalanzInstrumentInfo(ticker: string): Promise<{
 // Función para obtener cotización de un ticker
 export async function getTickerQuote(symbol: string): Promise<TickerQuote | null> {
   try {
-    console.log('🔍 Consultando ticker:', symbol);
-    console.log('🏦 Usando Balanz API para obtener datos...');
-    
     try {
       // Primero obtener información del instrumento para saber el ticker en USD
       const instrumentInfo = await getBalanzInstrumentInfo(symbol);
@@ -377,10 +353,8 @@ export async function getTickerQuote(symbol: string): Promise<TickerQuote | null
       // Usar el ticker en USD obtenido de currencies, o usar el ticker original
       const usdTicker = instrumentInfo.usdTicker || symbol;
       
-      console.log(`💱 Consultando histórico con ticker: ${usdTicker}`);
-      
       // Obtener datos históricos con el ticker correcto
-      const historicalData = await getBalanzHistorico(usdTicker, 5); // Últimos 5 días
+      const historicalData = await getBalanzHistorico(usdTicker, 730); // Últimos 2 años (730 días)
       
       if (historicalData.length > 0) {
         const lastData = historicalData[historicalData.length - 1];
@@ -390,8 +364,6 @@ export async function getTickerQuote(symbol: string): Promise<TickerQuote | null
         const previousPrice = prevData.close;
         const change = price - previousPrice;
         const changePercent = previousPrice > 0 ? (change / previousPrice * 100) : 0;
-        
-        console.log(`✅ Precio de Balanz: $${price.toFixed(2)} USD (cambio: ${changePercent.toFixed(2)}%)`);
         
         return {
           symbol: symbol,
@@ -433,52 +405,51 @@ export async function getTickerQuote(symbol: string): Promise<TickerQuote | null
  * Para bonos, corporativos y CEDEARs
  * IMPORTANTE: Recibe el ticker ya transformado a USD (ej: YPFDD, TXD6D)
  */
-async function getBalanzHistorico(tickerUSD: string, days: number = 365): Promise<HistoricalData[]> {
+async function getBalanzHistorico(tickerUSD: string, days: number = 730): Promise<HistoricalData[]> {
   try {
+    // --- CACHÉ ---
+    const cacheKey = `ticker_history_${tickerUSD}_v3`;
+    const globalCacheEnabled = localStorage.getItem('global_cache_enabled') !== 'false';
+    const cachedRaw = localStorage.getItem(cacheKey);
+    if (cachedRaw && globalCacheEnabled) {
+      try {
+        const cached = JSON.parse(cachedRaw);
+        // Validez: 24h y cantidad de días igual
+        if (cached.lastUpdate && cached.days === days) {
+          const age = Date.now() - new Date(cached.lastUpdate).getTime();
+          if (age < 24 * 60 * 60 * 1000 && Array.isArray(cached.data) && cached.data.length > 0) {
+            return cached.data;
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ Error parseando caché de histórico de precios, consultando API...');
+      }
+    }
+
+    // --- API REAL ---
     // Mapear días a plazo de Balanz (1=1año, 2=2años, etc)
     // Por ahora usamos 1 año
     const plazo = 1;
-    
-    // Endpoint correcto según el sitio de Balanz
     const url = `/api/historico/eventos?ticker=${tickerUSD}&plazo=${plazo}&fullNormalize=false`;
-    
-    console.log(`📊 Obteniendo datos históricos de Balanz...`);
-    console.log(`🔗 URL: ${url}`);
-    console.log(`📌 Ticker: ${tickerUSD}`);
-    
-    // Obtener token de autenticación
     const token = await getCachedAccessToken();
-    
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/json',
         'Authorization': token,
       }
     });
-    
-    console.log(`📡 Response status: ${response.status} ${response.statusText}`);
-    console.log(`📡 Content-Type: ${response.headers.get('content-type')}`);
-    
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`❌ Error ${response.status} al obtener datos de Balanz`);
       console.error(`📄 Response body:`, errorText.substring(0, 500));
-      
-      // Si es error de autenticación, limpiar token
       if (response.status === 520 || response.status === 403 || response.status === 401) {
         console.error('🔒 Error de autenticación - Token posiblemente expirado');
         localStorage.removeItem('balanz_access_token');
         localStorage.removeItem('balanz_token_timestamp');
       }
-      
       return [];
     }
-    
-    // Leer respuesta como texto primero para ver qué retorna
     const text = await response.text();
-    console.log(`📄 Response text (primeros 300 chars):`, text.substring(0, 300));
-    
-    // Intentar parsear como JSON
     let data;
     try {
       data = JSON.parse(text);
@@ -488,31 +459,19 @@ async function getBalanzHistorico(tickerUSD: string, days: number = 365): Promis
       console.warn('⚠️ La API de Balanz no retorna JSON válido para este endpoint');
       return [];
     }
-    
-    // La API retorna { historico: [...] }
     const historico = data?.historico || data;
-    
     if (!historico || !Array.isArray(historico) || historico.length === 0) {
       console.warn('⚠️ No hay datos históricos en Balanz para', tickerUSD);
-      console.log('📄 Datos recibidos:', data);
       return [];
     }
-    
-    console.log(`✅ Se obtuvieron ${historico.length} registros históricos de Balanz`);
-    
-    // Transformar datos de Balanz al formato HistoricalData
-    // Balanz retorna: { historico: [{ fecha: "2025-07-22", preciocierre: 1.0075, ... }, ...] }
     const candles: HistoricalData[] = historico
       .map((item: any) => {
-        // Normalizar fecha al formato YYYY-MM-DD
         const fecha = item.fecha;
-        
         const open = item.precioapertura || item.preciocierre || 0;
         const high = item.preciomaximo || item.preciocierre || 0;
         const low = item.preciominimo || item.preciocierre || 0;
         const close = item.preciocierre || item.ultimoprecio || 0;
         const volume = item.volumen || 0;
-        
         return {
           time: fecha,
           open,
@@ -523,18 +482,17 @@ async function getBalanzHistorico(tickerUSD: string, days: number = 365): Promis
         };
       })
       .filter((candle: HistoricalData) => candle.close > 0 && candle.time)
-      .sort((a, b) => a.time.localeCompare(b.time)); // Ordenar por fecha
-    
-    console.log(`✅ Datos de Balanz obtenidos: ${candles.length} registros`);
-    
-    if (candles.length > 0) {
-      console.log('📅 Rango de fechas:', {
-        más_antiguo: candles[0].time,
-        más_reciente: candles[candles.length - 1].time,
-        total_días: candles.length
-      });
+      .sort((a, b) => a.time.localeCompare(b.time));
+    // Guardar en caché
+    try {
+      localStorage.setItem(cacheKey, JSON.stringify({
+        data: candles.slice(-days),
+        lastUpdate: new Date().toISOString(),
+        days
+      }));
+    } catch (e) {
+      console.warn('⚠️ Error guardando histórico de precios en caché:', e);
     }
-    
     return candles.slice(-days);
   } catch (error) {
     console.error('❌ Error obteniendo datos de Balanz:', error);
@@ -542,164 +500,61 @@ async function getBalanzHistorico(tickerUSD: string, days: number = 365): Promis
   }
 }
 
-// Función para obtener datos históricos usando Balanz API
-// Con caché local para evitar peticiones repetidas
-export async function getTickerCandles(symbol: string, days: number = 365): Promise<HistoricalDataResponse> {
+// Función centralizada para obtener datos históricos de la API historico/eventos de Balanz
+export async function getTickerCandles(symbol: string, days: number = 730): Promise<HistoricalDataResponse> {
+  // Usa getBalanzHistorico como única fuente
   try {
-    const cacheKey = `ticker_history_${symbol}_v3`; // v3 para Balanz exclusivo
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-    
-    console.log(`📊 Ticker: ${symbol} - usando Balanz API`);
-    
     // Obtener información del instrumento para saber el ticker en USD
-    console.log('📋 Obteniendo ticker en USD desde instrumentInfo...');
     const instrumentInfo = await getBalanzInstrumentInfo(symbol);
     const usdTicker = instrumentInfo.usdTicker || symbol;
-    
-    console.log(`💱 Usando ticker: ${usdTicker}`);
-    
-    // Intentar obtener datos del caché
-    const cachedData = localStorage.getItem(cacheKey);
-    if (cachedData) {
-      try {
-        const cached = JSON.parse(cachedData);
-        const { data, lastUpdate, sourceUrl } = cached;
-        
-        // Si el caché es de hoy, usarlo directamente
-        if (lastUpdate === today) {
-          console.log('📦 Usando datos en caché para', symbol, '(actualizado hoy)');
-          return {
-            data: data.slice(-days),
-            sourceUrl: sourceUrl || 'Cache (Balanz)',
-            source: 'cache',
-            cacheDate: lastUpdate
-          };
-        }
-        
-        // Si el caché es de días anteriores, verificar si necesitamos actualizar
-        const cachedDates = new Set(data.map((d: HistoricalData) => d.time));
-        const needsUpdate = !cachedDates.has(today);
-        
-        if (!needsUpdate) {
-          console.log('📦 Usando datos en caché para', symbol, '(ya tiene datos de hoy)');
-          return {
-            data: data.slice(-days),
-            sourceUrl: sourceUrl || 'Cache (Balanz)',
-            source: 'cache',
-            cacheDate: lastUpdate
-          };
-        }
-        
-        console.log('🔄 Datos en caché desactualizados, consultando API...');
-      } catch (e) {
-        console.warn('⚠️ Error parseando caché, consultando API...');
-      }
-    }
-    
-    // Obtener datos de Balanz con el ticker correcto
-    console.log('🏦 Consultando Balanz API...');
-    const balanzData = await getBalanzHistorico(usdTicker, days);
-    
-    if (balanzData.length > 0) {
-      const balanzUrl = `https://clientes.balanz.com/api/v1/historico/eventos?ticker=${usdTicker}&plazo=1&fullNormalize=false`;
-      
-      // Guardar en caché
-      try {
-        localStorage.setItem(cacheKey, JSON.stringify({
-          data: balanzData,
-          lastUpdate: today,
-          sourceUrl: balanzUrl
-        }));
-        console.log('💾 Datos de Balanz guardados en caché');
-      } catch (e) {
-        console.warn('⚠️ Error guardando en caché:', e);
-      }
-      
-      console.log('✅ Usando datos de Balanz API');
-      return {
-        data: balanzData,
-        sourceUrl: balanzUrl,
-        source: 'balanz'
-      };
-    }
-    
-    console.log('⚠️ No hay datos en Balanz para este ticker');
-    
-    // Si hay caché antiguo, usarlo como fallback
-    if (cachedData) {
-      try {
-        const cached = JSON.parse(cachedData);
-        console.log('📦 Usando caché antiguo como fallback');
-        return {
-          data: cached.data.slice(-days),
-          sourceUrl: cached.sourceUrl || 'Cache',
-          source: 'cache',
-          cacheDate: cached.lastUpdate
-        };
-      } catch (e) {
-        // Ignorar error de parsing
-      }
-    }
-    
-    // No hay datos disponibles
+    const data = await getBalanzHistorico(usdTicker, days);
+    const balanzUrl = `https://clientes.balanz.com/api/v1/historico/eventos?ticker=${usdTicker}&plazo=1&fullNormalize=false`;
     return {
-      data: [],
-      sourceUrl: `https://clientes.balanz.com/api/v1/historico/eventos?ticker=${usdTicker}&plazo=1&fullNormalize=false`,
-      source: 'balanz'
+      data,
+      sourceUrl: balanzUrl,
+      source: 'balanz',
+      cacheDate: undefined // Si se quiere, se puede agregar lógica de caché aquí
     };
-    
   } catch (error) {
     console.error('❌ Error obteniendo datos históricos:', error);
-    
-    // Intentar usar caché como último recurso
-    const cacheKey = `ticker_history_${symbol}_v3`;
-    const cachedData = localStorage.getItem(cacheKey);
-    if (cachedData) {
-      try {
-        const cached = JSON.parse(cachedData);
-        console.log('📦 Usando caché como último recurso');
-        return {
-          data: cached.data.slice(-days),
-          sourceUrl: cached.sourceUrl || 'Cache (Balanz)',
-          source: 'cache',
-          cacheDate: cached.lastUpdate
-        };
-      } catch (e) {
-        console.warn('⚠️ Error parseando caché:', e);
-      }
-    }
-    
     return {
       data: [],
       sourceUrl: 'Error: No data available',
-      source: 'balanz'
+      source: 'balanz',
+      cacheDate: undefined
     };
   }
 }
 
 // Función auxiliar para limpiar el caché de un ticker específico
 export function clearTickerCache(symbol: string): void {
-  // Limpiar caché de histórico
-  const cacheKey = `ticker_history_${symbol}_v3`;
-  const oldKeys = [
-    `ticker_history_${symbol}_v2`,
-    `ticker_history_${symbol}`
-  ];
-  
-  localStorage.removeItem(cacheKey);
-  oldKeys.forEach(key => localStorage.removeItem(key));
-  
-  // Limpiar caché de información del instrumento
-  const instrumentCacheKey = `instrument_info_${symbol}`;
-  const instrumentTimestampKey = `instrument_info_${symbol}_timestamp`;
-  localStorage.removeItem(instrumentCacheKey);
-  localStorage.removeItem(instrumentTimestampKey);
-  
-  console.log('🗑️ Caché eliminado para', symbol, '(histórico + info del instrumento)');
+  preserveAuthTokens(() => {
+    // Limpiar caché de histórico
+    const cacheKey = `ticker_history_${symbol}_v3`;
+    const oldKeys = [
+      `ticker_history_${symbol}_v2`,
+      `ticker_history_${symbol}`
+    ];
+    
+    localStorage.removeItem(cacheKey);
+    oldKeys.forEach(key => localStorage.removeItem(key));
+    
+    // Limpiar caché de información del instrumento
+    const instrumentCacheKey = `instrument_info_${symbol}`;
+    const instrumentTimestampKey = `instrument_info_${symbol}_timestamp`;
+    localStorage.removeItem(instrumentCacheKey);
+    localStorage.removeItem(instrumentTimestampKey);
+    
+  });
 }
 
 // Función auxiliar para limpiar todo el caché de tickers
 export function clearAllTickerCache(): void {
+  // Preservar tokens de autenticación
+  const accessToken = localStorage.getItem('balanz_access_token');
+  const tokenTimestamp = localStorage.getItem('balanz_token_timestamp');
+  const tokenFail = localStorage.getItem('balanz_token_fail');
+  
   const keys = Object.keys(localStorage);
   let historyCount = 0;
   let instrumentCount = 0;
@@ -715,5 +570,8 @@ export function clearAllTickerCache(): void {
     }
   });
   
-  console.log('🗑️ Caché completo eliminado:', historyCount, 'históricos +', instrumentCount / 2, 'instrumentos');
+  // Restaurar tokens si existían
+  if (accessToken) localStorage.setItem('balanz_access_token', accessToken);
+  if (tokenTimestamp) localStorage.setItem('balanz_token_timestamp', tokenTimestamp);
+  if (tokenFail) localStorage.setItem('balanz_token_fail', tokenFail);
 }

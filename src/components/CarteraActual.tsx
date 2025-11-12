@@ -1,29 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import ErrorPopup from './ErrorPopup';
-import { BalanzPosition } from '../types/balanz';
+import { getDolarMEP } from '../services/balanzApi';
 import { formatCurrency } from '../utils/chartHelpers';
-import { getEstadoCuentaConCache, getDolarMEP } from '../services/balanzApi';
 import { getTickerHoldingData } from '../services/tickerHoldingData';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
-// Tipo para tenencias de la API
-interface BalanzTenenciaAPI {
-  Ticker: string;
-  Cantidad: number;
-  PPP: number;
-  ValorInicial: number;
-  Precio: number;
-  ValorActual: number;
-  NoRealizado: number;
-  PorcRendimiento: number;
-  Tipo: string;
-  Descripcion: string;
-  Moneda: string;
-}
-
 interface CarteraActualProps {
-  positions: BalanzPosition[];
+  positions: any[];
   onTickerClick?: (ticker: string) => void;
+  loading?: boolean;
+  apiError?: string | null;
 }
 
 interface GroupedPosition {
@@ -60,65 +46,20 @@ interface GroupedByType {
   totalValorActual?: number;
 }
 
-const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick }) => {
+const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick, loading, apiError }) => {
   const [expandedTickers, setExpandedTickers] = useState<Set<string>>(new Set());
-  const [preciosActuales, setPreciosActuales] = useState<Map<string, any>>(new Map());
   const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(true);
-  const [dolarMEP, setDolarMEP] = useState<number | null>(null);
   const [groupedPositions, setGroupedPositions] = useState<Record<string, any>>({});
-  const [authError, setAuthError] = useState<string | null>(null);
 
-  // Cargar precios actuales desde la API de Balanz
-  useEffect(() => {
-    const cargarPreciosActuales = async () => {
-      try {
-        const result = await getEstadoCuentaConCache();
-        if (result.data && result.data.tenencia) {
-          const preciosMap = new Map();
-          result.data.tenencia.forEach((tenencia: BalanzTenenciaAPI) => {
-            preciosMap.set(tenencia.Ticker, {
-              cantidad: tenencia.Cantidad,
-              ppc: tenencia.PPP,
-              valorInicial: tenencia.ValorInicial,
-              precioActual: tenencia.Precio,
-              valorActual: tenencia.ValorActual,
-              noRealizado: tenencia.NoRealizado,
-              porcRendimiento: tenencia.PorcRendimiento,
-              tipo: tenencia.Tipo,
-              descripcion: tenencia.Descripcion,
-              moneda: tenencia.Moneda,
-            });
-          });
-          setPreciosActuales(preciosMap);
+  // Ya no se carga precios actuales desde la API aquí, solo se usan los props
 
-          // Obtener el Dólar MEP
-          if (result.data.cotizacionesDolar) {
-            const mep = getDolarMEP(result.data.cotizacionesDolar);
-            setDolarMEP(mep);
-          }
-        } else {
-          console.warn('⚠️ No se recibieron datos de tenencia');
-        }
-      } catch (error: any) {
-        const msg = error?.message || error?.toString?.() || '';
-        // Mostrar el mensaje real en consola para depuración
-        console.warn('Mensaje de error recibido:', msg);
-        setAuthError(msg);
-        document.body.setAttribute('data-auth-error', msg);
-        console.error('❌ Error al cargar precios actuales:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    cargarPreciosActuales();
-  }, []); // Solo cargar una vez al montar el componente
+  // Calcular dolarMEP desde las posiciones (si está disponible)
+  const dolarMEP = getDolarMEP(positions[0]?.cotizacionesDolar || []);
 
   // Agrupar posiciones por ticker usando la función unificada
   useEffect(() => {
     const agrupar = async () => {
-      if (!dolarMEP) return;
+      if (!positions || positions.length === 0) return;
       const tickers = Array.from(new Set(positions.map(p => p.Ticker)));
       const result: Record<string, any> = {};
       await Promise.all(tickers.map(async (ticker) => {
@@ -144,29 +85,7 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick 
     agrupar();
   }, [positions, dolarMEP]);
 
-  // Calcular PPC, Valor Inicial y agregar datos actuales para cada grupo
-  Object.values(groupedPositions).forEach(group => {
-    // Usar datos de la API siempre
-    const datosActuales = preciosActuales.get(group.ticker);
-    if (datosActuales) {
-      // Usar TODOS los datos de la API
-      group.cantidadTotal = datosActuales.cantidad;
-      group.ppc = datosActuales.ppc;
-      group.valorInicial = datosActuales.valorInicial;
-      group.precioActual = datosActuales.precioActual;
-      group.valorActual = datosActuales.valorActual;
-      group.rendimiento = datosActuales.noRealizado;
-      group.rendimientoPorcentaje = datosActuales.porcRendimiento;
-    } else {
-      // Si no hay datos de API (no debería pasar), calcular desde datos locales como fallback
-      const sumaPrecioCantidad = group.operaciones.reduce(
-        (sum, op) => sum + (op.precioUSD * op.cantidad), 
-        0
-      );
-      group.ppc = sumaPrecioCantidad / group.cantidadTotal;
-      group.valorInicial = group.ppc * group.cantidadTotal;
-    }
-  });
+  // Ya no se usa preciosActuales, los datos vienen directamente de groupedPositions
 
   // Usar groupedPositions para la agrupación y visualización
   const groupedByType: Record<string, any> = {};
@@ -305,11 +224,16 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick 
   };
 
   // Mostrar el popup de error SIEMPRE que haya error, aunque no haya datos cargados
-  if (authError) {
+  if (apiError) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-        <ErrorPopup message={authError} onRetry={handleRetry} />
+        <ErrorPopup message={apiError} onRetry={handleRetry} />
       </div>
+    );
+  }
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px] text-slate-400 text-lg">Cargando cartera desde la API...</div>
     );
   }
   return (

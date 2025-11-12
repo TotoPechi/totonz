@@ -2,6 +2,8 @@
 // API: https://api.argentinadatos.com/v1/cotizaciones/dolares
 // Cachea por 1 día ya que son datos históricos que no cambian
 
+import { preserveAuthTokens } from '../utils/cacheHelpers';
+
 interface CotizacionDolar {
   casa: string;
   compra: number;
@@ -17,26 +19,23 @@ const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
  * Obtiene todas las cotizaciones históricas del dólar
  * Cachea por 24 horas
  */
-async function getCotizacionesHistoricas(): Promise<CotizacionDolar[]> {
+export async function getCotizacionesHistoricas(): Promise<CotizacionDolar[]> {
   try {
     // Verificar si hay caché válido
     const cachedData = localStorage.getItem(CACHE_KEY);
     const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
     
-    if (cachedData && cachedTimestamp) {
+    // Respetar el flag global de caché
+    const globalCacheEnabled = localStorage.getItem('global_cache_enabled') !== 'false';
+    if (cachedData && cachedTimestamp && globalCacheEnabled) {
       const timestamp = parseInt(cachedTimestamp, 10);
       const now = Date.now();
-      
       if (now - timestamp < CACHE_DURATION) {
-        console.log('📦 Usando cotizaciones históricas del caché');
         return JSON.parse(cachedData);
-      } else {
-        console.log('⏰ Caché de cotizaciones expirado, obteniendo datos frescos...');
       }
     }
     
     // Obtener datos frescos de la API
-    console.log('🌐 Obteniendo cotizaciones históricas de Argentina Datos...');
     const response = await fetch('https://api.argentinadatos.com/v1/cotizaciones/dolares');
     
     if (!response.ok) {
@@ -49,8 +48,6 @@ async function getCotizacionesHistoricas(): Promise<CotizacionDolar[]> {
     localStorage.setItem(CACHE_KEY, JSON.stringify(data));
     localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
     
-    console.log(`✅ Cotizaciones históricas obtenidas y cacheadas: ${data.length} registros`);
-    
     return data;
   } catch (error) {
     console.error('❌ Error obteniendo cotizaciones históricas:', error);
@@ -58,7 +55,7 @@ async function getCotizacionesHistoricas(): Promise<CotizacionDolar[]> {
     // Si hay error, intentar usar caché aunque esté expirado
     const cachedData = localStorage.getItem(CACHE_KEY);
     if (cachedData) {
-      console.log('⚠️ Usando caché expirado debido a error en API');
+      console.warn('⚠️ Usando caché expirado debido a error en API');
       return JSON.parse(cachedData);
     }
     
@@ -67,52 +64,110 @@ async function getCotizacionesHistoricas(): Promise<CotizacionDolar[]> {
 }
 
 /**
+ * Obtiene el dólar para una fecha específica desde cotizaciones ya cargadas
+ * Prioridad: bolsa > contadoconliqui > blue > oficial
+ * 
+ * @param cotizaciones - Array de cotizaciones ya cargadas
+ * @param fecha - Fecha en formato "YYYY-MM-DD"
+ * @returns Valor del dólar (promedio entre compra y venta) o null
+ */
+export function getDolarParaFechaDesdeCotizaciones(cotizaciones: CotizacionDolar[], fecha: string): number | null {
+  // Validar que la fecha sea válida
+  if (!fecha || fecha.trim() === '') {
+    console.warn(`⚠️ Fecha vacía o inválida: "${fecha}"`);
+    return null;
+  }
+  
+  // Validar formato de fecha (debe ser YYYY-MM-DD)
+  const fechaRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!fechaRegex.test(fecha)) {
+    console.warn(`⚠️ Formato de fecha inválido: "${fecha}" (esperado: YYYY-MM-DD)`);
+    return null;
+  }
+  
+  // Filtrar cotizaciones de la fecha específica
+  const cotizacionesFecha = cotizaciones.filter(c => c.fecha === fecha);
+  
+  if (cotizacionesFecha.length === 0) {
+    // Intentar buscar la fecha más cercana anterior (útil para fines de semana)
+    try {
+      const fechaDate = new Date(fecha + 'T00:00:00'); // Agregar hora para evitar problemas de timezone
+      
+      // Validar que la fecha sea válida
+      if (isNaN(fechaDate.getTime())) {
+        console.warn(`⚠️ Fecha inválida no se puede parsear: "${fecha}"`);
+        return null;
+      }
+      
+      for (let i = 1; i <= 7; i++) {
+        fechaDate.setDate(fechaDate.getDate() - 1);
+        const fechaAnterior = fechaDate.toISOString().split('T')[0];
+        const cotizacionesAnteriores = cotizaciones.filter(c => c.fecha === fechaAnterior);
+        if (cotizacionesAnteriores.length > 0) {
+          const prioridad = ['bolsa', 'contadoconliqui', 'blue', 'oficial'];
+          for (const casa of prioridad) {
+            const cotizacion = cotizacionesAnteriores.find(c => c.casa === casa);
+            if (cotizacion) {
+              const valor = (cotizacion.compra + cotizacion.venta) / 2;
+              return valor;
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.warn(`⚠️ Error al buscar fechas anteriores para ${fecha}:`, error);
+    }
+    console.warn(`⚠️ No hay cotizaciones para la fecha ${fecha} ni fechas cercanas`);
+    return null;
+  }
+  
+  // Buscar en orden de prioridad: bolsa > contadoconliqui > blue > oficial
+  const prioridad = ['bolsa', 'contadoconliqui', 'blue', 'oficial'];
+  
+    for (const casa of prioridad) {
+    const cotizacion = cotizacionesFecha.find(c => c.casa === casa);
+    if (cotizacion) {
+      // Usar promedio entre compra y venta
+      const valor = (cotizacion.compra + cotizacion.venta) / 2;
+      return valor;
+    }
+  }
+  
+  // Si no se encontró ninguna cotización, mostrar qué casas están disponibles
+  const casasDisponibles = cotizacionesFecha.map(c => c.casa).join(', ');
+  console.warn(`⚠️ No se encontró dólar bolsa/contadoconliqui/blue/oficial para ${fecha}. Casas disponibles: ${casasDisponibles || 'ninguna'}`);
+  return null;
+}
+
+/**
  * Obtiene el dólar para una fecha específica
- * Prioridad: bolsa > blue > oficial
+ * Prioridad: bolsa > contadoconliqui > blue > oficial
  * 
  * @param fecha - Fecha en formato "YYYY-MM-DD"
  * @returns Valor del dólar (promedio entre compra y venta)
  */
+import { preserveAuthTokens } from '../utils/cacheHelpers';
+
 export async function getDolarParaFecha(fecha: string): Promise<number | null> {
   try {
     const cotizaciones = await getCotizacionesHistoricas();
-    
-    // Filtrar cotizaciones de la fecha específica
-    const cotizacionesFecha = cotizaciones.filter(c => c.fecha === fecha);
-    
-    if (cotizacionesFecha.length === 0) {
-      console.warn(`⚠️ No hay cotizaciones para la fecha ${fecha}`);
-      return null;
-    }
-    
-    // Buscar en orden de prioridad: bolsa > blue > oficial
-    const prioridad = ['bolsa', 'blue', 'oficial'];
-    
-    for (const casa of prioridad) {
-      const cotizacion = cotizacionesFecha.find(c => c.casa === casa);
-      if (cotizacion) {
-        // Usar promedio entre compra y venta
-        const valor = (cotizacion.compra + cotizacion.venta) / 2;
-        console.log(`💵 Dólar ${casa} para ${fecha}: $${valor.toFixed(2)}`);
-        return valor;
-      }
-    }
-    
-    console.warn(`⚠️ No se encontró dólar bolsa/blue/oficial para ${fecha}`);
-    return null;
+    return getDolarParaFechaDesdeCotizaciones(cotizaciones, fecha);
   } catch (error) {
     console.error('❌ Error obteniendo dólar para fecha:', error);
     return null;
   }
 }
 
+import { preserveAuthTokens } from '../utils/cacheHelpers';
+
 /**
  * Limpia el caché de cotizaciones históricas
  */
 export function clearDolarHistoricoCache(): void {
-  localStorage.removeItem(CACHE_KEY);
-  localStorage.removeItem(CACHE_TIMESTAMP_KEY);
-  console.log('🗑️ Caché de cotizaciones históricas limpiado');
+  preserveAuthTokens(() => {
+    localStorage.removeItem(CACHE_KEY);
+    localStorage.removeItem(CACHE_TIMESTAMP_KEY);
+  });
 }
 
 /**

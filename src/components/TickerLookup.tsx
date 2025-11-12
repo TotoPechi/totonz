@@ -2,10 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { getTickerHoldingData } from '../services/tickerHoldingData';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getTickerQuote, getTickerCandles, clearTickerCache } from '../services/tickerApi';
-import { getMovimientosHistoricosConCache, getOperacionesPorTicker, getDividendosPorTicker, getRentasPorTicker, getEstadoCuentaConCache, getDolarMEP, clearMovimientosCache, clearEstadoCuentaCache } from '../services/balanzApi';
+import { getEstadoCuentaConCache, getDolarMEP, clearEstadoCuentaCache, getOrdenesHistoricasConCache, getMovimientosHistoricosConCache, getDividendosPorTicker, getRentasPorTicker } from '../services/balanzApi';
+import { getDolarHistoricoCacheInfo, clearDolarHistoricoCache, getCotizacionesHistoricas, getDolarParaFechaDesdeCotizaciones } from '../services/dolarHistoricoApi';
+import { preserveAuthTokens } from '../utils/cacheHelpers';
+import { useTickerCache } from '../hooks/useTickerCache';
 import TickerHeader from './TickerHeader';
 import TickerChart from './TickerChart';
 import TickerOrders from './TickerOrders';
+import CacheSection from './CacheSection';
 
 interface TickerInfo {
   ticker: string;
@@ -68,10 +72,9 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
   const [ppc, setPpc] = useState<number | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [dataSource, setDataSource] = useState<{ url: string; source: string; cacheDate?: string } | null>(null);
   const [dolarMEP, setDolarMEP] = useState<number | null>(null);
   const [operaciones, setOperaciones] = useState<Array<{
-    tipo: 'COMPRA' | 'VENTA';
+    tipo: 'COMPRA' | 'VENTA' | 'LIC';
     fecha: string;
     cantidad: number;
     precioUSD: number;
@@ -103,14 +106,19 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
     fecha: string;
     url?: string;
   } | null>(null);
+  const [movimientosHistoricosCacheInfo, setMovimientosHistoricosCacheInfo] = useState<{
+    isCached: boolean;
+    fecha: string;
+    url?: string;
+  } | null>(null);
   const [estadoCuentaCacheInfo, setEstadoCuentaCacheInfo] = useState<{
     isCached: boolean;
     fecha: string;
   } | null>(null);
-  const [instrumentCacheInfo, setInstrumentCacheInfo] = useState<{
-    isCached: boolean;
-    fecha: string;
-  } | null>(null);
+  // Usar hook para caché de ticker
+  const { candlesCacheInfo, instrumentCacheInfo } = useTickerCache(selectedTicker);
+  // Info de caché de cotizaciones históricas del dólar
+  const dolarCacheInfo = getDolarHistoricoCacheInfo();
   const [hoveredOperacionIndex, setHoveredOperacionIndex] = useState<number | null>(null);
   const [showBondDescTooltip, setShowBondDescTooltip] = useState(false);
 
@@ -208,64 +216,197 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
           console.warn('⚠️ Error al obtener estado de cuenta - continuando sin operaciones:', error);
         }
 
+
+
+        // Cargar cotizaciones históricas del dólar para usar en las conversiones
+        let cotizacionesHistoricas: any[] = [];
+        try {
+          cotizacionesHistoricas = await getCotizacionesHistoricas();
+        } catch (error) {
+          console.warn('⚠️ Error al cargar cotizaciones históricas, usando dolarMEP como fallback:', error);
+        }
+
         // Intentar obtener movimientos (no crítico - puede fallar)
-        if (dolarMEP) {
+        // Permitir mostrar operaciones si el instrumento es en USD aunque no haya dolarMEP
+        const isUSDInstrument = tickerInfo?.currency === 'USD' || tickerInfo?.tickerCurrency === 'USD';
+        if (dolarMEP || isUSDInstrument || cotizacionesHistoricas.length > 0) {
           try {
-            // Obtener movimientos desde 2021-01-01
             const fechaHasta = new Date();
-            const fechaDesde = new Date('2021-01-01');
-            
+            const fechaDesde = new Date('2021-09-05');
             // Formato YYYYMMDD requerido por la API
             const fechaDesdeStr = fechaDesde.toISOString().split('T')[0].replace(/-/g, '');
             const fechaHastaStr = fechaHasta.toISOString().split('T')[0].replace(/-/g, '');
-            
-            const movimientosResult = await getMovimientosHistoricosConCache(fechaDesdeStr, fechaHastaStr);
-            
-            // Debug: Mostrar algunos tickers de los movimientos
-
-            // Guardar info de caché de movimientos
-            const movimientosUrl = `https://clientes.balanz.com/api/v1/movimientos/historicos?fechaDesde=${fechaDesdeStr}&fechaHasta=${fechaHastaStr}`;
-            const movimientosFecha = movimientosResult.cacheAge 
-              ? new Date(Date.now() - movimientosResult.cacheAge * 60 * 60 * 1000).toISOString().split('T')[0]
+            const ordenesResult = await getOrdenesHistoricasConCache(fechaDesdeStr, fechaHastaStr);
+            // Guardar info de caché de órdenes
+            const ordenesUrl = `https://clientes.balanz.com/api/v1/reportehistoricoordenes/222233?FechaDesde=${fechaDesdeStr}&FechaHasta=${fechaHastaStr}`;
+            const ordenesFecha = ordenesResult.cacheAge 
+              ? new Date(Date.now() - ordenesResult.cacheAge * 60 * 60 * 1000).toISOString().split('T')[0]
               : new Date().toISOString().split('T')[0];
             setMovimientosCacheInfo({
-              isCached: movimientosResult.isCached,
-              fecha: movimientosFecha,
-              url: movimientosUrl
+              isCached: ordenesResult.isCached,
+              fecha: ordenesFecha,
+              url: ordenesUrl
             });
-
-            // Filtrar y formatear operaciones del ticker seleccionado
-            // IMPORTANTE: Usar el ticker completo (con .E si lo tiene) para buscar en movimientos
-            
-            const ops = await getOperacionesPorTicker(movimientosResult.data, selectedTicker, dolarMEP);
-            
-            setOperaciones(ops);
-            
-            // Obtener dividendos
-            const divs = await getDividendosPorTicker(movimientosResult.data, selectedTicker);
-            
-            setDividendos(divs);
-            
-            // Obtener rentas
-            const rents = await getRentasPorTicker(movimientosResult.data, selectedTicker);
-            
-            setRentas(rents);
+            // Filtrar y mapear operaciones del ticker seleccionado al modelo esperado por TickerOrders
+            // Solo incluir órdenes con Estado "Ejecutada"
+            const ordenesTicker = ordenesResult.data.filter((o: any) => 
+              o.Ticker === selectedTicker && o.Estado === 'Ejecutada'
+            );
+            // Mapear al modelo esperado por TickerOrders
+            const operacionesMapped = ordenesTicker.map((o: any) => {
+              let tipo: 'COMPRA' | 'VENTA' | 'LIC' = 'VENTA';
+              const operacionStr = typeof o.Operacion === 'string' ? o.Operacion.toUpperCase() : '';
+              if (operacionStr.includes('LICITACIÓN') || operacionStr.includes('LICITACION')) {
+                tipo = 'LIC';
+              } else if (operacionStr.includes('COMPRA')) {
+                tipo = 'COMPRA';
+              }
+              // Mejorar detección de moneda en pesos
+              let moneda = String(o.Moneda || '');
+              if (moneda.toUpperCase() === 'PESOS') moneda = 'ARS';
+              if (moneda.toUpperCase().includes('ARS')) moneda = 'ARS';
+              const montoOriginal = typeof o.Monto === 'number' ? o.Monto : undefined;
+              const costoOriginal = typeof o.Costos === 'number' ? o.Costos : 0;
+              
+              // Obtener cantidad para usar en cálculos
+              const cantidad = Number(
+                (o.CantidadOperada !== undefined && o.CantidadOperada !== -1) 
+                  ? o.CantidadOperada 
+                  : (o.Cantidad ?? 0)
+              );
+              
+              // Determinar precio original: si Precio y PrecioOperado no están o son -1, calcularlo
+              let precioOriginal: number | undefined;
+              const precioValue = typeof o.Precio === 'number' ? o.Precio : undefined;
+              const precioOperadoValue = typeof o.PrecioOperado === 'number' ? o.PrecioOperado : undefined;
+              
+              if (precioValue !== undefined && precioValue !== -1) {
+                precioOriginal = precioValue;
+              } else if (precioOperadoValue !== undefined && precioOperadoValue !== -1) {
+                precioOriginal = precioOperadoValue;
+              } else if (montoOriginal !== undefined && cantidad > 0) {
+                // Calcular precio dividiendo monto por cantidad
+                precioOriginal = montoOriginal / cantidad;
+              } else {
+                precioOriginal = undefined;
+              }
+              
+              let precioUSD = precioOriginal || 0;
+              let montoUSD = typeof o.Monto === 'number' ? o.Monto : 0;
+              let costoOperacionUSD = 0;
+              let dolarUsado = 0;
+              // Si la operación es en ARS, convertir a USD usando el dólar histórico de la fecha
+              if (moneda === 'ARS' && precioOriginal && montoOriginal) {
+                // Obtener la fecha de la operación en formato YYYY-MM-DD
+                const fechaRaw = String(o.Fecha || o.FechaLiquidacion || '');
+                let fechaOp = fechaRaw.split('T')[0].trim();
+                
+                // Si la fecha viene en formato DD/MM/YYYY, convertirla a YYYY-MM-DD
+                if (fechaOp && fechaOp.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+                  const [dia, mes, anio] = fechaOp.split('/');
+                  fechaOp = `${anio}-${mes}-${dia}`;
+                }
+                
+                // Validar que la fecha tenga el formato correcto antes de buscar
+                if (fechaOp && fechaOp.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                  // Buscar el dólar histórico para la fecha de la operación
+                  if (cotizacionesHistoricas.length > 0) {
+                    dolarUsado = getDolarParaFechaDesdeCotizaciones(cotizacionesHistoricas, fechaOp) || 0;
+                    if (!dolarUsado || dolarUsado === 0) {
+                      console.warn(`⚠️ No se encontró dólar histórico para fecha ${fechaOp}`);
+                    }
+                  }
+                } else {
+                  console.warn(`⚠️ Fecha de operación inválida o vacía: "${fechaRaw}" -> "${fechaOp}"`);
+                }
+                
+                // Si no se encontró dólar histórico, usar dolarMEP como fallback
+                if (!dolarUsado || dolarUsado === 0) {
+                  dolarUsado = dolarMEP || 0;
+                  if (dolarUsado > 0) {
+                    console.warn(`⚠️ Usando dolarMEP actual (${dolarUsado}) como fallback para fecha ${fechaOp || fechaRaw}`);
+                  }
+                }
+                
+                if (dolarUsado > 0) {
+                  precioUSD = precioOriginal / dolarUsado;
+                  montoUSD = montoOriginal / dolarUsado;
+                  costoOperacionUSD = costoOriginal / dolarUsado;
+                } else {
+                  console.warn(`⚠️ No se pudo obtener dólar para fecha ${fechaOp}, operación sin convertir`);
+                }
+              } else {
+                // Si ya está en USD, usar los valores originales
+                precioUSD = precioOriginal || 0;
+                montoUSD = montoOriginal || 0;
+                costoOperacionUSD = costoOriginal || 0;
+              }
+              return {
+                tipo,
+                fecha: String(o.Fecha || o.FechaLiquidacion || ''),
+                cantidad: Number(
+                  (o.CantidadOperada !== undefined && o.CantidadOperada !== -1) 
+                    ? o.CantidadOperada 
+                    : (o.Cantidad ?? 0)
+                ),
+                precioUSD,
+                montoUSD,
+                costoOperacionUSD,
+                descripcion: String(o.Operacion || ''),
+                precioOriginal,
+                montoOriginal,
+                costoOriginal,
+                monedaOriginal: moneda,
+                dolarUsado
+              };
+            });
+            setOperaciones(operacionesMapped);
           } catch (error) {
             console.warn('⚠️ Error al cargar movimientos - continuando sin operaciones:', error);
             setOperaciones([]);
-            setDividendos([]);
-            setRentas([]);
             setMovimientosCacheInfo(null);
           }
         } else {
           setOperaciones([]);
-          setDividendos([]);
           setMovimientosCacheInfo(null);
         }
       } catch (error) {
         console.error('❌ Error al cargar operaciones:', error);
         setOperaciones([]);
+      }
+
+      // Cargar dividendos y rentas desde movimientos históricos
+      try {
+        const fechaHasta = new Date();
+        const fechaDesde = new Date('2021-09-05');
+        const fechaDesdeStr = fechaDesde.toISOString().split('T')[0].replace(/-/g, '');
+        const fechaHastaStr = fechaHasta.toISOString().split('T')[0].replace(/-/g, '');
+        
+        const movimientosResult = await getMovimientosHistoricosConCache(fechaDesdeStr, fechaHastaStr);
+        
+        // Guardar información de caché de movimientos históricos
+        const movimientosUrl = `https://clientes.balanz.com/api/movimientos/222233?FechaDesde=${fechaDesdeStr}&FechaHasta=${fechaHastaStr}&ic=0`;
+        const movimientosFecha = movimientosResult.cacheAge 
+          ? new Date(Date.now() - movimientosResult.cacheAge * 60 * 60 * 1000).toISOString().split('T')[0]
+          : new Date().toISOString().split('T')[0];
+        setMovimientosHistoricosCacheInfo({
+          isCached: movimientosResult.isCached,
+          fecha: movimientosFecha,
+          url: movimientosUrl
+        });
+        
+        // Obtener dividendos
+        const dividendosData = await getDividendosPorTicker(movimientosResult.data, selectedTicker);
+        setDividendos(dividendosData);
+        
+        // Obtener rentas
+        const rentasData = await getRentasPorTicker(movimientosResult.data, selectedTicker);
+        setRentas(rentasData);
+      } catch (error) {
+        console.warn('⚠️ Error al cargar dividendos y rentas:', error);
         setDividendos([]);
+        setRentas([]);
+        setMovimientosHistoricosCacheInfo(null);
       }
     };
 
@@ -278,49 +419,12 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
 
     try {
       
-      // Verificar si hay caché de información del instrumento
-      const instrumentCacheKey = `instrument_info_${ticker}`;
-      const instrumentTimestampKey = `instrument_info_${ticker}_timestamp`;
-      const cachedInstrumentData = localStorage.getItem(instrumentCacheKey);
-      const cachedInstrumentTimestamp = localStorage.getItem(instrumentTimestampKey);
-      
-      if (cachedInstrumentData && cachedInstrumentTimestamp) {
-        const cacheAge = Date.now() - parseInt(cachedInstrumentTimestamp, 10);
-        const cacheAgeHours = cacheAge / (1000 * 60 * 60);
-        
-        if (cacheAgeHours < 24) {
-          const cacheFecha = new Date(parseInt(cachedInstrumentTimestamp, 10)).toISOString().split('T')[0];
-          setInstrumentCacheInfo({
-            isCached: true,
-            fecha: cacheFecha
-          });
-        } else {
-          setInstrumentCacheInfo(null);
-        }
-      } else {
-        setInstrumentCacheInfo(null);
-      }
-      
+      // El hook useTickerCache ya maneja la verificación de caché
       // Intentar cargar datos de cotización y datos históricos en paralelo
       const [quoteResult, candlesResult] = await Promise.allSettled([
         getTickerQuote(ticker),
-        getTickerCandles(ticker, 365) // Último año
+        getTickerCandles(ticker, 730) // Últimos 2 años
       ]);
-      
-      // Después de obtener los datos, verificar nuevamente el caché (pudo haberse creado)
-      const newCachedTimestamp = localStorage.getItem(instrumentTimestampKey);
-      if (newCachedTimestamp) {
-        const cacheAge = Date.now() - parseInt(newCachedTimestamp, 10);
-        const cacheAgeHours = cacheAge / (1000 * 60 * 60);
-        
-        if (cacheAgeHours < 24) {
-          const cacheFecha = new Date(parseInt(newCachedTimestamp, 10)).toISOString().split('T')[0];
-          setInstrumentCacheInfo({
-            isCached: true,
-            fecha: cacheFecha
-          });
-        }
-      }
       
       // Extraer quote si fue exitoso
       const quote = quoteResult.status === 'fulfilled' ? quoteResult.value : null;
@@ -361,9 +465,6 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
 
         setTickerInfo(info);
         setHistoricalData(candles.data);
-        setDataSource({ url: candles.sourceUrl, source: candles.source, cacheDate: candles.cacheDate });
-        if (candles.cacheDate) {
-        }
         setLoading(false);
         return; // Salir aquí, ya tenemos lo necesario
       }
@@ -399,9 +500,6 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
 
       setTickerInfo(info);
       setHistoricalData(candles.data);
-      setDataSource({ url: candles.sourceUrl, source: candles.source, cacheDate: candles.cacheDate });
-      if (candles.cacheDate) {
-      }
     } catch (err) {
       console.error('❌ Error al obtener información:', err);
       setError('No se pudo obtener información del ticker. Por favor verifica que el símbolo sea correcto.');
@@ -592,167 +690,121 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
             )}
           </div>
 
-          {/* Operaciones Históricas */}
-          <TickerOrders 
-            operaciones={operaciones}
-            hoveredOperacionIndex={hoveredOperacionIndex}
-            setHoveredOperacionIndex={setHoveredOperacionIndex}
-          />
-
-          {/* Gráfico */}
-          <TickerChart 
-            data={historicalData}
-            ticker={selectedTicker}
-            ppc={ppc}
-            operaciones={operaciones}
-            dividendos={dividendos}
-            rentas={rentas}
-            hoveredOperacionIndex={hoveredOperacionIndex}
-          />
-
-          {/* Data source info - Combinado con caché de movimientos */}
-          {(dataSource || movimientosCacheInfo?.isCached || estadoCuentaCacheInfo?.isCached || instrumentCacheInfo?.isCached) && (
-            <div className="mt-2 p-3 bg-slate-800/50 rounded-lg border border-slate-700">
-              {/* Footer de histórico/gráfico */}
-              {dataSource && (
-                <div className="flex items-center justify-between gap-2" style={{ paddingBottom: (movimientosCacheInfo?.isCached || estadoCuentaCacheInfo?.isCached || instrumentCacheInfo?.isCached) ? '5px' : '0', paddingTop: '5px' }}>
-                  <div className="flex items-center gap-2 text-xs text-slate-400 flex-1">
-                    <span className="font-mono">
-                      {dataSource.source === 'cache' ? (
-                        <>
-                          📦 Cache
-                          {dataSource.cacheDate && (
-                            <span>({dataSource.cacheDate})</span>
-                          )}
-                        </>
-                      ) : '🏦 Balanz API'}
-                    </span>
-                    <span>•</span>
-                    <a 
-                      href={dataSource.url.startsWith('http') ? dataSource.url : undefined}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`font-mono break-all ${dataSource.url.startsWith('http') ? 'text-blue-400 hover:text-blue-300 hover:underline' : 'text-slate-500'}`}
-                      title={dataSource.url}
-                    >
-                        {dataSource.url.length > 80 ? `${dataSource.url.substring(0, 80)}...` : dataSource.url}
-                      </a>
-                  </div>
-                  <button
-                    onClick={() => {
-                      clearTickerCache(selectedTicker);
-                      fetchTickerInfo(selectedTicker);
-                    }}
-                    className="px-2 py-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white rounded transition-colors whitespace-nowrap"
-                    title="Limpiar caché y recargar datos"
-                  >
-                    🗑️ Limpiar caché
-                  </button>
-                </div>
-              )}
-              
-              {/* Footer de movimientos */}
-              {movimientosCacheInfo?.isCached && (
-                <div className="flex items-center justify-between gap-2" style={{ paddingTop: '5px', paddingBottom: (estadoCuentaCacheInfo?.isCached || instrumentCacheInfo?.isCached) ? '5px' : '5px' }}>
-                  <div className="flex items-center gap-2 text-xs text-slate-400 flex-1">
-                    <span className="font-mono">
-                      📦 Cache({movimientosCacheInfo.fecha})
-                    </span>
-                    <span>•</span>
-                    <a 
-                      href={movimientosCacheInfo.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-mono break-all text-blue-400 hover:text-blue-300 hover:underline"
-                      title={movimientosCacheInfo.url}
-                    >
-                      {movimientosCacheInfo.url && movimientosCacheInfo.url.length > 80 
-                        ? `${movimientosCacheInfo.url.substring(0, 80)}...` 
-                        : movimientosCacheInfo.url}
-                    </a>
-                  </div>
-                  <button
-                    onClick={() => {
-                      clearMovimientosCache();
-                      if (selectedTicker) {
-                        fetchTickerInfo(selectedTicker);
-                      }
-                    }}
-                    className="px-2 py-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white rounded transition-colors whitespace-nowrap"
-                    title="Limpiar caché de movimientos y recargar"
-                  >
-                    🗑️ Limpiar caché
-                  </button>
-                </div>
-              )}
-              
-              {/* Footer de estado de cuenta (para PPC) */}
-              {estadoCuentaCacheInfo?.isCached && (
-                <div className="flex items-center justify-between gap-2" style={{ paddingTop: '5px', paddingBottom: instrumentCacheInfo?.isCached ? '5px' : '5px' }}>
-                  <div className="flex items-center gap-2 text-xs text-slate-400 flex-1">
-                    <span className="font-mono">
-                      📦 Cache({estadoCuentaCacheInfo.fecha})
-                    </span>
-                    <span>•</span>
-                    <a 
-                      href="https://clientes.balanz.com/api/v1/estadocuenta"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-mono break-all text-blue-400 hover:text-blue-300 hover:underline"
-                      title="https://clientes.balanz.com/api/v1/estadocuenta"
-                    >
-                      https://clientes.balanz.com/api/v1/estadocuenta
-                    </a>
-                  </div>
-                  <button
-                    onClick={() => {
-                      clearEstadoCuentaCache();
-                      if (selectedTicker) {
-                        fetchTickerInfo(selectedTicker);
-                      }
-                    }}
-                    className="px-2 py-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white rounded transition-colors whitespace-nowrap"
-                    title="Limpiar caché de estado de cuenta y recargar"
-                  >
-                    🗑️ Limpiar caché
-                  </button>
-                </div>
-              )}
-              
-              {/* Footer de información del instrumento */}
-              {instrumentCacheInfo?.isCached && (
-                <div className="flex items-center justify-between gap-2" style={{ paddingTop: '5px', paddingBottom: '5px' }}>
-                  <div className="flex items-center gap-2 text-xs text-slate-400 flex-1">
-                    <span className="font-mono">
-                      📦 Cache({instrumentCacheInfo.fecha})
-                    </span>
-                    <span>•</span>
-                    <a 
-                      href={`https://clientes.balanz.com/api/cotizacioninstrumento?plazo=1&idCuenta=222233&ticker=${selectedTicker}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-mono break-all text-blue-400 hover:text-blue-300 hover:underline"
-                      title={`https://clientes.balanz.com/api/cotizacioninstrumento?plazo=1&idCuenta=222233&ticker=${selectedTicker}`}
-                    >
-                      {`https://clientes.balanz.com/api/cotizacioninstrumento?plazo=1&idCuenta=222233&ticker=${selectedTicker}`.length > 80 
-                        ? `https://clientes.balanz.com/api/cotizacioninstrumento?plazo=1&idCuenta=222233&ticker=${selectedTicker}`.substring(0, 80) + '...'
-                        : `https://clientes.balanz.com/api/cotizacioninstrumento?plazo=1&idCuenta=222233&ticker=${selectedTicker}`}
-                    </a>
-                  </div>
-                  <button
-                    onClick={() => {
-                      clearTickerCache(selectedTicker);
-                      fetchTickerInfo(selectedTicker);
-                    }}
-                    className="px-2 py-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white rounded transition-colors whitespace-nowrap"
-                    title="Limpiar caché de información del instrumento y recargar"
-                  >
-                    🗑️ Limpiar caché
-                  </button>
-                </div>
-              )}
+          {/* Gráfico y Operaciones Históricas lado a lado */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ maxHeight: '530px' }}>
+            {/* Gráfico - ocupa 2/3 del espacio */}
+            <div className="lg:col-span-2">
+              <TickerChart 
+                data={historicalData}
+                ticker={selectedTicker}
+                ppc={ppc}
+                operaciones={operaciones}
+                dividendos={dividendos}
+                rentas={rentas}
+                hoveredOperacionIndex={hoveredOperacionIndex}
+              />
             </div>
-          )}
+            
+            {/* Operaciones Históricas - ocupa 1/3 del espacio */}
+            <div className="lg:col-span-1 h-full">
+              <TickerOrders 
+                operaciones={operaciones}
+                hoveredOperacionIndex={hoveredOperacionIndex}
+                setHoveredOperacionIndex={setHoveredOperacionIndex}
+              />
+            </div>
+          </div>
+
+          {/* Sección unificada de cachés */}
+          <CacheSection
+            caches={[
+              // Órdenes históricas
+              movimientosCacheInfo?.isCached && movimientosCacheInfo.url ? {
+                label: 'balanz - reportehistoricoordenes',
+                isCached: true,
+                fecha: movimientosCacheInfo.fecha,
+                url: movimientosCacheInfo.url,
+                onClear: () => {
+                  preserveAuthTokens(() => {
+                    // Limpiar caché de órdenes históricas
+                    const fechaDesde = movimientosCacheInfo.url?.split('FechaDesde=')[1]?.split('&')[0];
+                    const fechaHasta = movimientosCacheInfo.url?.split('FechaHasta=')[1];
+                    if (fechaDesde && fechaHasta) {
+                      localStorage.removeItem(`balanz_ordenes_${fechaDesde}_${fechaHasta}`);
+                    }
+                  });
+                  if (selectedTicker) fetchTickerInfo(selectedTicker);
+                }
+              } : null,
+              // Movimientos históricos (para dividendos y rentas)
+              movimientosHistoricosCacheInfo?.isCached && movimientosHistoricosCacheInfo.url ? {
+                label: 'balanz - movimientos',
+                isCached: true,
+                fecha: movimientosHistoricosCacheInfo.fecha,
+                url: movimientosHistoricosCacheInfo.url,
+                onClear: () => {
+                  preserveAuthTokens(() => {
+                    // Limpiar caché de movimientos históricos
+                    const fechaDesde = movimientosHistoricosCacheInfo.url?.split('FechaDesde=')[1]?.split('&')[0];
+                    const fechaHasta = movimientosHistoricosCacheInfo.url?.split('FechaHasta=')[1]?.split('&')[0];
+                    if (fechaDesde && fechaHasta) {
+                      localStorage.removeItem(`balanz_movimientos_${fechaDesde}_${fechaHasta}`);
+                    }
+                  });
+                  if (selectedTicker) fetchTickerInfo(selectedTicker);
+                }
+              } : null,
+              // Estado de cuenta
+              estadoCuentaCacheInfo?.isCached ? {
+                label: 'balanz - estadocuenta',
+                isCached: true,
+                fecha: estadoCuentaCacheInfo.fecha,
+                url: 'https://clientes.balanz.com/api/v1/estadocuenta',
+                onClear: () => {
+                  clearEstadoCuentaCache();
+                  if (selectedTicker) fetchTickerInfo(selectedTicker);
+                }
+              } : null,
+              // Info instrumento
+              instrumentCacheInfo?.isCached ? {
+                label: 'balanz - cotizacioninstrumento',
+                isCached: true,
+                fecha: instrumentCacheInfo.fecha,
+                url: `https://clientes.balanz.com/api/cotizacioninstrumento?plazo=1&idCuenta=222233&ticker=${selectedTicker}`,
+                onClear: () => {
+                  clearTickerCache(selectedTicker);
+                  fetchTickerInfo(selectedTicker);
+                }
+              } : null,
+              // Histórico de precios (candles)
+              candlesCacheInfo?.isCached ? {
+                label: 'balanz - historico/eventos',
+                isCached: true,
+                fecha: candlesCacheInfo.fecha ? new Date(candlesCacheInfo.fecha).toISOString().split('T')[0] : '',
+                url: `https://clientes.balanz.com/api/v1/historico/eventos?ticker=${candlesCacheInfo.usdTicker || selectedTicker}&plazo=1&fullNormalize=false`,
+                onClear: () => {
+                  // Limpiar caché usando el usdTicker si está disponible
+                  if (candlesCacheInfo.usdTicker) {
+                    clearTickerCache(candlesCacheInfo.usdTicker);
+                  } else {
+                    clearTickerCache(selectedTicker);
+                  }
+                  fetchTickerInfo(selectedTicker);
+                }
+              } : null,
+              // Cotizaciones históricas del dólar
+              dolarCacheInfo.exists ? {
+                label: 'argentinadatos - cotizaciones/dolares',
+                isCached: true,
+                fecha: dolarCacheInfo.timestamp ? new Date(dolarCacheInfo.timestamp).toISOString().split('T')[0] : '',
+                url: 'https://api.argentinadatos.com/v1/cotizaciones/dolares',
+                onClear: () => {
+                  clearDolarHistoricoCache();
+                  if (selectedTicker) fetchTickerInfo(selectedTicker);
+                }
+              } : null,
+            ].filter(Boolean) as any}
+          />
 
           {/* Links externos */}
           <div className="text-center flex flex-col gap-3 items-center">

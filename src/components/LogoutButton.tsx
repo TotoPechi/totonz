@@ -1,11 +1,17 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { clearTokenCache } from '../services/balanzAuth';
+import { clearTokenCache, logoutBalanz } from '../services/balanzAuth';
 import { clearEstadoCuentaCache, clearMovimientosCache } from '../services/balanzApi';
 
 const LogoutButton: React.FC = () => {
   const navigate = useNavigate();
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await logoutBalanz();
+    } catch (e) {
+      // Si falla el logout, igual limpiamos el cache local
+      console.error('Error en logout remoto:', e);
+    }
     clearTokenCache();
     clearEstadoCuentaCache();
     clearMovimientosCache();
