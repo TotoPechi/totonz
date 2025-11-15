@@ -1,7 +1,11 @@
 // Servicio para obtener información de tickers
 // Usando Balanz API como fuente única de datos
 
+import { preserveAuthTokens } from '../utils/cacheHelpers';
+import { clearCache, clearCacheByPattern, getCachedData, getCachedDataExpired, getCachedDataWithValidator, setCachedData, setCachedDataCustom } from '../utils/cacheManager';
+import { tickersMatch } from '../utils/tickerHelpers';
 import { getCachedAccessToken } from './balanzAuth';
+import { getCotizacionesHistoricas, getDolarParaFechaDesdeCotizaciones } from './dolarHistoricoApi';
 
 interface TickerQuote {
   symbol: string;
@@ -37,6 +41,17 @@ interface TickerQuote {
     maturity?: string; // "2027-10-31"
     yield?: string; // "7.6%" como string
     type?: string; // "BOPREAL", "Treasury", etc.
+    cashFlow?: Array<{
+      date: string;
+      coupon: string;
+      amortization: string;
+      effectiveRent: string;
+      residualValue: number;
+      amortizationValue: number;
+      rent: number;
+      cashflow: number;
+      currency: number;
+    }>;
   };
 }
 
@@ -85,6 +100,17 @@ async function getBalanzInstrumentInfo(ticker: string): Promise<{
     maturity?: string; // "2027-10-31"
     yield?: string; // "7.6%" como string
     type?: string; // "BOPREAL", "Treasury", etc.
+    cashFlow?: Array<{
+      date: string;
+      coupon: string;
+      amortization: string;
+      effectiveRent: string;
+      residualValue: number;
+      amortizationValue: number;
+      rent: number;
+      cashflow: number;
+      currency: number;
+    }>;
   };
   fullData?: any; // Data completa para uso interno
 }> {
@@ -164,26 +190,12 @@ async function getBalanzInstrumentInfo(ticker: string): Promise<{
   try {
     // Clave de caché
     const cacheKey = `instrument_info_${ticker}`;
-    const cacheTimestampKey = `instrument_info_${ticker}_timestamp`;
+    const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 horas
     
     // Verificar si hay datos en caché válidos (menos de 24 horas)
-    const cachedData = localStorage.getItem(cacheKey);
-    const cachedTimestamp = localStorage.getItem(cacheTimestampKey);
-    
-    // Respetar el flag global de caché
-    const globalCacheEnabled = localStorage.getItem('global_cache_enabled') !== 'false';
-    if (cachedData && cachedTimestamp && globalCacheEnabled) {
-      const cacheAge = Date.now() - parseInt(cachedTimestamp, 10);
-      const cacheAgeHours = cacheAge / (1000 * 60 * 60);
-      // Si el caché tiene menos de 24 horas, usarlo
-      if (cacheAgeHours < 24) {
-        try {
-          const cachedFullData = JSON.parse(cachedData);
-          return processInstrumentData(cachedFullData, ticker);
-        } catch (e) {
-          console.warn('⚠️ Error parseando caché de instrumento, consultando API...');
-        }
-      }
+    const cachedFullData = getCachedData<any>(cacheKey, CACHE_DURATION);
+    if (cachedFullData) {
+      return processInstrumentData(cachedFullData, ticker);
     }
     
     // Primero intentamos sin mapeo especial para obtener la info
@@ -211,13 +223,9 @@ async function getBalanzInstrumentInfo(ticker: string): Promise<{
       }
       
       // Si hay error pero tenemos caché antiguo, usarlo como fallback
-      if (cachedData) {
-        try {
-          const cachedFullData = JSON.parse(cachedData);
-          return processInstrumentData(cachedFullData, ticker);
-        } catch (e) {
-          // Ignorar error de parsing
-        }
+      const expiredCache = getCachedDataExpired<any>(cacheKey);
+      if (expiredCache) {
+        return processInstrumentData(expiredCache, ticker);
       }
       
       return {};
@@ -229,13 +237,9 @@ async function getBalanzInstrumentInfo(ticker: string): Promise<{
       console.warn('⚠️ No hay datos de cotización');
       
       // Si no hay datos pero tenemos caché, usarlo
-      if (cachedData) {
-        try {
-          const cachedFullData = JSON.parse(cachedData);
-          return processInstrumentData(cachedFullData, ticker);
-        } catch (e) {
-          // Ignorar error de parsing
-        }
+      const expiredCache = getCachedDataExpired<any>(cacheKey);
+      if (expiredCache) {
+        return processInstrumentData(expiredCache, ticker);
       }
       
       return {};
@@ -245,12 +249,7 @@ async function getBalanzInstrumentInfo(ticker: string): Promise<{
     const bond = data.bond;
     
     // Guardar la respuesta COMPLETA en caché
-    try {
-      localStorage.setItem(cacheKey, JSON.stringify(data));
-      localStorage.setItem(cacheTimestampKey, Date.now().toString());
-    } catch (e) {
-      console.warn('⚠️ Error guardando info del instrumento en caché:', e);
-    }
+    setCachedData(cacheKey, data);
     
     // Obtener ticker en USD desde currencies y detectar moneda del ticker actual
     // currencies es un array de arrays: [["YPFD", "1", "ARS"], ["YPFDD", "2", "USD"], ...]
@@ -306,7 +305,8 @@ async function getBalanzInstrumentInfo(ticker: string): Promise<{
         jurisdiction: bond.jurisdiction, // "ARG"
         maturity: bond.maturity, // "2027-10-31"
         yield: bond.yield, // "7.6%"
-        type: bond.type // "BOPREAL", etc.
+        type: bond.type, // "BOPREAL", etc.
+        cashFlow: bond.cashFlow // Array completo de cashflow
       };
     }
     
@@ -329,14 +329,9 @@ async function getBalanzInstrumentInfo(ticker: string): Promise<{
     
     // Intentar usar caché como último recurso
     const cacheKey = `instrument_info_${ticker}`;
-    const cachedData = localStorage.getItem(cacheKey);
-    if (cachedData) {
-      try {
-        const cachedFullData = JSON.parse(cachedData);
-        return processInstrumentData(cachedFullData, ticker);
-      } catch (e) {
-        // Ignorar error de parsing
-      }
+    const expiredCache = getCachedDataExpired<any>(cacheKey);
+    if (expiredCache) {
+      return processInstrumentData(expiredCache, ticker);
     }
     
     return {};
@@ -344,52 +339,119 @@ async function getBalanzInstrumentInfo(ticker: string): Promise<{
 }
 
 // Función para obtener cotización de un ticker
-export async function getTickerQuote(symbol: string): Promise<TickerQuote | null> {
+export async function getTickerQuote(symbol: string, positions?: any[], movimientos?: any[]): Promise<TickerQuote | null> {
   try {
     try {
-      // Primero obtener información del instrumento para saber el ticker en USD
-      const instrumentInfo = await getBalanzInstrumentInfo(symbol);
+      // Detectar si es un fondo
+      const esFondo = isFondo(symbol, positions, movimientos);
       
-      // Usar el ticker en USD obtenido de currencies, o usar el ticker original
-      const usdTicker = instrumentInfo.usdTicker || symbol;
-      
-      // Obtener datos históricos con el ticker correcto
-      const historicalData = await getBalanzHistorico(usdTicker, 730); // Últimos 2 años (730 días)
-      
-      if (historicalData.length > 0) {
-        const lastData = historicalData[historicalData.length - 1];
-        const prevData = historicalData.length > 1 ? historicalData[historicalData.length - 2] : lastData;
+      if (esFondo) {
+        // Usar API de fondos
+        const fondoInfo = await getBalanzFondoInfo(symbol);
         
-        const price = lastData.close;
-        const previousPrice = prevData.close;
-        const change = price - previousPrice;
-        const changePercent = previousPrice > 0 ? (change / previousPrice * 100) : 0;
+        if (fondoInfo.price !== undefined) {
+          return {
+            symbol: symbol,
+            name: symbol,
+            price: fondoInfo.price,
+            change: fondoInfo.change || 0,
+            changePercent: fondoInfo.changePercent || 0,
+            currency: fondoInfo.tickerCurrency === 'ARS' ? 'ARS' : 'USD',
+            volume: undefined, // Los fondos no tienen volumen
+            mappedSymbol: undefined,
+            description: fondoInfo.description,
+            type: fondoInfo.type,
+            category: fondoInfo.category,
+            lastClose: fondoInfo.lastClose,
+            open: fondoInfo.open,
+            marketId: undefined,
+            tickerCurrency: fondoInfo.tickerCurrency,
+            ratio: undefined,
+            bond: undefined,
+          };
+        }
         
-        return {
-          symbol: symbol,
-          name: symbol,
-          price: price,
-          change: change,
-          changePercent: changePercent,
-          currency: 'USD', // Balanz en USD
-          volume: lastData.volume,
-          high52w: undefined,
-          low52w: undefined,
-          mappedSymbol: usdTicker !== symbol ? usdTicker : undefined, // Solo si es diferente
-          description: instrumentInfo.description,
-          type: instrumentInfo.type,
-          category: instrumentInfo.category,
-          lastClose: instrumentInfo.lastClose,
-          open: instrumentInfo.open,
-          marketId: instrumentInfo.marketId,
-          tickerCurrency: instrumentInfo.tickerCurrency, // Moneda original del ticker (ARS, USD, CCL, etc.)
-          ratio: instrumentInfo.ratio, // Ratio de conversión (ej: "25 VN = 1 ADR")
-          bond: instrumentInfo.bond,
-        };
+        console.warn('⚠️ No hay datos de fondo para', symbol);
+        return null;
+      } else {
+        // Usar API normal (acciones, bonos, etc.)
+        try {
+          // Primero obtener información del instrumento para saber el ticker en USD
+          const instrumentInfo = await getBalanzInstrumentInfo(symbol);
+          
+          // Usar el ticker en USD obtenido de currencies, o usar el ticker original
+          const usdTicker = instrumentInfo.usdTicker || symbol;
+          
+          // Obtener datos históricos con el ticker correcto
+          const historicalData = await getBalanzHistorico(usdTicker, 730); // Últimos 2 años (730 días)
+          
+          if (historicalData.length > 0) {
+            const lastData = historicalData[historicalData.length - 1];
+            const prevData = historicalData.length > 1 ? historicalData[historicalData.length - 2] : lastData;
+            
+            const price = lastData.close;
+            const previousPrice = prevData.close;
+            const change = price - previousPrice;
+            const changePercent = previousPrice > 0 ? (change / previousPrice * 100) : 0;
+            
+            return {
+              symbol: symbol,
+              name: symbol,
+              price: price,
+              change: change,
+              changePercent: changePercent,
+              currency: 'USD', // Balanz en USD
+              volume: lastData.volume,
+              high52w: undefined,
+              low52w: undefined,
+              mappedSymbol: usdTicker !== symbol ? usdTicker : undefined, // Solo si es diferente
+              description: instrumentInfo.description,
+              type: instrumentInfo.type,
+              category: instrumentInfo.category,
+              lastClose: instrumentInfo.lastClose,
+              open: instrumentInfo.open,
+              marketId: instrumentInfo.marketId,
+              tickerCurrency: instrumentInfo.tickerCurrency, // Moneda original del ticker (ARS, USD, CCL, etc.)
+              ratio: instrumentInfo.ratio, // Ratio de conversión (ej: "25 VN = 1 ADR")
+              bond: instrumentInfo.bond,
+            };
+          }
+        } catch (normalApiError) {
+          // Si la API normal falla, intentar API de fondos como fallback
+          console.warn('⚠️ API normal falló para', symbol, ', intentando API de fondos...');
+          try {
+            const fondoInfo = await getBalanzFondoInfo(symbol);
+            
+            if (fondoInfo.price !== undefined) {
+              return {
+                symbol: symbol,
+                name: symbol,
+                price: fondoInfo.price,
+                change: fondoInfo.change || 0,
+                changePercent: fondoInfo.changePercent || 0,
+                currency: fondoInfo.tickerCurrency === 'ARS' ? 'ARS' : 'USD',
+                volume: undefined,
+                mappedSymbol: undefined,
+                description: fondoInfo.description,
+                type: fondoInfo.type,
+                category: fondoInfo.category,
+                lastClose: fondoInfo.lastClose,
+                open: fondoInfo.open,
+                marketId: undefined,
+                tickerCurrency: fondoInfo.tickerCurrency,
+                ratio: undefined,
+                bond: undefined,
+              };
+            }
+          } catch (fondoApiError) {
+            // Si ambas APIs fallan, continuar con el error original
+            console.error('❌ También falló la API de fondos:', fondoApiError);
+          }
+        }
+        
+        console.warn('⚠️ No hay datos de Balanz para', symbol);
+        return null;
       }
-      
-      console.warn('⚠️ No hay datos de Balanz para', symbol);
-      return null;
     } catch (balanzError) {
       console.error('❌ Error obteniendo datos de Balanz:', balanzError);
       return null;
@@ -401,6 +463,417 @@ export async function getTickerQuote(symbol: string): Promise<TickerQuote | null
 }
 
 /**
+ * Detecta si un ticker es un fondo de inversión
+ * Puede detectarse desde positions, movimientos históricos, o desde la respuesta de la API
+ */
+export function isFondo(ticker: string, positions?: any[], movimientos?: any[]): boolean {
+  // 1. Buscar en positions
+  if (positions) {
+    const position = positions.find(p => p.Ticker === ticker);
+    if (position?.Tipo) {
+      const tipo = position.Tipo.toLowerCase();
+      if (tipo.includes('fondo') || tipo.includes('cuotaparte')) {
+        return true;
+      }
+    }
+  }
+  
+  // 2. Buscar en movimientos históricos
+  if (movimientos && movimientos.length > 0) {
+    const movimientosTicker = movimientos.filter(mov => {
+      // Normalizar ticker para comparación (puede venir con espacios como "EQUITYS A")
+      const movTicker = mov.ticker || mov.Ticker || '';
+      return tickersMatch(movTicker, ticker);
+    });
+    
+    if (movimientosTicker.length > 0) {
+      // Verificar si alguno de los movimientos indica que es un fondo
+      const esFondoEnMovimientos = movimientosTicker.some(mov => {
+        // Verificar TipoInstrumento
+        const tipoInstrumento = mov.TipoInstrumento || mov.tipoInstrumento || '';
+        if (tipoInstrumento.toLowerCase().includes('fondo')) {
+          return true;
+        }
+        
+        // Verificar tipo de movimiento
+        const tipo = mov.tipo || mov.Tipo || '';
+        if (tipo === 'Liquidación Fondo' || tipo.toLowerCase().includes('fondo')) {
+          return true;
+        }
+        
+        return false;
+      });
+      
+      if (esFondoEnMovimientos) {
+        return true;
+      }
+    }
+  }
+  
+  return false;
+}
+
+/**
+ * Obtiene datos históricos de un fondo desde la API cotizacionhistorico
+ */
+async function getBalanzFondoHistorico(ticker: string, days: number = 730): Promise<HistoricalData[]> {
+  try {
+    // --- CACHÉ ---
+    const cacheKey = `fondo_history_${ticker}_v1`;
+    const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 horas
+    
+    // Siempre obtener información del fondo para saber la moneda (necesario para conversión)
+    const fondoInfoCacheKey = `fondo_info_${ticker}`;
+    let esARS = false;
+    let fondoInfoCached = getCachedData<any>(fondoInfoCacheKey, 24 * 60 * 60 * 1000);
+    
+    if (fondoInfoCached?.Cotizacion) {
+      const cotizacion = fondoInfoCached.Cotizacion;
+      const monedaStr = (cotizacion.Moneda || '').toLowerCase();
+      const idMoneda = cotizacion.idMoneda;
+      esARS = idMoneda === 1 || monedaStr.includes('pesos') || monedaStr === 'ars';
+      console.log(`💰 Fondo ${ticker} - Moneda desde caché (antes de obtener histórico):`, {
+        idMoneda,
+        Moneda: cotizacion.Moneda,
+        monedaStr,
+        esARS
+      });
+    } else {
+      const fondoInfo = await getBalanzFondoInfo(ticker);
+      if (fondoInfo.tickerCurrency) {
+        const monedaLower = fondoInfo.tickerCurrency.toLowerCase();
+        esARS = monedaLower === 'ars' || monedaLower.includes('pesos');
+        console.log(`💰 Fondo ${ticker} - Moneda desde API (antes de obtener histórico):`, {
+          tickerCurrency: fondoInfo.tickerCurrency,
+          monedaLower,
+          esARS
+        });
+      }
+    }
+    
+    // Validar que el cache tenga menos de 24h y la misma cantidad de días
+    const cachedData = getCachedDataWithValidator<HistoricalData[]>(
+      cacheKey,
+      (cache) => {
+        if (!cache.lastUpdate || cache.days !== days) return false;
+        const age = Date.now() - new Date(cache.lastUpdate).getTime();
+        return age < CACHE_DURATION && Array.isArray(cache.data) && cache.data.length > 0;
+      }
+    );
+    
+    // Si hay caché, verificar si necesita conversión
+    if (cachedData) {
+      console.log(`📦 Datos históricos de ${ticker} encontrados en caché (${cachedData.length} registros)`);
+      
+      // Si es ARS y los datos del caché no están convertidos, aplicar conversión
+      if (esARS) {
+        console.log(`💱 Aplicando conversión a USD a datos del caché para ${ticker}...`);
+        try {
+          const cotizacionesHistoricas = await getCotizacionesHistoricas();
+          console.log(`✅ Obtenidas ${cotizacionesHistoricas.length} cotizaciones históricas del dólar para convertir caché`);
+          
+          const convertedData = cachedData.map((candle) => {
+            const dolarHistorico = getDolarParaFechaDesdeCotizaciones(cotizacionesHistoricas, candle.time);
+            if (dolarHistorico && dolarHistorico > 0) {
+              const valorConvertido = candle.close / dolarHistorico;
+              return {
+                ...candle,
+                open: valorConvertido,
+                high: valorConvertido,
+                low: valorConvertido,
+                close: valorConvertido,
+              };
+            }
+            return candle;
+          });
+          
+          console.log(`✅ Conversión aplicada a caché: primer valor ${cachedData[0]?.close} -> ${convertedData[0]?.close}`);
+          return convertedData;
+        } catch (error) {
+          console.warn('⚠️ Error convirtiendo datos del caché, retornando datos originales:', error);
+          return cachedData;
+        }
+      } else {
+        console.log(`💵 Fondo ${ticker} es USD - Retornando datos del caché sin conversión`);
+      }
+      
+      return cachedData;
+    }
+
+    // --- API REAL ---
+    const url = `/api/cotizacionhistorico?ticker=${ticker}`;
+    const token = await getCachedAccessToken();
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': token,
+      }
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ Error ${response.status} al obtener histórico de fondo`);
+      console.error(`📄 Response body:`, errorText.substring(0, 500));
+      if (response.status === 520 || response.status === 403 || response.status === 401) {
+        console.error('🔒 Error de autenticación - Token posiblemente expirado');
+        localStorage.removeItem('balanz_access_token');
+        localStorage.removeItem('balanz_token_timestamp');
+      }
+      return [];
+    }
+    
+    const text = await response.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (parseError) {
+      console.error('❌ Error parseando respuesta de fondo como JSON:', parseError);
+      console.error('📄 Texto completo recibido:', text);
+      return [];
+    }
+    
+    const historico = data?.historico || [];
+    if (!historico || !Array.isArray(historico) || historico.length === 0) {
+      console.warn('⚠️ No hay datos históricos de fondo para', ticker);
+      return [];
+    }
+    
+    // Si aún no tenemos la información de moneda (porque no había caché de fondo_info), obtenerla ahora
+    if (!fondoInfoCached?.Cotizacion) {
+      fondoInfoCached = getCachedData<any>(fondoInfoCacheKey, 24 * 60 * 60 * 1000);
+    }
+    
+    // Si aún no tenemos la moneda determinada, obtenerla desde la API
+    if (fondoInfoCached?.Cotizacion) {
+      const cotizacion = fondoInfoCached.Cotizacion;
+      const monedaStr = (cotizacion.Moneda || '').toLowerCase();
+      const idMoneda = cotizacion.idMoneda;
+      // Verificar si es ARS/pesos (case insensitive): idMoneda === 1 o Moneda contiene "pesos" o es "ars"
+      esARS = idMoneda === 1 || monedaStr.includes('pesos') || monedaStr === 'ars';
+      console.log(`💰 Fondo ${ticker} - Moneda desde caché (al procesar datos):`, {
+        idMoneda,
+        Moneda: cotizacion.Moneda,
+        monedaStr,
+        esARS
+      });
+    } else {
+      // Si no hay caché, obtener la información del fondo
+      const fondoInfo = await getBalanzFondoInfo(ticker);
+      if (fondoInfo.tickerCurrency) {
+        const monedaLower = fondoInfo.tickerCurrency.toLowerCase();
+        esARS = monedaLower === 'ars' || monedaLower.includes('pesos');
+        console.log(`💰 Fondo ${ticker} - Moneda desde API (al procesar datos):`, {
+          tickerCurrency: fondoInfo.tickerCurrency,
+          monedaLower,
+          esARS
+        });
+      } else {
+        console.warn(`⚠️ Fondo ${ticker} - No se pudo determinar la moneda desde fondo_info`);
+      }
+    }
+    
+    // Si es ARS, obtener cotizaciones históricas del dólar para convertir
+    let cotizacionesHistoricas: any[] = [];
+    if (esARS) {
+      console.log(`💱 Fondo ${ticker} es ARS - Obteniendo cotizaciones históricas para convertir a USD...`);
+      try {
+        cotizacionesHistoricas = await getCotizacionesHistoricas();
+        console.log(`✅ Obtenidas ${cotizacionesHistoricas.length} cotizaciones históricas del dólar`);
+      } catch (error) {
+        console.warn('⚠️ No se pudieron obtener cotizaciones históricas para convertir fondo a USD:', error);
+      }
+    } else {
+      console.log(`💵 Fondo ${ticker} es USD - No se requiere conversión`);
+    }
+    
+    // Convertir formato de fondo al formato esperado
+    let conversionesExitosas = 0;
+    let conversionesFallidas = 0;
+    
+    const candles: HistoricalData[] = historico
+      .map((item: any) => {
+        const fecha = item.fecha;
+        let valorcuotaparte = item.valorcuotaparte || 0;
+        const valorOriginal = valorcuotaparte;
+        
+        // Si el fondo es en ARS, convertir a USD usando el dólar histórico de esa fecha
+        if (esARS && cotizacionesHistoricas.length > 0) {
+          // La fecha viene en formato YYYY-MM-DD
+          const dolarHistorico = getDolarParaFechaDesdeCotizaciones(cotizacionesHistoricas, fecha);
+          if (dolarHistorico && dolarHistorico > 0) {
+            valorcuotaparte = valorcuotaparte / dolarHistorico;
+            conversionesExitosas++;
+            if (conversionesExitosas <= 3 || conversionesExitosas === historico.length) {
+              console.log(`💱 Convertido ${ticker} ${fecha}: ${valorOriginal.toFixed(2)} ARS / ${dolarHistorico.toFixed(2)} = ${valorcuotaparte.toFixed(4)} USD`);
+            }
+          } else {
+            conversionesFallidas++;
+            console.warn(`⚠️ No se encontró dólar histórico para fecha ${fecha}, usando valor en ARS: ${valorcuotaparte}`);
+          }
+        }
+        
+        // Para fondos, open/high/low/close son el mismo valor (valorcuotaparte)
+        return {
+          time: fecha,
+          open: valorcuotaparte,
+          high: valorcuotaparte,
+          low: valorcuotaparte,
+          close: valorcuotaparte,
+          volume: 0, // Los fondos no tienen volumen
+        };
+      })
+      .filter((candle: HistoricalData) => candle.close > 0 && candle.time)
+      .sort((a, b) => a.time.localeCompare(b.time));
+    
+    // Log resumen de conversiones
+    if (esARS) {
+      console.log(`📊 Resumen conversión ${ticker}: ${conversionesExitosas} exitosas, ${conversionesFallidas} fallidas de ${historico.length} totales`);
+      if (candles.length > 0) {
+        const primerValor = candles[0].close;
+        const ultimoValor = candles[candles.length - 1].close;
+        console.log(`📈 Rango de valores convertidos: ${primerValor.toFixed(4)} - ${ultimoValor.toFixed(4)} USD`);
+      }
+    }
+    
+    // Guardar en caché con formato personalizado
+    const cacheData = candles.slice(-days);
+    setCachedDataCustom(cacheKey, {
+      data: cacheData,
+      lastUpdate: new Date().toISOString(),
+      days
+    });
+    
+    return cacheData;
+  } catch (error) {
+    console.error('❌ Error obteniendo datos históricos de fondo:', error);
+    return [];
+  }
+}
+
+/**
+ * Obtiene información de cotización actual de un fondo desde la API cotizacioncuotaparte
+ */
+async function getBalanzFondoInfo(ticker: string): Promise<{ 
+  description?: string; 
+  type?: string; 
+  category?: string;
+  price?: number;
+  change?: number;
+  changePercent?: number;
+  lastClose?: number;
+  open?: number;
+  tickerCurrency?: string;
+  fullData?: any;
+}> {
+  try {
+    const cacheKey = `fondo_info_${ticker}`;
+    const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 horas
+    
+    // Verificar caché
+    const cachedData = getCachedData<any>(cacheKey, CACHE_DURATION);
+    if (cachedData) {
+      return processFondoData(cachedData);
+    }
+    
+    // --- API REAL ---
+    const url = `/api/cotizacioncuotaparte?ticker=${ticker}&idCuenta=222233`;
+    const token = await getCachedAccessToken();
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': token,
+      }
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ Error ${response.status} al obtener info de fondo:`, errorText);
+      if (response.status === 520 || response.status === 403 || response.status === 401) {
+        console.error('🔒 Error de autenticación - Token posiblemente expirado');
+        localStorage.removeItem('balanz_access_token');
+        localStorage.removeItem('balanz_token_timestamp');
+      }
+      
+      // Intentar usar caché expirado
+      const expiredCache = getCachedDataExpired<any>(cacheKey);
+      if (expiredCache) {
+        return processFondoData(expiredCache);
+      }
+      
+      return {};
+    }
+    
+    const text = await response.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (parseError) {
+      console.error('❌ Error parseando respuesta de fondo como JSON:', parseError);
+      const expiredCache = getCachedDataExpired<any>(cacheKey);
+      if (expiredCache) {
+        return processFondoData(expiredCache);
+      }
+      return {};
+    }
+    
+    // Guardar en caché
+    setCachedData(cacheKey, data);
+    
+    return processFondoData(data);
+  } catch (error) {
+    console.error('❌ Error obteniendo info de fondo:', error);
+    const cacheKey = `fondo_info_${ticker}`;
+    const expiredCache = getCachedDataExpired<any>(cacheKey);
+    if (expiredCache) {
+      return processFondoData(expiredCache);
+    }
+    return {};
+  }
+}
+
+/**
+ * Procesa los datos de un fondo desde la API cotizacioncuotaparte
+ */
+function processFondoData(fullData: any) {
+  if (!fullData.Cotizacion) {
+    return {};
+  }
+  
+  const cotizacion = fullData.Cotizacion;
+  
+  // Obtener precio actual (valor cuotaparte)
+  const precioActual = parseFloat(cotizacion.CotizacionCuotaparte || cotizacion.Cotizacion || '0');
+  
+  // Calcular cambio diario
+  const varDiaria = parseFloat(cotizacion.VarDiaria || '0');
+  const cambio = (precioActual * varDiaria) / 100;
+  const cambioPorcentaje = varDiaria;
+  
+  // Obtener descripción
+  const description = cotizacion.Descripcion || fullData.info?.Nombre || '';
+  
+  // Tipo y categoría
+  const type = 'Fondo';
+  const category = fullData.info?.TipoFondo || undefined;
+  
+  // Moneda
+  const tickerCurrency = cotizacion.idMoneda === 1 ? 'ARS' : 'USD';
+  
+  return {
+    description: description || undefined,
+    type: type || undefined,
+    category: category,
+    price: precioActual,
+    change: cambio,
+    changePercent: cambioPorcentaje,
+    lastClose: precioActual, // Para fondos, el último cierre es el precio actual
+    open: precioActual, // Para fondos, open = close
+    tickerCurrency: tickerCurrency,
+    fullData: fullData
+  };
+}
+
+/**
  * Obtiene datos históricos desde la API de Balanz
  * Para bonos, corporativos y CEDEARs
  * IMPORTANTE: Recibe el ticker ya transformado a USD (ej: YPFDD, TXD6D)
@@ -409,21 +882,20 @@ async function getBalanzHistorico(tickerUSD: string, days: number = 730): Promis
   try {
     // --- CACHÉ ---
     const cacheKey = `ticker_history_${tickerUSD}_v3`;
-    const globalCacheEnabled = localStorage.getItem('global_cache_enabled') !== 'false';
-    const cachedRaw = localStorage.getItem(cacheKey);
-    if (cachedRaw && globalCacheEnabled) {
-      try {
-        const cached = JSON.parse(cachedRaw);
-        // Validez: 24h y cantidad de días igual
-        if (cached.lastUpdate && cached.days === days) {
-          const age = Date.now() - new Date(cached.lastUpdate).getTime();
-          if (age < 24 * 60 * 60 * 1000 && Array.isArray(cached.data) && cached.data.length > 0) {
-            return cached.data;
-          }
-        }
-      } catch (e) {
-        console.warn('⚠️ Error parseando caché de histórico de precios, consultando API...');
+    const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 horas
+    
+    // Validar que el cache tenga menos de 24h y la misma cantidad de días
+    const cachedData = getCachedDataWithValidator<HistoricalData[]>(
+      cacheKey,
+      (cache) => {
+        if (!cache.lastUpdate || cache.days !== days) return false;
+        const age = Date.now() - new Date(cache.lastUpdate).getTime();
+        return age < CACHE_DURATION && Array.isArray(cache.data) && cache.data.length > 0;
       }
+    );
+    
+    if (cachedData) {
+      return cachedData;
     }
 
     // --- API REAL ---
@@ -483,17 +955,16 @@ async function getBalanzHistorico(tickerUSD: string, days: number = 730): Promis
       })
       .filter((candle: HistoricalData) => candle.close > 0 && candle.time)
       .sort((a, b) => a.time.localeCompare(b.time));
-    // Guardar en caché
-    try {
-      localStorage.setItem(cacheKey, JSON.stringify({
-        data: candles.slice(-days),
-        lastUpdate: new Date().toISOString(),
-        days
-      }));
-    } catch (e) {
-      console.warn('⚠️ Error guardando histórico de precios en caché:', e);
-    }
-    return candles.slice(-days);
+    
+    // Guardar en caché con formato personalizado
+    const cacheData = candles.slice(-days);
+    setCachedDataCustom(cacheKey, {
+      data: cacheData,
+      lastUpdate: new Date().toISOString(),
+      days
+    });
+    
+    return cacheData;
   } catch (error) {
     console.error('❌ Error obteniendo datos de Balanz:', error);
     return [];
@@ -501,20 +972,58 @@ async function getBalanzHistorico(tickerUSD: string, days: number = 730): Promis
 }
 
 // Función centralizada para obtener datos históricos de la API historico/eventos de Balanz
-export async function getTickerCandles(symbol: string, days: number = 730): Promise<HistoricalDataResponse> {
-  // Usa getBalanzHistorico como única fuente
+// O de la API cotizacionhistorico si es un fondo
+export async function getTickerCandles(symbol: string, days: number = 730, positions?: any[], movimientos?: any[]): Promise<HistoricalDataResponse> {
   try {
-    // Obtener información del instrumento para saber el ticker en USD
-    const instrumentInfo = await getBalanzInstrumentInfo(symbol);
-    const usdTicker = instrumentInfo.usdTicker || symbol;
-    const data = await getBalanzHistorico(usdTicker, days);
-    const balanzUrl = `https://clientes.balanz.com/api/v1/historico/eventos?ticker=${usdTicker}&plazo=1&fullNormalize=false`;
-    return {
-      data,
-      sourceUrl: balanzUrl,
-      source: 'balanz',
-      cacheDate: undefined // Si se quiere, se puede agregar lógica de caché aquí
-    };
+    // Detectar si es un fondo
+    const esFondo = isFondo(symbol, positions, movimientos);
+    
+    if (esFondo) {
+      // Usar API de fondos
+      const data = await getBalanzFondoHistorico(symbol, days);
+      const balanzUrl = `https://clientes.balanz.com/api/v1/cotizacionhistorico?ticker=${symbol}`;
+      return {
+        data,
+        sourceUrl: balanzUrl,
+        source: 'balanz',
+        cacheDate: undefined
+      };
+    } else {
+      // Usar API normal (acciones, bonos, etc.)
+      try {
+        const instrumentInfo = await getBalanzInstrumentInfo(symbol);
+        const usdTicker = instrumentInfo.usdTicker || symbol;
+        const data = await getBalanzHistorico(usdTicker, days);
+        const balanzUrl = `https://clientes.balanz.com/api/v1/historico/eventos?ticker=${usdTicker}&plazo=1&fullNormalize=false`;
+        return {
+          data,
+          sourceUrl: balanzUrl,
+          source: 'balanz',
+          cacheDate: undefined
+        };
+      } catch (normalApiError) {
+        // Si la API normal falla, intentar API de fondos como fallback
+        console.warn('⚠️ API normal de histórico falló para', symbol, ', intentando API de fondos...');
+        try {
+          const data = await getBalanzFondoHistorico(symbol, days);
+          const balanzUrl = `https://clientes.balanz.com/api/v1/cotizacionhistorico?ticker=${symbol}`;
+          return {
+            data,
+            sourceUrl: balanzUrl,
+            source: 'balanz',
+            cacheDate: undefined
+          };
+        } catch (fondoApiError) {
+          console.error('❌ También falló la API de fondos:', fondoApiError);
+          return {
+            data: [],
+            sourceUrl: 'Error: No data available',
+            source: 'balanz',
+            cacheDate: undefined
+          };
+        }
+      }
+    }
   } catch (error) {
     console.error('❌ Error obteniendo datos históricos:', error);
     return {
@@ -529,49 +1038,51 @@ export async function getTickerCandles(symbol: string, days: number = 730): Prom
 // Función auxiliar para limpiar el caché de un ticker específico
 export function clearTickerCache(symbol: string): void {
   preserveAuthTokens(() => {
-    // Limpiar caché de histórico
+    // Limpiar caché de histórico (acciones/bonos)
     const cacheKey = `ticker_history_${symbol}_v3`;
+    clearCache(cacheKey);
+    
+    // Limpiar caché de histórico de fondos
+    const fondoCacheKey = `fondo_history_${symbol}_v1`;
+    clearCache(fondoCacheKey);
+    
+    // Limpiar versiones antiguas
     const oldKeys = [
       `ticker_history_${symbol}_v2`,
       `ticker_history_${symbol}`
     ];
-    
-    localStorage.removeItem(cacheKey);
-    oldKeys.forEach(key => localStorage.removeItem(key));
+    oldKeys.forEach(key => clearCache(key));
     
     // Limpiar caché de información del instrumento
     const instrumentCacheKey = `instrument_info_${symbol}`;
-    const instrumentTimestampKey = `instrument_info_${symbol}_timestamp`;
-    localStorage.removeItem(instrumentCacheKey);
-    localStorage.removeItem(instrumentTimestampKey);
+    clearCache(instrumentCacheKey);
     
+    // Limpiar caché de información de fondo
+    const fondoInfoCacheKey = `fondo_info_${symbol}`;
+    clearCache(fondoInfoCacheKey);
+    
+    // Limpiar timestamp legacy si existe (compatibilidad)
+    localStorage.removeItem(`${instrumentCacheKey}_timestamp`);
   });
 }
 
 // Función auxiliar para limpiar todo el caché de tickers
 export function clearAllTickerCache(): void {
-  // Preservar tokens de autenticación
-  const accessToken = localStorage.getItem('balanz_access_token');
-  const tokenTimestamp = localStorage.getItem('balanz_token_timestamp');
-  const tokenFail = localStorage.getItem('balanz_token_fail');
-  
-  const keys = Object.keys(localStorage);
-  let historyCount = 0;
-  let instrumentCount = 0;
-  
-  keys.forEach(key => {
-    if (key.startsWith('ticker_history_')) {
-      localStorage.removeItem(key);
-      historyCount++;
-    }
-    if (key.startsWith('instrument_info_')) {
-      localStorage.removeItem(key);
-      instrumentCount++;
-    }
+  preserveAuthTokens(() => {
+    // Limpiar todos los caches de histórico
+    const historyCount = clearCacheByPattern(/^ticker_history_/);
+    
+    // Limpiar todos los caches de información de instrumentos
+    const instrumentCount = clearCacheByPattern(/^instrument_info_/);
+    
+    // Limpiar timestamps legacy si existen (compatibilidad)
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
+      if (key.endsWith('_timestamp') && (key.startsWith('instrument_info_') || key.startsWith('ticker_history_'))) {
+        localStorage.removeItem(key);
+      }
+    });
+    
+    console.log(`🗑️ Limpiados ${historyCount} caches de histórico y ${instrumentCount} caches de instrumentos`);
   });
-  
-  // Restaurar tokens si existían
-  if (accessToken) localStorage.setItem('balanz_access_token', accessToken);
-  if (tokenTimestamp) localStorage.setItem('balanz_token_timestamp', tokenTimestamp);
-  if (tokenFail) localStorage.setItem('balanz_token_fail', tokenFail);
 }

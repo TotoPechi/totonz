@@ -1,5 +1,6 @@
 import { Orden } from '../types/balanz';
 import { CacheResult } from '../types/cache';
+import { getCachedDataByDate, setCachedDataWithDate, getCachedDataExpired, getCachedDataFull, getCachedData, setCachedData, clearCache, getCacheInfo } from '../utils/cacheManager';
 
 // --- Órdenes históricas con caché ---
 export type OrdenesConCache = CacheResult<Orden[]>;
@@ -14,26 +15,21 @@ export async function getOrdenesHistoricasConCache(
   try {
     const hoy = fechaHasta || new Date().toISOString().split('T')[0].replace(/-/g, '');
     const cacheKey = `balanz_ordenes_${fechaDesde}_${hoy}`;
-    const cachedData = localStorage.getItem(cacheKey);
+    const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 horas
     
+    // Verificar caché válido (menos de 24 horas)
+    const cachedData = getCachedData<Orden[]>(cacheKey, CACHE_DURATION);
     if (cachedData) {
-      try {
-        const cache = JSON.parse(cachedData);
-        const cacheDate = new Date(cache.timestamp);
-        const now = new Date();
-        const diffHours = (now.getTime() - cacheDate.getTime()) / (1000 * 60 * 60);
-        
-        // Caché válido por 24 horas
-        if (diffHours < 24) {
-          return {
-            data: cache.data,
-            isCached: true,
-            cacheAge: diffHours
-          };
-        }
-      } catch (e) {
-        console.warn('⚠️ Error al parsear caché de órdenes:', e);
-      }
+      const cacheFull = getCachedDataFull<Orden[]>(cacheKey);
+      const cacheDate = cacheFull?.timestamp ? new Date(cacheFull.timestamp) : new Date();
+      const now = new Date();
+      const diffHours = (now.getTime() - cacheDate.getTime()) / (1000 * 60 * 60);
+      
+      return {
+        data: cachedData,
+        isCached: true,
+        cacheAge: diffHours
+      };
     }
 
     // Obtener datos frescos
@@ -53,17 +49,14 @@ export async function getOrdenesHistoricasConCache(
         localStorage.removeItem('balanz_access_token');
         localStorage.removeItem('balanz_token_timestamp');
       }
-      if (cachedData) {
-        try {
-          const cache = JSON.parse(cachedData);
-          return {
-            data: cache.data,
-            isCached: true,
-            cacheAge: 999
-          };
-        } catch (e) {
-          console.error('❌ Error al usar caché como fallback:', e);
-        }
+      // Si hay error, intentar usar caché expirado como fallback
+      const expiredCache = getCachedDataExpired<Orden[]>(cacheKey);
+      if (expiredCache) {
+        return {
+          data: expiredCache,
+          isCached: true,
+          cacheAge: 999
+        };
       }
       return { data: [], isCached: false };
     }
@@ -75,16 +68,10 @@ export async function getOrdenesHistoricasConCache(
       console.warn('⚠️ No hay órdenes históricas disponibles');
       return { data: [], isCached: false };
     }
-    try {
-      localStorage.setItem(cacheKey, JSON.stringify({
-        data,
-        timestamp: new Date().toISOString(),
-        fechaDesde,
-        fechaHasta: hoy
-      }));
-    } catch (e) {
-      console.warn('⚠️ Error al guardar órdenes en caché:', e);
-    }
+    
+    // Guardar en caché con metadatos adicionales
+    setCachedDataWithDate(cacheKey, data, undefined, { fechaDesde, fechaHasta: hoy });
+    
     return { data, isCached: false, cacheAge: 0 };
   } catch (error) {
     console.error('❌ Error al obtener órdenes históricas con caché:', error);
@@ -152,22 +139,11 @@ export async function getEstadoCuenta(fecha?: string): Promise<BalanzEstadoCuent
     const hoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     const fechaParam = fecha || hoy.replace(/-/g, ''); // YYYYMMDD
     
-    // Verificar caché
+    // Verificar caché (validación por fecha)
     const cacheKey = 'balanz_estado_cuenta';
-    const cachedData = localStorage.getItem(cacheKey);
-    
-    // Respetar el flag global de caché
-    const globalCacheEnabled = localStorage.getItem('global_cache_enabled') !== 'false';
-    if (cachedData && globalCacheEnabled) {
-      try {
-        const cache: BalanzCacheData = JSON.parse(cachedData);
-        // Si la caché es del día actual, usarla
-        if (cache.fecha === hoy) {
-          return cache.data;
-        }
-      } catch (e) {
-        console.warn('⚠️ Error parseando caché de Balanz');
-      }
+    const cachedData = getCachedDataByDate<BalanzEstadoCuenta>(cacheKey, hoy);
+    if (cachedData) {
+      return cachedData;
     }
     
     // Construir URL completa con todos los parámetros requeridos
@@ -211,10 +187,10 @@ export async function getEstadoCuenta(fecha?: string): Promise<BalanzEstadoCuent
         }
       }
       
-      // Si hay caché antigua, usarla como fallback
-      if (cachedData) {
-        const cache: BalanzCacheData = JSON.parse(cachedData);
-        return cache.data;
+      // Si hay error, intentar usar caché expirado como fallback
+      const expiredCache = getCachedDataExpired<BalanzEstadoCuenta>(cacheKey);
+      if (expiredCache) {
+        return expiredCache;
       }
       
       return null;
@@ -242,12 +218,7 @@ export async function getEstadoCuenta(fecha?: string): Promise<BalanzEstadoCuent
     }
     
     // Guardar en caché con la fecha de hoy
-    const cacheData: BalanzCacheData = {
-      data,
-      fecha: hoy,
-      timestamp: Date.now()
-    };
-    localStorage.setItem('balanz_estado_cuenta', JSON.stringify(cacheData));
+    setCachedDataWithDate('balanz_estado_cuenta', data, hoy);
     
     return data;
   } catch (error) {
@@ -297,27 +268,18 @@ export async function getEstadoCuentaConCache(fecha?: string): Promise<EstadoCue
   // Verificar si hay sesión expirada
   const sessionExpired = localStorage.getItem('balanz_session_expired') === 'true';
   
-  // Verificar caché primero
+  // Verificar caché primero (validación por fecha)
   const cacheKey = 'balanz_estado_cuenta';
-  const cachedData = localStorage.getItem(cacheKey);
+  const cachedData = getCachedDataByDate<BalanzEstadoCuenta>(cacheKey, hoy);
   
-  // Respetar el flag global de caché
-  const globalCacheEnabled = localStorage.getItem('global_cache_enabled') !== 'false';
-  if (cachedData && globalCacheEnabled) {
-    try {
-      const cache: BalanzCacheData = JSON.parse(cachedData);
-      // Si el caché es del día de hoy, usarlo
-      if (cache.fecha === hoy) {
-        return {
-          data: cache.data,
-          isCached: true, // Marcar como caché para mostrarlo en el footer
-          fecha: cache.fecha,
-          sessionExpired
-        };
-      }
-    } catch (e) {
-      console.warn('⚠️ Error al parsear caché:', e);
-    }
+  if (cachedData) {
+    const cacheFull = getCachedDataFull<BalanzEstadoCuenta>(cacheKey);
+    return {
+      data: cachedData,
+      isCached: true, // Marcar como caché para mostrarlo en el footer
+      fecha: cacheFull?.fecha || hoy,
+      sessionExpired
+    };
   }
   
   // Intentar obtener datos frescos
@@ -337,18 +299,15 @@ export async function getEstadoCuentaConCache(fecha?: string): Promise<EstadoCue
   }
   
   // Si falló la API y hay caché, usarla como fallback
-  if (cachedData) {
-    try {
-      const cache: BalanzCacheData = JSON.parse(cachedData);
-      return {
-        data: cache.data,
-        isCached: true, // Marca como caché antigua
-        fecha: cache.fecha,
-        sessionExpired: sessionExpiredAfter
-      };
-    } catch (e) {
-      console.error('❌ Error al usar caché como fallback:', e);
-    }
+  const expiredCache = getCachedDataExpired<BalanzEstadoCuenta>(cacheKey);
+  if (expiredCache) {
+    const cacheFull = getCachedDataFull<BalanzEstadoCuenta>(cacheKey);
+    return {
+      data: expiredCache,
+      isCached: true, // Marca como caché antigua
+      fecha: cacheFull?.fecha || hoy,
+      sessionExpired: sessionExpiredAfter
+    };
   }
   
   // No hay datos ni caché
@@ -364,9 +323,7 @@ export async function getEstadoCuentaConCache(fecha?: string): Promise<EstadoCue
  * Limpia el caché del estado de cuenta
  */
 export function clearEstadoCuentaCache(): void {
-  preserveAuthTokens(() => {
-    localStorage.removeItem('balanz_estado_cuenta');
-  });
+  clearCache('balanz_estado_cuenta');
 }
 
 /**
@@ -407,14 +364,11 @@ export function getMovimientosCacheInfo(): {
   let newestTimestamp = 0;
   
   movimientosKeys.forEach(key => {
-    try {
-      const cache = JSON.parse(localStorage.getItem(key) || '{}');
-      const timestamp = new Date(cache.timestamp).getTime();
-      
+    const cacheFull = getCachedDataFull<any>(key);
+    if (cacheFull?.timestamp) {
+      const timestamp = cacheFull.timestamp;
       if (timestamp < oldestTimestamp) oldestTimestamp = timestamp;
       if (timestamp > newestTimestamp) newestTimestamp = timestamp;
-    } catch (e) {
-      // Ignorar errores de parsing
     }
   });
   
@@ -439,26 +393,12 @@ export async function getMovimientosHistoricos(
     // Si no se proporciona fechaHasta, usar fecha actual
     const hoy = fechaHasta || new Date().toISOString().split('T')[0].replace(/-/g, '');
     
-    // Verificar caché primero
+    // Verificar caché primero (válido por 24 horas)
     const cacheKey = `balanz_movimientos_${fechaDesde}_${hoy}`;
-    const cachedData = localStorage.getItem(cacheKey);
-    
-    // Respetar el flag global de caché
-    const globalCacheEnabled = localStorage.getItem('global_cache_enabled') !== 'false';
-    if (cachedData && globalCacheEnabled) {
-      try {
-        const cache = JSON.parse(cachedData);
-        const cacheDate = new Date(cache.timestamp);
-        const now = new Date();
-        const diffHours = (now.getTime() - cacheDate.getTime()) / (1000 * 60 * 60);
-        
-        // Caché válido por 24 horas
-        if (diffHours < 24) {
-          return cache.data;
-        }
-      } catch (e) {
-        console.warn('⚠️ Error al parsear caché de movimientos:', e);
-      }
+    const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 horas
+    const cachedData = getCachedData<MovimientoHistorico[]>(cacheKey, CACHE_DURATION);
+    if (cachedData) {
+      return cachedData;
     }
     
     const url = `/api/movimientos/${BALANZ_ACCOUNT_ID}?FechaDesde=${fechaDesde}&FechaHasta=${hoy}&ic=0`;
@@ -483,14 +423,10 @@ export async function getMovimientosHistoricos(
         localStorage.removeItem('balanz_token_timestamp');
       }
       
-      // Si hay caché antiguo, usarlo como fallback
-      if (cachedData && globalCacheEnabled) {
-        try {
-          const cache = JSON.parse(cachedData);
-          return cache.data;
-        } catch (e) {
-          console.error('❌ Error al usar caché como fallback:', e);
-        }
+      // Si hay error, intentar usar caché expirado como fallback
+      const expiredCache = getCachedDataExpired<MovimientoHistorico[]>(cacheKey);
+      if (expiredCache) {
+        return expiredCache;
       }
       
       return [];
@@ -506,17 +442,8 @@ export async function getMovimientosHistoricos(
       return [];
     }
     
-    // Guardar en caché
-    try {
-      localStorage.setItem(cacheKey, JSON.stringify({
-        data,
-        timestamp: new Date().toISOString(),
-        fechaDesde,
-        fechaHasta: hoy
-      }));
-    } catch (e) {
-      console.warn('⚠️ Error al guardar movimientos en caché:', e);
-    }
+    // Guardar en caché con metadatos adicionales
+    setCachedDataWithDate(cacheKey, data, undefined, { fechaDesde, fechaHasta: hoy });
     
     return data;
   } catch (error) {
@@ -558,28 +485,21 @@ export async function getMovimientosHistoricosConCache(
   try {
     const hoy = fechaHasta || new Date().toISOString().split('T')[0].replace(/-/g, '');
     const cacheKey = `balanz_movimientos_${fechaDesde}_${hoy}`;
-    const cachedData = localStorage.getItem(cacheKey);
+    const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 horas
     
-    // Respetar el flag global de caché
-    const globalCacheEnabled = localStorage.getItem('global_cache_enabled') !== 'false';
-    if (cachedData && globalCacheEnabled) {
-      try {
-        const cache = JSON.parse(cachedData);
-        const cacheDate = new Date(cache.timestamp);
-        const now = new Date();
-        const diffHours = (now.getTime() - cacheDate.getTime()) / (1000 * 60 * 60);
-        
-        // Caché válido por 24 horas
-        if (diffHours < 24) {
-          return {
-            data: cache.data,
-            isCached: true,
-            cacheAge: diffHours
-          };
-        }
-      } catch (e) {
-        console.warn('⚠️ Error al parsear caché de movimientos:', e);
-      }
+    // Verificar caché válido (menos de 24 horas)
+    const cachedData = getCachedData<MovimientoHistorico[]>(cacheKey, CACHE_DURATION);
+    if (cachedData) {
+      const cacheFull = getCachedDataFull<MovimientoHistorico[]>(cacheKey);
+      const cacheDate = cacheFull?.timestamp ? new Date(cacheFull.timestamp) : new Date();
+      const now = new Date();
+      const diffHours = (now.getTime() - cacheDate.getTime()) / (1000 * 60 * 60);
+      
+      return {
+        data: cachedData,
+        isCached: true,
+        cacheAge: diffHours
+      };
     }
     
     // Obtener datos frescos
@@ -607,12 +527,14 @@ export async function getMovimientosHistoricosConCache(
  * 
  * IMPORTANTE: Usa dólar histórico de la fecha de la operación (bolsa > blue > oficial)
  */
+import { normalizeTicker, tickersMatch } from '../utils/tickerHelpers';
+
 export async function getOperacionesPorTicker(
   movimientos: MovimientoHistorico[],
   ticker: string,
   dolarMEPActual: number // Solo como fallback
 ): Promise<Array<{
-  tipo: 'COMPRA' | 'VENTA';
+  tipo: 'COMPRA' | 'VENTA' | 'RESCATE_PARCIAL';
   fecha: string;
   cantidad: number;
   precioUSD: number;
@@ -624,11 +546,15 @@ export async function getOperacionesPorTicker(
   monedaOriginal: string; // "Pesos" o nombre de la moneda original
   dolarUsado: number; // Dólar usado para la conversión (histórico o actual)
 }>> {
-  // Filtrar movimientos del ticker
-  const movimientosTicker = movimientos.filter(m => m.ticker === ticker);
+  // Normalizar el ticker buscado
+  const tickerNormalizado = normalizeTicker(ticker);
   
-  // Agrupar por descripción y fecha para combinar registros relacionados
-  const operacionesMap = new Map<string, MovimientoHistorico[]>();
+  // Filtrar movimientos del ticker (comparando de forma normalizada)
+  const movimientosTicker = movimientos.filter(m => tickersMatch(m.ticker, tickerNormalizado));
+  
+  // Primero, agrupar rescates parciales por fecha (para calcular monto total correctamente)
+  const rescatesParcialesPorFecha = new Map<string, MovimientoHistorico[]>();
+  const otrosMovimientos: MovimientoHistorico[] = [];
   
   movimientosTicker.forEach(mov => {
     // Solo procesar movimientos con cantidad (compras/ventas reales)
@@ -636,6 +562,25 @@ export async function getOperacionesPorTicker(
       return;
     }
     
+    const descripcionLower = mov.descripcion.toLowerCase();
+    const esRescateParcial = descripcionLower.includes('rescate parcial');
+    
+    if (esRescateParcial) {
+      // Agrupar rescates parciales por fecha
+      const key = mov.Concertacion;
+      if (!rescatesParcialesPorFecha.has(key)) {
+        rescatesParcialesPorFecha.set(key, []);
+      }
+      rescatesParcialesPorFecha.get(key)!.push(mov);
+    } else {
+      otrosMovimientos.push(mov);
+    }
+  });
+  
+  // Agrupar otros movimientos por descripción y fecha para combinar registros relacionados
+  const operacionesMap = new Map<string, MovimientoHistorico[]>();
+  
+  otrosMovimientos.forEach(mov => {
     // Usar descripción + fecha como clave para agrupar
     const key = `${mov.descripcion}_${mov.Concertacion}`;
     if (!operacionesMap.has(key)) {
@@ -646,7 +591,7 @@ export async function getOperacionesPorTicker(
   
   // Convertir cada grupo de movimientos a operación
   const operaciones: Array<{
-    tipo: 'COMPRA' | 'VENTA';
+    tipo: 'COMPRA' | 'VENTA' | 'RESCATE_PARCIAL';
     fecha: string;
     cantidad: number;
     precioUSD: number;
@@ -658,6 +603,86 @@ export async function getOperacionesPorTicker(
     monedaOriginal: string;
     dolarUsado: number;
   }> = [];
+  
+  // Procesar rescates parciales agrupados por fecha
+  for (const [fecha, movs] of rescatesParcialesPorFecha.entries()) {
+    // Sumar todas las cantidades de rescates parciales de la misma fecha
+    const cantidadTotal = movs.reduce((sum, m) => sum + Math.abs(m.cantidad), 0);
+    
+    if (cantidadTotal === 0) continue;
+    
+    // Obtener dólar histórico para la fecha
+    let dolarHistorico = await getDolarParaFecha(fecha);
+    if (!dolarHistorico) {
+      console.warn(`⚠️ Usando dólar MEP actual como fallback para ${fecha}`);
+      dolarHistorico = dolarMEPActual;
+    }
+    
+    // Buscar movimiento anterior relacionado con rescate (hasta 3 semanas antes)
+    const fechaRescate = new Date(fecha);
+    const fechaLimite = new Date(fechaRescate);
+    fechaLimite.setDate(fechaLimite.getDate() - 21); // 3 semanas = 21 días
+    
+    // Buscar movimientos anteriores del mismo ticker relacionados con rescate
+    const movimientosAnteriores = movimientosTicker.filter(m => {
+      const fechaMov = new Date(m.Concertacion);
+      return fechaMov >= fechaLimite && 
+             fechaMov < fechaRescate &&
+             m.ticker === ticker &&
+             (m.descripcion.toLowerCase().includes('rescate') || 
+              m.descripcion.toLowerCase().includes('prima por rescate')) &&
+             m.importe > 0; // Solo movimientos con importe positivo
+    });
+    
+    // Ordenar por fecha descendente (más reciente primero)
+    movimientosAnteriores.sort((a, b) => 
+      new Date(b.Concertacion).getTime() - new Date(a.Concertacion).getTime()
+    );
+    
+    // Tomar el movimiento más reciente que tenga importe
+    const movimientoConMonto = movimientosAnteriores[0];
+    
+    let precioUSD = 0;
+    let montoUSD = 0;
+    let precioOriginal: number | undefined = undefined;
+    let monedaOriginal = movs[0].moneda || '';
+    
+    if (movimientoConMonto && movimientoConMonto.importe > 0) {
+      // Obtener dólar histórico para la fecha del movimiento anterior
+      let dolarMovAnterior = await getDolarParaFecha(movimientoConMonto.Concertacion);
+      if (!dolarMovAnterior) {
+        dolarMovAnterior = dolarHistorico; // Usar dólar del rescate como fallback
+      }
+      
+      // Convertir importe a USD
+      const importeTotal = Math.abs(movimientoConMonto.importe);
+      const importeUSD = movimientoConMonto.moneda.toLowerCase().includes('pesos') || movimientoConMonto.idMoneda === 1
+        ? importeTotal / dolarMovAnterior
+        : importeTotal;
+      
+      // Calcular precio y monto basado en la cantidad total
+      precioUSD = cantidadTotal > 0 ? importeUSD / cantidadTotal : 0;
+      montoUSD = importeUSD; // El monto total es el importe encontrado
+      precioOriginal = importeTotal / cantidadTotal;
+      monedaOriginal = movimientoConMonto.moneda || monedaOriginal;
+      dolarHistorico = dolarMovAnterior; // Usar dólar del movimiento anterior
+    }
+    
+    // Crear una sola operación de rescate parcial con la cantidad total
+    operaciones.push({
+      tipo: 'RESCATE_PARCIAL',
+      fecha,
+      cantidad: cantidadTotal,
+      precioUSD,
+      montoUSD,
+      costoOperacionUSD: 0,
+      descripcion: movs[0].descripcion, // Usar la descripción del primer movimiento
+      precioOriginal,
+      costoOriginal: undefined,
+      monedaOriginal,
+      dolarUsado: dolarHistorico
+    });
+  }
   
   // Procesar cada operación de forma asíncrona para obtener dólar histórico
   for (const [key, movs] of operacionesMap.entries()) {
@@ -671,8 +696,11 @@ export async function getOperacionesPorTicker(
       dolarHistorico = dolarMEPActual;
     }
     
-    // Determinar si es operación en USD o en pesos
+    // Detectar si es un rescate parcial
     const descripcionLower = movs[0].descripcion.toLowerCase();
+    const esRescateParcial = descripcionLower.includes('rescate parcial');
+    
+    // Determinar si es operación en USD o en pesos
     const esOperacionUSD = descripcionLower.includes('/ usd') || descripcionLower.includes('/ u$s');
     
     if (esOperacionUSD) {
@@ -682,7 +710,7 @@ export async function getOperacionesPorTicker(
         const registroConPrecio = movs.find(m => m.precio > 0);
         const registroConCosto = movs.find(m => m.precio <= 0 || m === movs.find(m => m.precio > 0 && m.idMoneda === 1));
         if (!registroConPrecio) continue;
-        const tipo: 'COMPRA' | 'VENTA' = registroConPrecio.importe < 0 ? 'COMPRA' : 'VENTA';
+        const tipo: 'COMPRA' | 'VENTA' | 'RESCATE_PARCIAL' = esRescateParcial ? 'RESCATE_PARCIAL' : (registroConPrecio.importe < 0 ? 'COMPRA' : 'VENTA');
         const precioUSD = registroConPrecio.precio;
         const cantidad = Math.abs(registroConPrecio.cantidad);
         const montoUSD = precioUSD * cantidad;
@@ -714,7 +742,7 @@ export async function getOperacionesPorTicker(
         // Solo hay un registro: tomar precio y monto del registro, costo 0
         const mov = movs[0];
         if (mov.precio <= 0) continue;
-        const tipo: 'COMPRA' | 'VENTA' = mov.importe < 0 ? 'COMPRA' : 'VENTA';
+        const tipo: 'COMPRA' | 'VENTA' | 'RESCATE_PARCIAL' = esRescateParcial ? 'RESCATE_PARCIAL' : (mov.importe < 0 ? 'COMPRA' : 'VENTA');
         const cantidad = Math.abs(mov.cantidad);
         const precioUSD = mov.precio;
         const montoUSD = precioUSD * cantidad;
@@ -736,9 +764,50 @@ export async function getOperacionesPorTicker(
       // CASO 2: Operación en pesos con 1 registro
       const mov = movs[0];
       
+      // Los rescates parciales ya fueron procesados antes, saltarlos aquí
+      if (esRescateParcial) {
+        continue;
+      }
+      
+      // Detectar suscripciones de fondos
+      const descripcionLower = mov.descripcion?.toLowerCase() || mov.descripcionCorta?.toLowerCase() || '';
+      const esSuscripcion = mov.tipo === 'Liquidación Fondo' && 
+                           (descripcionLower.includes('suscripción') || 
+                            descripcionLower.includes('suscribiste') ||
+                            descripcionLower.includes('suscripcion'));
+      
+      if (esSuscripcion && mov.cantidad > 0 && mov.importe > 0) {
+        // Suscripción de fondo: tratar como COMPRA
+        // Precio puede ser válido o -1, usar precio del movimiento o calcular desde importe
+        const precioOriginal = mov.precio > 0 ? mov.precio : (mov.importe / mov.cantidad);
+        const precioUSD = precioOriginal / dolarHistorico;
+        const cantidad = Math.abs(mov.cantidad);
+        const montoUSD = precioUSD * cantidad;
+        
+        // Costo = importe total (ya incluye costos)
+        const importeTotal = Math.abs(mov.importe) / dolarHistorico;
+        const costoUSD = importeTotal - montoUSD;
+        const costoOriginal = costoUSD * dolarHistorico;
+        
+        operaciones.push({
+          tipo: 'COMPRA',
+          fecha: mov.Concertacion,
+          cantidad,
+          precioUSD,
+          montoUSD,
+          costoOperacionUSD: costoUSD,
+          descripcion: mov.descripcion || mov.descripcionCorta,
+          precioOriginal,
+          costoOriginal,
+          monedaOriginal: mov.moneda,
+          dolarUsado: dolarHistorico
+        });
+        continue;
+      }
+      
       if (mov.precio <= 0) continue; // Ignorar si no tiene precio válido
       
-      const tipo: 'COMPRA' | 'VENTA' = mov.importe < 0 ? 'COMPRA' : 'VENTA';
+      const tipo: 'COMPRA' | 'VENTA' | 'RESCATE_PARCIAL' = mov.importe < 0 ? 'COMPRA' : 'VENTA';
       const cantidad = Math.abs(mov.cantidad);
       
       // Precio en pesos, convertir a USD usando dólar histórico
@@ -941,4 +1010,388 @@ export async function getRentasPorTicker(
     .sort((a, b) => b.fecha.localeCompare(a.fecha)); // Más recientes primero
   
   return rentas;
+}
+
+// Interfaz para ingresos y egresos
+export interface IngresoEgreso {
+  fecha: string;
+  descripcion: string;
+  moneda: string;
+  importeOriginal: number;
+  importeUSD: number;
+  dolarUsado?: number;
+  fechaDolarMEP?: string;
+}
+
+/**
+ * Obtiene todos los ingresos y egresos desde movimientos históricos
+ * Filtra por descripcionCorta: "Ingreso de Dinero" o "Retiro de Dinero"
+ * Convierte pesos a USD usando dólar MEP histórico de la fecha de la operación
+ */
+export async function getIngresosYEgresos(
+  movimientos: MovimientoHistorico[]
+): Promise<{ ingresos: IngresoEgreso[]; egresos: IngresoEgreso[] }> {
+  const ingresos: IngresoEgreso[] = [];
+  const egresos: IngresoEgreso[] = [];
+
+  // Filtrar movimientos de ingresos y egresos
+  const movimientosDinero = movimientos.filter(
+    (m) => m.descripcionCorta === 'Ingreso de Dinero' || m.descripcionCorta === 'Retiro de Dinero'
+  );
+
+  // Procesar cada movimiento
+  for (const mov of movimientosDinero) {
+    const fecha = mov.Liquidacion || mov.Concertacion;
+    const esIngreso = mov.descripcionCorta === 'Ingreso de Dinero';
+    const importeOriginal = Math.abs(mov.importe);
+    const moneda = mov.moneda;
+
+    let importeUSD = importeOriginal;
+    let dolarUsado: number | undefined = undefined;
+    let fechaDolarMEP: string | undefined = undefined;
+
+    // Si es en pesos, convertir a USD usando dólar MEP histórico
+    if (moneda.toLowerCase().includes('pesos') || moneda.toLowerCase() === 'pesos') {
+      const dolarMEP = await getDolarParaFecha(fecha);
+      if (dolarMEP && dolarMEP > 0) {
+        importeUSD = importeOriginal / dolarMEP;
+        dolarUsado = dolarMEP;
+        fechaDolarMEP = fecha;
+      } else {
+        console.warn(`⚠️ No se pudo obtener dólar MEP para fecha ${fecha}, usando importe original`);
+      }
+    } else if (moneda.toLowerCase().includes('dólar') || moneda.toLowerCase().includes('dolar') || moneda.toLowerCase().includes('u$s') || moneda.toLowerCase().includes('us dollar')) {
+      // Ya está en USD
+      importeUSD = importeOriginal;
+    } else {
+      // Otra moneda (Cable, etc.) - asumir que es USD equivalente
+      importeUSD = importeOriginal;
+    }
+
+    const item: IngresoEgreso = {
+      fecha,
+      descripcion: mov.descripcion,
+      moneda,
+      importeOriginal,
+      importeUSD,
+      dolarUsado,
+      fechaDolarMEP,
+    };
+
+    if (esIngreso) {
+      ingresos.push(item);
+    } else {
+      egresos.push(item);
+    }
+  }
+
+  // Ordenar por fecha (más recientes primero)
+  ingresos.sort((a, b) => b.fecha.localeCompare(a.fecha));
+  egresos.sort((a, b) => b.fecha.localeCompare(a.fecha));
+
+  return { ingresos, egresos };
+}
+
+/**
+ * Obtiene el total de dividendos de todos los tickers
+ * Retorna el total en USD y un desglose por ticker
+ */
+export async function getDividendosTotales(
+  movimientos: MovimientoHistorico[]
+): Promise<{ total: number; porTicker: Map<string, number> }> {
+  // Obtener todos los tickers únicos que tienen dividendos
+  // El ticker puede estar en el campo ticker o extraerse de la descripción
+  const tickersConDividendos = new Set<string>();
+  movimientos.forEach((m) => {
+    if (m.descripcion.toLowerCase().includes('pago de dividendos')) {
+      let ticker = m.ticker;
+      // Si el ticker está vacío, intentar extraerlo de la descripción
+      // Ejemplo: "Movimiento Manual / Pago de dividendos - VOO.E"
+      if (!ticker || ticker.trim() === '') {
+        const match = m.descripcion.match(/pago de dividendos\s*-\s*([A-Z0-9.]+)/i);
+        if (match && match[1]) {
+          ticker = match[1].trim();
+        }
+      }
+      if (ticker && ticker.trim() !== '') {
+        tickersConDividendos.add(ticker);
+      }
+    }
+  });
+
+  const porTicker = new Map<string, number>();
+  let total = 0;
+
+  // Para cada ticker, obtener sus dividendos
+  for (const ticker of tickersConDividendos) {
+    const dividendos = await getDividendosPorTicker(movimientos, ticker);
+    const totalTicker = dividendos.reduce((sum, d) => sum + d.montoNeto, 0);
+    porTicker.set(ticker, totalTicker);
+    total += totalTicker;
+  }
+
+  return { total, porTicker };
+}
+
+/**
+ * Obtiene el total de rentas de todos los tickers
+ * Retorna el total en USD y un desglose por ticker
+ */
+export async function getRentasTotales(
+  movimientos: MovimientoHistorico[]
+): Promise<{ total: number; porTicker: Map<string, number> }> {
+  // Obtener todos los tickers únicos que tienen rentas
+  const tickersConRentas = new Set<string>();
+  movimientos.forEach((m) => {
+    const descripcionLower = m.descripcion.toLowerCase();
+    const tipoLower = m.tipo.toLowerCase();
+    if (
+      (descripcionLower.includes('renta') || descripcionLower.includes('intereses devengados')) &&
+      m.ticker &&
+      tipoLower === 'cupón'
+    ) {
+      tickersConRentas.add(m.ticker);
+    }
+  });
+
+  const porTicker = new Map<string, number>();
+  let total = 0;
+
+  // Para cada ticker, obtener sus rentas
+  for (const ticker of tickersConRentas) {
+    const rentas = await getRentasPorTicker(movimientos, ticker);
+    const totalTicker = rentas.reduce((sum, r) => sum + r.montoNeto, 0);
+    porTicker.set(ticker, totalTicker);
+    total += totalTicker;
+  }
+
+  return { total, porTicker };
+}
+
+/**
+ * Obtiene los saldos actuales en diferentes monedas desde liquidez en estadoCuenta
+ * Retorna los saldos convertidos a USD
+ */
+export async function getSaldosActuales(): Promise<{ usd: number; cable: number; pesos: number }> {
+  try {
+    // Obtener estado de cuenta
+    const estadoCuenta = await getEstadoCuentaConCache();
+    
+    if (!estadoCuenta.data) {
+      console.warn('⚠️ No se pudo obtener estado de cuenta para saldos actuales');
+      return { usd: 0, cable: 0, pesos: 0 };
+    }
+
+    // Buscar liquidez en la respuesta
+    let liquidez: any[] = [];
+    
+    if ((estadoCuenta.data as any).liquidez) {
+      liquidez = (estadoCuenta.data as any).liquidez || [];
+    }
+
+    if (liquidez.length === 0) {
+      console.warn('⚠️ No se encontró liquidez en estado de cuenta');
+      return { usd: 0, cable: 0, pesos: 0 };
+    }
+
+    // Obtener dólar MEP actual para conversión de pesos
+    const dolarMEP = getDolarMEP(estadoCuenta.data.cotizacionesDolar || []);
+
+    // Convertir saldos a USD usando DO (saldo disponible)
+    let usd = 0;
+    let cable = 0;
+    let pesos = 0;
+
+    liquidez.forEach((item: any) => {
+      const moneda = item.Moneda || item.moneda || '';
+      const saldo = item.DO || item.DInm || 0; // Usar DO (saldo disponible) o DInm como fallback
+      const monedaLower = moneda.toLowerCase();
+      
+      if (monedaLower.includes('dólar') && !monedaLower.includes('cable') && !monedaLower.includes('us dollar (cable)')) {
+        // Dólares normales
+        usd += saldo;
+      } else if (monedaLower.includes('cable') || monedaLower.includes('us dollar (cable)')) {
+        // US Dollar (Cable) - tratarlo como USD
+        cable += saldo;
+      } else if (monedaLower.includes('pesos')) {
+        // Pesos - convertir a USD
+        const saldoUSD = dolarMEP && dolarMEP > 0 ? saldo / dolarMEP : 0;
+        pesos += saldoUSD;
+      }
+    });
+
+    return { usd, cable, pesos };
+  } catch (error) {
+    console.error('❌ Error obteniendo saldos actuales:', error);
+    return { usd: 0, cable: 0, pesos: 0 };
+  }
+}
+
+// Interfaz para flujos proyectados
+export interface FlujoProyectado {
+  codigoespeciebono: string;
+  fecha: string;
+  vr: number;
+  renta: number;
+  amort: number;
+  rentaamort: string;
+  total: number;
+  tipo_moneda: number; // 1 = pesos, 2 = dólares
+}
+
+interface FlujosProyectadosCacheData {
+  data: FlujoProyectado[];
+  fecha: string; // YYYY-MM-DD
+  timestamp: number;
+}
+
+export type FlujosProyectadosConCache = CacheResult<FlujoProyectado[]>;
+
+/**
+ * Obtiene los flujos proyectados desde la API de Balanz
+ * Con caché por día para evitar consultas repetidas
+ */
+export async function getFlujosProyectados(): Promise<FlujoProyectado[]> {
+  try {
+    const hoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    
+    // Verificar caché (validación por fecha)
+    const cacheKey = 'balanz_flujos_proyectados';
+    const cachedData = getCachedDataByDate<FlujoProyectado[]>(cacheKey, hoy);
+    if (cachedData) {
+      return cachedData;
+    }
+    
+    // Construir URL completa (el proxy de Vite agrega /v1 automáticamente)
+    const url = `/api/bonos/flujoproyectado/${BALANZ_ACCOUNT_ID}`;
+    
+    // Obtener token de autenticación
+    const token = await getCachedAccessToken();
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': token,
+      },
+    });
+    
+    if (!response.ok) {
+      const text = await response.text();
+      console.error('❌ Error al obtener flujos proyectados:', response.statusText);
+      console.error('📄 Response body:', text.substring(0, 500));
+      
+      // Detectar si es error de sesión expirada o autenticación
+      if (response.status === 403 || response.status === 401 || response.status === 520) {
+        console.error('🔒 Error de autenticación - Token posiblemente expirado');
+        localStorage.removeItem('balanz_access_token');
+        localStorage.removeItem('balanz_token_timestamp');
+      }
+      
+      // Si hay error, intentar usar caché expirado como fallback
+      const expiredCache = getCachedDataExpired<FlujoProyectado[]>(cacheKey);
+      if (expiredCache) {
+        return expiredCache;
+      }
+      
+      return [];
+    }
+
+    // Si llegamos aquí, la respuesta fue exitosa
+    const text = await response.text();
+    
+    // Intentar parsear como JSON
+    let data: FlujoProyectado[];
+    try {
+      const parsed = JSON.parse(text);
+      // La respuesta puede venir como objeto con "flujo" o directamente como array
+      if (parsed.flujo && Array.isArray(parsed.flujo)) {
+        data = parsed.flujo;
+      } else if (Array.isArray(parsed)) {
+        data = parsed;
+      } else {
+        throw new Error('Formato de respuesta inesperado');
+      }
+    } catch (parseError) {
+      console.error('❌ Error parseando respuesta de flujos proyectados:', parseError);
+      // Si hay error, intentar usar caché expirado como fallback
+      const expiredCache = getCachedDataExpired<FlujoProyectado[]>(cacheKey);
+      if (expiredCache) {
+        return expiredCache;
+      }
+      return [];
+    }
+    
+    // Guardar en caché con la fecha de hoy
+    setCachedDataWithDate(cacheKey, data, hoy);
+    
+    return data;
+  } catch (error) {
+    console.error('❌ Error al conectar con Balanz API para flujos proyectados:', error);
+    // Si hay error, intentar usar caché expirado como fallback
+    const cacheKey = 'balanz_flujos_proyectados';
+    const expiredCache = getCachedDataExpired<FlujoProyectado[]>(cacheKey);
+    if (expiredCache) {
+      return expiredCache;
+    }
+    return [];
+  }
+}
+
+/**
+ * Obtiene los flujos proyectados con información de caché
+ */
+export async function getFlujosProyectadosConCache(): Promise<FlujosProyectadosConCache> {
+  const hoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  
+  // Verificar caché primero (validación por fecha)
+  const cacheKey = 'balanz_flujos_proyectados';
+  const cachedData = getCachedDataByDate<FlujoProyectado[]>(cacheKey, hoy);
+  
+  if (cachedData) {
+    const cacheFull = getCachedDataFull<FlujoProyectado[]>(cacheKey);
+    return {
+      data: cachedData,
+      isCached: true,
+      fecha: cacheFull?.fecha || hoy
+    };
+  }
+  
+  // Intentar obtener datos frescos
+  const data = await getFlujosProyectados();
+  
+  if (data && data.length > 0) {
+    // Datos frescos obtenidos
+    return {
+      data,
+      isCached: false,
+      fecha: hoy
+    };
+  }
+  
+  // Si falló la API y hay caché, usarla como fallback
+  const expiredCache = getCachedDataExpired<FlujoProyectado[]>(cacheKey);
+  if (expiredCache) {
+    const cacheFull = getCachedDataFull<FlujoProyectado[]>(cacheKey);
+    return {
+      data: expiredCache,
+      isCached: true,
+      fecha: cacheFull?.fecha || hoy
+    };
+  }
+  
+  // No hay datos ni caché
+  return {
+    data: [],
+    isCached: false,
+    fecha: hoy
+  };
+}
+
+/**
+ * Limpia el caché de flujos proyectados
+ */
+export function clearFlujosProyectadosCache(): void {
+  clearCache('balanz_flujos_proyectados');
 }

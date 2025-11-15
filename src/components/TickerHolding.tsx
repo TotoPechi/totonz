@@ -2,18 +2,45 @@ import React, { useEffect, useState } from 'react';
 import { getTickerHoldingData } from '../services/tickerHoldingData';
 import { getDolarMEP, getEstadoCuentaConCache } from '../services/balanzApi';
 
+// Función para formatear fecha
+function formatearFecha(fecha: string): string {
+  if (!fecha) return '';
+  if (fecha.match(/^\d{2}\/\d{2}\/\d{4}$/)) return fecha;
+  if (fecha.match(/^\d{4}-\d{2}-\d{2}/)) {
+    const [anio, mes, dia] = fecha.split('-');
+    return `${dia}/${mes}/${anio}`;
+  }
+  try {
+    const date = new Date(fecha);
+    if (!isNaN(date.getTime())) {
+      const dia = String(date.getDate()).padStart(2, '0');
+      const mes = String(date.getMonth() + 1).padStart(2, '0');
+      const anio = date.getFullYear();
+      return `${dia}/${mes}/${anio}`;
+    }
+  } catch (e) {}
+  return fecha;
+}
+
 interface TickerHoldingProps {
   positions: any[];
   selectedTicker: string;
   tickerInfo: any;
+  valorInicialConsolidado?: number;
+  rendimientoATermino?: {
+    valorATermino: number;
+    rentasPasadas: number;
+    rendimiento: number;
+    porcentaje: number;
+  };
 }
 
 
-const TickerHolding: React.FC<TickerHoldingProps> = ({ positions, selectedTicker, tickerInfo }) => {
+const TickerHolding: React.FC<TickerHoldingProps> = ({ positions, selectedTicker, tickerInfo, valorInicialConsolidado, rendimientoATermino }) => {
   // Tooltip control (debe ir antes de cualquier return o condicional)
   const [showTooltip, setShowTooltip] = useState(false);
+  const [showTooltipATermino, setShowTooltipATermino] = useState(false);
   const [holdingData, setHoldingData] = useState<any>(null);
-  const [dolarMEP, setDolarMEP] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,7 +48,6 @@ const TickerHolding: React.FC<TickerHoldingProps> = ({ positions, selectedTicker
       let mep = null;
       if (estadoCuenta.data && estadoCuenta.data.cotizacionesDolar) {
         mep = getDolarMEP(estadoCuenta.data.cotizacionesDolar);
-        setDolarMEP(mep);
       }
       if (mep) {
         const data = await getTickerHoldingData(selectedTicker, positions, mep);
@@ -34,8 +60,15 @@ const TickerHolding: React.FC<TickerHoldingProps> = ({ positions, selectedTicker
   if (!holdingData) return null;
 
 
-  const { cantidadTotal, valorInicial, valorActual, rendimiento, rendimientoPorcentaje } = holdingData;
-
+  const { cantidadTotal, valorInicial, valorInicialConsolidado: valorInicialConsolidadoDelServicio, valorActual } = holdingData;
+  
+  // Priorizar valorInicialConsolidado del servicio (calculado desde operaciones históricas)
+  // Si no está disponible, usar el prop (para compatibilidad hacia atrás)
+  // Finalmente, usar valorInicial de la API como último recurso
+  const valorInicialFinal = valorInicialConsolidadoDelServicio !== undefined 
+    ? valorInicialConsolidadoDelServicio 
+    : (valorInicialConsolidado !== undefined ? valorInicialConsolidado : valorInicial);
+  
   // Obtener dividendos y rentas desde props si existen (usados en TickerHeader)
   // Buscar en el árbol de React si no están en props, pero aquí asumimos que llegan por props o contexto
   // Por ahora, para compatibilidad, intentamos obtenerlos del tickerInfo si existen
@@ -44,30 +77,33 @@ const TickerHolding: React.FC<TickerHoldingProps> = ({ positions, selectedTicker
   const totalDividendos = Array.isArray(dividendos) ? dividendos.reduce((sum, d) => sum + (d.montoNeto || 0), 0) : 0;
   const totalRentas = Array.isArray(rentas) ? rentas.reduce((sum, r) => sum + (r.montoNeto || 0), 0) : 0;
   const totalExtra = totalDividendos + totalRentas;
-  const rendimientoConsolidado = rendimiento + totalExtra;
-  const porcentajeExtra = valorInicial > 0 ? (totalExtra / valorInicial) * 100 : 0;
-  const porcentajeConsolidado = rendimientoPorcentaje + porcentajeExtra;
+  
+  // Recalcular rendimiento basado en valorInicialFinal (que puede ser consolidado o no)
+  const rendimientoFinal = valorActual - valorInicialFinal;
+  const rendimientoPorcentajeFinal = valorInicialFinal > 0 ? (rendimientoFinal / valorInicialFinal) * 100 : 0;
+  
+  const rendimientoConsolidado = rendimientoFinal + totalExtra;
+  const porcentajeExtra = valorInicialFinal > 0 ? (totalExtra / valorInicialFinal) * 100 : 0;
+  const porcentajeConsolidado = rendimientoPorcentajeFinal + porcentajeExtra;
 
 
 
   return (
     <div className="text-right space-y-3">
       <div>
-        <p className="text-xs text-slate-400 mb-1">Valor Actual</p>
+        <p className="text-xs text-slate-300">Valor Actual ({cantidadTotal} {cantidadTotal === 1 ? 'unidad' : 'unidades'})</p>
         <p className="text-3xl font-bold text-cyan-400">
           USD {valorActual.toLocaleString('es-AR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
           })}
         </p>
-        <p className="text-sm text-slate-400 mt-1">
-          {cantidadTotal} {cantidadTotal === 1 ? 'unidad' : 'unidades'}
-        </p>
+
       </div>
-      <div className="pt-3 border-t border-slate-600/50">
-        <p className="text-xs text-slate-400 mb-1">Inversión Inicial</p>
+      <div className="pt-1 border-slate-600/50">
+        <p className="text-xs text-slate-300">Inversión Consolidada</p>
         <p className="text-base font-medium text-slate-300">
-          USD {valorInicial.toLocaleString('es-AR', {
+          USD {valorInicialFinal.toLocaleString('es-AR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
           })}
@@ -75,46 +111,125 @@ const TickerHolding: React.FC<TickerHoldingProps> = ({ positions, selectedTicker
       </div>
       <div
         className="relative"
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
+        {...(totalDividendos > 0 || totalRentas > 0 ? {
+          onMouseEnter: () => setShowTooltip(true),
+          onMouseLeave: () => setShowTooltip(false)
+        } : {})}
       >
-        <p className="text-xs text-slate-400 mb-1">Rendimiento Consolidado</p>
-        <div className="flex flex-col items-end cursor-pointer">
-          <span className={rendimientoConsolidado >= 0 ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>
+        <p className="text-xs text-slate-300">Rendimiento Actual</p>
+        <div className={`flex items-center justify-end gap-2 ${(totalDividendos > 0 || totalRentas > 0) ? 'cursor-pointer' : ''} ${rendimientoConsolidado >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+          <span className="font-semibold">
             USD {rendimientoConsolidado.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
-          <span className={`text-xs ${porcentajeConsolidado >= 0 ? 'text-green-400' : 'text-red-400'}`}>{porcentajeConsolidado >= 0 ? '+' : ''}{porcentajeConsolidado.toFixed(2)}%</span>
+          <span className="text-xs">{porcentajeConsolidado >= 0 ? '+' : ''}{porcentajeConsolidado.toFixed(2)}%</span>
         </div>
-        {showTooltip && (
-          <div className="absolute right-0 z-20 mt-2 w-[15rem] bg-slate-900 border border-slate-700 rounded-lg shadow-lg p-4 text-xs text-slate-200 text-left animate-fade-in">
-            <div className="mb-2">
-            <span className="text-slate-400 font-normal">diferencia por precio + dividendos</span>
-            </div>
-            <div className="mb-2">
-                <span className={rendimiento >= 0 ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>
-                {rendimiento >= 0 ? '+' : ''}{rendimiento.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-              {totalDividendos > 0 && <span> +{totalDividendos.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-slate-400 font-normal"></span></span>}
-              {totalRentas > 0 && <span> +{totalRentas.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-slate-400 font-normal"></span></span>}
-              <span> = </span>
-              <span className={rendimientoConsolidado >= 0 ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>
-                USD {rendimientoConsolidado.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-            </div>
-            <div>
-              <span className={rendimientoPorcentaje >= 0 ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>
-                {rendimientoPorcentaje >= 0 ? '+' : ''}{rendimientoPorcentaje.toFixed(2)}%
-              </span>
-              {totalDividendos > 0 && <span> +{porcentajeExtra.toFixed(2)}% <span className="text-slate-400 font-normal"></span></span>}
-              {totalRentas > 0 && <span> +{porcentajeExtra.toFixed(2)}% <span className="text-slate-400 font-normal"></span></span>}
-              <span> = </span>
-              <span className={porcentajeConsolidado >= 0 ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>
-                {porcentajeConsolidado >= 0 ? '+' : ''}{porcentajeConsolidado.toFixed(2)}%
-              </span>
-            </div>
+        {showTooltip && (totalDividendos > 0 || totalRentas > 0) && (
+          <div className="absolute right-0 z-20 mt-2 w-[18rem] bg-slate-900 border border-slate-700 rounded-lg shadow-lg p-4 text-sm text-slate-200 text-left animate-fade-in">
+            <table className="w-full text-sm">
+              <tbody className="text-white">
+                <tr>
+                  <td className="text-slate-300 py-1">Diferencia por precio</td>
+                  <td className="text-right text-slate-300 font-semibold py-1">
+                    USD {rendimientoFinal.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </td>
+                </tr>
+                {totalDividendos > 0 && (
+                  <tr>
+                    <td className="text-slate-300 py-1">Dividendos</td>
+                    <td className="text-right text-slate-300 font-semibold py-1">
+                      + USD {totalDividendos.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                  </tr>
+                )}
+                {totalRentas > 0 && (
+                  <tr>
+                    <td className="text-slate-300 py-1">Renta pasada</td>
+                    <td className="text-right text-slate-300 font-semibold py-1">
+                      + USD {totalRentas.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                  </tr>
+                )}
+                <tr>
+                  <td colSpan={2} className="border-t border-slate-600 pt-2"></td>
+                </tr>
+                <tr>
+                  <td className="text-sm font-bold text-slate-200 pt-2">Rendimiento Actual</td>
+                  <td className="text-right text-sm font-bold text-slate-200 pt-2">
+                    USD {rendimientoConsolidado.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         )}
       </div>
+      {rendimientoATermino && (
+        <div
+          className="relative pt-1"
+          onMouseEnter={() => setShowTooltipATermino(true)}
+          onMouseLeave={() => setShowTooltipATermino(false)}
+        >
+          <p className="text-xs text-slate-300">Rendimiento a término</p>
+          <div className={`flex items-center justify-end gap-2 cursor-pointer ${rendimientoATermino.rendimiento >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            <span className="font-semibold">
+              USD {rendimientoATermino.rendimiento.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+            <span className="text-xs">
+              {rendimientoATermino.porcentaje >= 0 ? '+' : ''}{rendimientoATermino.porcentaje.toFixed(2)}%
+            </span>
+          </div>
+          {showTooltipATermino && (
+            <div className="absolute right-0 z-20 mt-2 w-[24rem] bg-slate-900 border border-slate-700 rounded-lg shadow-lg p-4 text-sm text-slate-200 text-left animate-fade-in">
+              <table className="w-full text-sm">
+                <tbody className="text-white">
+                  <tr>
+                    <td className="text-slate-300 py-1 whitespace-nowrap">
+                      <span>Pago a término</span>
+                      {tickerInfo?.bond?.maturity && (
+                        <span className="text-xs font-normal text-slate-400 ml-2">
+                          ({formatearFecha(tickerInfo.bond.maturity)})
+                        </span>
+                      )}
+                    </td>
+                    <td className="text-right text-slate-300 font-semibold py-1">
+                      USD {rendimientoATermino.valorATermino.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                  </tr>
+                  {rendimientoATermino.rentasPasadas > 0 && (
+                    <tr>
+                      <td className="text-slate-300 py-1">Renta pasada</td>
+                      <td className="text-right text-slate-300 font-semibold py-1">
+                        + USD {rendimientoATermino.rentasPasadas.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                    </tr>
+                  )}
+                  {valorInicialFinal > 0 && (
+                    <tr>
+                      <td className="text-slate-300 py-1">Inversión consolidada</td>
+                      <td className="text-right text-slate-300 font-semibold py-1">
+                        - USD {valorInicialFinal.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                    </tr>
+                  )}
+                  <tr>
+                    <td colSpan={2} className="border-t border-slate-600 pt-2"></td>
+                  </tr>
+                  <tr>
+                    <td className="text-sm font-bold text-slate-200 pt-2 whitespace-nowrap">
+                      <span>Rendimiento</span>
+                    </td>
+                    <td className="text-right text-sm font-bold pt-2 whitespace-nowrap">
+                      <span>
+                        USD {rendimientoATermino.rendimiento.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

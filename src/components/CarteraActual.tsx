@@ -39,12 +39,6 @@ interface GroupedByCurrency {
   totalValorActual?: number;
 }
 
-interface GroupedByType {
-  tipo: string;
-  currencies: GroupedByCurrency[];
-  totalValor: number;
-  totalValorActual?: number;
-}
 
 const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick, loading, apiError }) => {
   const [expandedTickers, setExpandedTickers] = useState<Set<string>>(new Set());
@@ -55,6 +49,8 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick,
 
   // Calcular dolarMEP desde las posiciones (si está disponible)
   const dolarMEP = getDolarMEP(positions[0]?.cotizacionesDolar || []);
+  // Usar un valor por defecto si dolarMEP es null (para evitar errores de tipo)
+  const dolarMEPValue = dolarMEP ?? 1000; // Valor por defecto razonable para dólar MEP
 
   // Agrupar posiciones por ticker usando la función unificada
   useEffect(() => {
@@ -63,19 +59,24 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick,
       const tickers = Array.from(new Set(positions.map(p => p.Ticker)));
       const result: Record<string, any> = {};
       await Promise.all(tickers.map(async (ticker) => {
-        const data = await getTickerHoldingData(ticker, positions, dolarMEP);
+        const data = await getTickerHoldingData(ticker, positions, dolarMEPValue);
         if (data) {
+          // Usar inversión consolidada si está disponible, sino usar valorInicial de la API
+          const valorInicialFinal = data.valorInicialConsolidado !== undefined 
+            ? data.valorInicialConsolidado 
+            : data.valorInicial;
+          
           result[ticker] = {
             ticker: data.ticker,
             descripcion: positions.find(p => p.Ticker === ticker)?.Descripcion || '',
             tipo: positions.find(p => p.Ticker === ticker)?.Tipo || '',
             cantidadTotal: data.cantidadTotal,
             ppc: data.ppc,
-            valorInicial: data.valorInicial,
+            valorInicial: valorInicialFinal, // Usar inversión consolidada si está disponible
             precioActual: data.precioActual,
             valorActual: data.valorActual,
-            rendimiento: data.rendimiento,
-            rendimientoPorcentaje: data.rendimientoPorcentaje,
+            rendimiento: data.valorActual - valorInicialFinal, // Recalcular rendimiento
+            rendimientoPorcentaje: valorInicialFinal > 0 ? ((data.valorActual - valorInicialFinal) / valorInicialFinal) * 100 : 0,
             operaciones: data.operaciones
           };
         }
@@ -83,7 +84,7 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick,
       setGroupedPositions(result);
     };
     agrupar();
-  }, [positions, dolarMEP]);
+  }, [positions, dolarMEPValue]);
 
   // Ya no se usa preciosActuales, los datos vienen directamente de groupedPositions
 
@@ -134,8 +135,10 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick,
       currencyGroup.positions.sort((a: any, b: any) => b.valorInicial - a.valorInicial);
     });
   });
-  const totalValorInicial = sortedTypes.reduce((sum: number, g: any) => sum + g.totalValor, 0);
-  const totalValorActual = sortedTypes.reduce((sum: number, g: any) => sum + (g.totalValorActual || g.totalValor), 0);
+  // Inversión consolidada total: suma de la INVERSIÓN CONSOLIDADA de cada instrumento
+  const totalValorInicial = Object.values(groupedPositions).reduce((sum: number, position: any) => sum + (position.valorInicial || 0), 0);
+  // Valor actual total: suma del VALOR ACTUAL de todos los instrumentos
+  const totalValorActual = Object.values(groupedPositions).reduce((sum: number, position: any) => sum + (position.valorActual || 0), 0);
   const rendimientoTotal = totalValorActual - totalValorInicial;
   const rendimientoTotalPorcentaje = totalValorInicial > 0 ? (rendimientoTotal / totalValorInicial) * 100 : 0;
 
@@ -217,8 +220,6 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick,
   };
 
   const handleRetry = () => {
-    setAuthError(null);
-    setLoading(true);
     // Forzar recarga de datos
     window.location.reload();
   };
@@ -318,9 +319,9 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick,
                 </div>
               </div>
             )}
-            {/* Valor Inicial Total */}
+            {/* Inversión Consolidada Total */}
             <div className="text-right">
-              <p className="text-sm text-slate-400">Valor Inicial Total</p>
+              <p className="text-sm text-slate-400">Inversión Consolidada Total</p>
               <p className="text-2xl font-bold text-slate-300">{formatCurrency(totalValorInicial)}</p>
               {dolarMEP && (
                 <p className="text-xs text-slate-400 mt-1">
@@ -350,7 +351,12 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick,
       <div className="space-y-4">
         {sortedTypes.map((typeGroup) => {
           const isTypeExpanded = expandedTypes.has(typeGroup.tipo);
-          const percentage = (typeGroup.totalValor / totalValorInicial) * 100;
+          // Porcentaje basado en el valor actual del subtotal sobre el valor actual total
+          const percentage = totalValorActual > 0 ? (typeGroup.totalValorActual / totalValorActual) * 100 : 0;
+          // Calcular rendimiento de la sección: valor actual - inversión consolidada
+          const rendimientoSeccion = (typeGroup.totalValorActual || 0) - (typeGroup.totalValor || 0);
+          // Determinar color según el rendimiento
+          const colorRendimiento = rendimientoSeccion >= 0 ? 'text-green-400' : 'text-red-400';
 
           return (
             <div key={typeGroup.tipo} className="bg-slate-700/30 rounded-lg overflow-hidden">
@@ -371,43 +377,47 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick,
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-bold text-green-400">{formatCurrency(typeGroup.totalValor)}</p>
+                  <p className={`text-lg font-bold ${colorRendimiento}`}>{formatCurrency(typeGroup.totalValorActual || 0)}</p>
                   <p className="text-sm text-slate-400">{percentage.toFixed(1)}% del total</p>
                 </div>
               </div>
 
               {/* Contenido expandido del tipo - agrupado por moneda */}
               {isTypeExpanded && (
-                <div className="p-4 space-y-6">
-                  {typeGroup.currencies.map((currencyGroup: any) => (
-                    <div key={`${typeGroup.tipo}-${currencyGroup.moneda}`} className="space-y-2">
-                      {/* Header de moneda */}
-                      <div className="flex items-center justify-between px-2 py-1 bg-slate-600/30 rounded">
-                        <h4 className="text-sm font-semibold text-slate-300">
-                          {currencyGroup.moneda === 'Dólar' ? '💵 Dólar' : currencyGroup.moneda === 'Pesos' ? '💰 Pesos' : currencyGroup.moneda}
-                        </h4>
-                        <span className="text-xs text-slate-400">
-                          {currencyGroup.positions.length} instrumento{currencyGroup.positions.length !== 1 ? 's' : ''}
-                        </span>
-                      </div>
-
-                      {/* Tabla de posiciones de esta moneda */}
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
-                          <thead className="bg-slate-700 text-slate-300">
-                            <tr>
-                              <th className="px-4 py-3 w-8"></th>
-                              <th className="px-4 py-3">Ticker</th>
-                              <th className="px-4 py-3">Descripción</th>
-                              <th className="px-4 py-3 text-right">Cantidad</th>
-                              <th className="px-4 py-3 text-right">PPC</th>
-                              <th className="px-4 py-3 text-right">Precio Actual</th>
-                              <th className="px-4 py-3 text-right">Valor Inicial</th>
-                              <th className="px-4 py-3 text-right">Valor Actual</th>
-                              <th className="px-4 py-3 text-right">Rendimiento</th>
+                <div className="p-4">
+                  {/* Tabla única para todas las monedas */}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-slate-700 text-slate-300">
+                        <tr>
+                          <th className="px-4 py-3 w-8"></th>
+                          <th className="px-4 py-3">Ticker</th>
+                          <th className="px-4 py-3">Descripción</th>
+                          <th className="px-4 py-3 text-right">Cantidad</th>
+                          <th className="px-4 py-3 text-right">PPC</th>
+                          <th className="px-4 py-3 text-right">Precio Actual</th>
+                          <th className="px-4 py-3 text-right">Inversión Consolidada</th>
+                          <th className="px-4 py-3 text-right">Valor Actual</th>
+                          <th className="px-4 py-3 text-right">Rendimiento</th>
+                        </tr>
+                      </thead>
+                      <tbody className="text-white">
+                        {typeGroup.currencies.map((currencyGroup: any) => (
+                          <React.Fragment key={`${typeGroup.tipo}-${currencyGroup.moneda}`}>
+                            {/* Fila de encabezado de moneda */}
+                            <tr className="bg-slate-600/30">
+                              <td className="px-4 py-2" colSpan={9}>
+                                <div className="flex items-center justify-between">
+                                  <h4 className="text-sm font-semibold text-slate-300">
+                                    {currencyGroup.moneda === 'Dólar' ? '💵 Dólar' : currencyGroup.moneda === 'Pesos' ? '💰 Pesos' : currencyGroup.moneda}
+                                  </h4>
+                                  <span className="text-xs text-slate-400">
+                                    {currencyGroup.positions.length} instrumento{currencyGroup.positions.length !== 1 ? 's' : ''}
+                                  </span>
+                                </div>
+                              </td>
                             </tr>
-                          </thead>
-                          <tbody className="text-white">
+                            {/* Filas de instrumentos de esta moneda */}
                             {currencyGroup.positions.map((group: any) => {
                               const isExpanded = expandedTickers.has(group.ticker);
                               const hasMultipleOperations = group.operaciones.length > 1;
@@ -550,7 +560,7 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick,
                                         <td className="px-4 py-2 text-right text-slate-300">
                                         </td>
                                         <td className="px-4 py-2 text-right text-slate-300">
-                                          {/* Valor Inicial de la operación */}
+                                          {/* Inversión Consolidada de la operación */}
                                           US$ {(op.precioUSD * op.cantidad).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </td>
                                         <td className="px-4 py-2 text-right">
@@ -562,11 +572,11 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick,
                                 </React.Fragment>
                               );
                             })}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  ))}
+                          </React.Fragment>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
             </div>

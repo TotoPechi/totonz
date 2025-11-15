@@ -21,7 +21,7 @@ const LogoutButton: React.FC = () => {
   return (
     <button
       onClick={handleLogout}
-      className="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs font-semibold shadow"
+      className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors text-sm font-semibold"
       title="Cerrar sesión de Balanz"
     >
       Cerrar sesión

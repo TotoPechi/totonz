@@ -64,28 +64,28 @@ const TickerInfo: React.FC<TickerInfoProps> = ({ tickerInfo, selectedTicker, dol
                 </>
               )}
             </span>
-          </div>
-        )}
-        {tickerInfo.open !== undefined && (
-          <div>
-            <span className="text-slate-400">Apert.:</span>{' '}
-            <span className="text-slate-300 font-semibold">
-              {tickerInfo.tickerCurrency === 'ARS' && dolarMEP ? (
-                <>
-                  USD {(tickerInfo.open / dolarMEP).toLocaleString('es-AR', {
-                    minimumFractionDigits: getDecimalPlaces(selectedTicker),
-                    maximumFractionDigits: getDecimalPlaces(selectedTicker)
-                  })}
-                </>
-              ) : (
-                <>
-                  {tickerInfo.currency} {tickerInfo.open.toLocaleString('es-AR', {
-                    minimumFractionDigits: getDecimalPlaces(selectedTicker),
-                    maximumFractionDigits: getDecimalPlaces(selectedTicker)
-                  })}
-                </>
-              )}
-            </span>
+            {tickerInfo.open !== undefined && (
+              <>
+                <span className="text-slate-400"> - Apert.:</span>{' '}
+                <span className="text-slate-300 font-semibold">
+                  {tickerInfo.tickerCurrency === 'ARS' && dolarMEP ? (
+                    <>
+                      USD {(tickerInfo.open / dolarMEP).toLocaleString('es-AR', {
+                        minimumFractionDigits: getDecimalPlaces(selectedTicker),
+                        maximumFractionDigits: getDecimalPlaces(selectedTicker)
+                      })}
+                    </>
+                  ) : (
+                    <>
+                      {tickerInfo.currency} {tickerInfo.open.toLocaleString('es-AR', {
+                        minimumFractionDigits: getDecimalPlaces(selectedTicker),
+                        maximumFractionDigits: getDecimalPlaces(selectedTicker)
+                      })}
+                    </>
+                  )}
+                </span>
+              </>
+            )}
           </div>
         )}
       </div>

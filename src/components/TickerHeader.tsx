@@ -16,6 +16,14 @@ interface TickerHeaderProps {
   dividendos: Array<{ fecha: string; montoNeto: number }>;
   rentas: Array<{ fecha: string; montoNeto: number; impuestosRetenidos: number; esInteresDevengado?: boolean }>;
   positions: any[];
+  valorInicialConsolidado?: number;
+  precioPromedioVenta?: number;
+  rendimientoATermino?: {
+    valorATermino: number;
+    rentasPasadas: number;
+    rendimiento: number;
+    porcentaje: number;
+  };
 }
 
 const TickerHeader: React.FC<TickerHeaderProps> = ({
@@ -28,7 +36,10 @@ const TickerHeader: React.FC<TickerHeaderProps> = ({
   setShowBondDescTooltip,
   dividendos,
   rentas,
-  positions
+  positions,
+  valorInicialConsolidado,
+  precioPromedioVenta,
+  rendimientoATermino
 }) => {
   return (
     <div className="flex items-start justify-between gap-6">
@@ -90,6 +101,8 @@ const TickerHeader: React.FC<TickerHeaderProps> = ({
           dividendos,
           rentas
         }}
+        valorInicialConsolidado={valorInicialConsolidado}
+        rendimientoATermino={rendimientoATermino}
       />
     </div>
   );

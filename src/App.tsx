@@ -1,27 +1,14 @@
-import { useMemo, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import CarteraActual from './components/CarteraActual';
 import TickerLookup from './components/TickerLookup';
+import Rendimientos from './components/Rendimientos';
+import FlujosProyectados from './components/FlujosProyectados';
 import { getEstadoCuentaConCache } from './services/balanzApi';
-import { clearAllTickerCache } from './services/tickerApi';
-import { clearMovimientosCache, clearEstadoCuentaCache } from './services/balanzApi';
-import LogoutButton from './components/LogoutButton';
+import Menu from './components/Menu';
 import LoggedOut from './components/LoggedOut';
 
 function App() {
-  // Estado global para habilitar/deshabilitar caché (excepto login)
-  const [cacheEnabled, setCacheEnabled] = useState(() => {
-    const stored = localStorage.getItem('global_cache_enabled');
-    return stored === null ? true : stored === 'true';
-  });
-  // Sincronizar el flag con localStorage
-  useEffect(() => {
-    localStorage.setItem('global_cache_enabled', cacheEnabled ? 'true' : 'false');
-  }, [cacheEnabled]);
-  // Handler para el toggle de caché
-  const handleToggleCache = () => {
-    setCacheEnabled((prev) => !prev);
-  };
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -83,52 +70,9 @@ function App() {
     navigate(`/ticker/${ticker}`);
   };
 
-  const handleClearAllCache = () => {
-    const confirmClear = window.confirm('¿Estás seguro de que deseas limpiar todas las cachés? Esto recargará todos los datos desde el servidor.');
-    if (confirmClear) {
-      
-      // Limpiar caché de tickers (histórico + info de instrumentos)
-      clearAllTickerCache();
-      
-      // Limpiar caché de movimientos
-      clearMovimientosCache();
-      
-      // Limpiar caché de estado de cuenta
-      clearEstadoCuentaCache();
-      
-      
-      // Recargar la página para actualizar todo
-      window.location.reload();
-    }
-  };
-
   return (
     <>
-      {/* Botones fijos en la esquina superior derecha */}
-      <div className="fixed top-4 right-4 z-50 flex gap-2 items-center">
-        <button
-          onClick={handleClearAllCache}
-          className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white rounded-lg transition-colors text-sm font-semibold flex items-center gap-2 shadow-lg"
-          title="Limpiar todas las cachés y recargar datos"
-        >
-          🗑️ Limpiar Cachés
-        </button>
-        <div className="flex items-center gap-1 bg-slate-700 px-3 py-2 rounded-lg text-xs text-slate-300 shadow-lg">
-          <label htmlFor="cache-toggle" className="cursor-pointer select-none">
-            <span className="mr-2">Caché</span>
-            <input
-              id="cache-toggle"
-              type="checkbox"
-              checked={cacheEnabled}
-              onChange={handleToggleCache}
-              className="accent-blue-500 align-middle"
-              style={{ verticalAlign: 'middle' }}
-            />
-            <span className="ml-2 font-mono">{cacheEnabled ? 'SÍ' : 'NO'}</span>
-          </label>
-        </div>
-        <LogoutButton />
-      </div>
+      <Menu />
       
       <div className="min-h-screen bg-slate-900 p-4 md:p-8">
         <div className="max-w-7xl mx-auto space-y-6">
@@ -163,6 +107,26 @@ function App() {
             >
               🔍 Consulta de Tickers
             </button>
+            <button
+              onClick={() => navigate('/rendimientos')}
+              className={`px-6 py-3 font-semibold transition ${
+                location.pathname === '/rendimientos'
+                  ? 'text-blue-400 border-b-2 border-blue-400'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              💰 Rendimientos
+            </button>
+            <button
+              onClick={() => navigate('/flujos-proyectados')}
+              className={`px-6 py-3 font-semibold transition ${
+                location.pathname === '/flujos-proyectados'
+                  ? 'text-blue-400 border-b-2 border-blue-400'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              📊 Flujos Proyectados
+            </button>
 
           </nav>
 
@@ -191,10 +155,29 @@ function App() {
                 />
               } 
             />
+            <Route 
+              path="/rendimientos" 
+              element={
+                <Rendimientos 
+                  positions={positions}
+                  loading={loading}
+                  apiError={apiError}
+                />
+              } 
+            />
+            <Route 
+              path="/flujos-proyectados" 
+              element={
+                <FlujosProyectados 
+                  loading={loading}
+                  apiError={apiError}
+                />
+              } 
+            />
             <Route path="/logout" element={<LoggedOut />} />
           </Routes>
 
-        <footer className="text-center text-slate-500 text-sm mt-12">
+        <footer className="text-center text-slate-400 text-sm mt-12">
           <p>© 2025 Totonz - Dashboard de inversiones</p>
         </footer>
         </div>

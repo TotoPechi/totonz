@@ -1,6 +1,37 @@
 import React, { useState } from 'react';
 import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, ReferenceDot } from 'recharts';
 
+// Función para formatear fecha de YYYY-MM-DD a DD/MM/YYYY
+function formatearFecha(fecha: string): string {
+  if (!fecha) return '';
+  
+  // Si ya está en formato DD/MM/YYYY, retornarlo
+  if (fecha.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+    return fecha;
+  }
+  
+  // Si está en formato YYYY-MM-DD
+  if (fecha.match(/^\d{4}-\d{2}-\d{2}/)) {
+    const [anio, mes, dia] = fecha.split('-');
+    return `${dia}/${mes}/${anio}`;
+  }
+  
+  // Intentar parsear como Date
+  try {
+    const date = new Date(fecha);
+    if (!isNaN(date.getTime())) {
+      const dia = String(date.getDate()).padStart(2, '0');
+      const mes = String(date.getMonth() + 1).padStart(2, '0');
+      const anio = date.getFullYear();
+      return `${dia}/${mes}/${anio}`;
+    }
+  } catch (e) {
+    // Ignorar error
+  }
+  
+  return fecha; // Retornar original si no se pudo formatear
+}
+
 interface CandleData {
   time: string;
   open: number;
@@ -14,8 +45,9 @@ interface TickerChartProps {
   data: CandleData[];
   ticker: string;
   ppc?: number; // Precio Promedio Ponderado
+  precioPromedioVenta?: number; // Precio Promedio de Venta
   operaciones?: Array<{
-    tipo: 'COMPRA' | 'VENTA' | 'LIC';
+    tipo: 'COMPRA' | 'VENTA' | 'LIC' | 'RESCATE_PARCIAL';
     fecha: string;
     cantidad: number;
     precioUSD: number;
@@ -33,7 +65,7 @@ interface TickerChartProps {
 
 type TimeRange = '1W' | '1M' | '6M' | '1Y' | '2Y';
 
-const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operaciones, dividendos, rentas, hoveredOperacionIndex }) => {
+const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioPromedioVenta, operaciones, dividendos, rentas, hoveredOperacionIndex }) => {
   const [timeRange, setTimeRange] = useState<TimeRange>('1Y');
   const [hoveredLegendType, setHoveredLegendType] = useState<string | null>(null);
   const [hoveredMarker, setHoveredMarker] = useState<{ type: string; index: number } | null>(null);
@@ -61,7 +93,7 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
             </svg>
             <p className="text-lg font-semibold mb-2">Datos históricos no disponibles</p>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-400">
               No se pudieron obtener datos históricos.
               <br />
               Por favor intenta nuevamente más tarde.
@@ -133,6 +165,7 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
     fullDate: item.time,
     price: item.close,
     ppc: ppc, // Agregar PPC a cada punto
+    precioPromedioVenta: precioPromedioVenta, // Agregar precio promedio de venta a cada punto
   }));
 
   // Determinar rango de fechas del gráfico
@@ -174,7 +207,7 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
   };
 
   // Filtrar operaciones por rango de fechas del gráfico antes de mapear
-  const operacionesPuntos = operaciones?.map((op, originalIdx) => {
+  const operacionesPuntos = operaciones?.map((op, originalIndex) => {
     const opDateStr = parsearFechaYYYYMMDD(op.fecha);
     if (!opDateStr) {
       console.warn('⚠️ Fecha de operación inválida:', op.fecha);
@@ -195,6 +228,12 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
     const closestPoint = filteredData[idx];
     const closestChartData = chartData[idx];
     
+    // Para rescates parciales con precio 0, usar el precio del gráfico en esa fecha
+    let precioY = op.precioUSD;
+    if (op.tipo === 'RESCATE_PARCIAL' && (op.precioUSD === 0 || op.precioUSD < 0.01)) {
+      precioY = closestPoint.close; // Usar precio de cierre del gráfico
+    }
+    
     return {
       date: closestChartData.date,
       fullDate: closestPoint.time,
@@ -202,8 +241,9 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
       tipo: op.tipo,
       cantidad: op.cantidad,
       fechaOperacion: op.fecha, // Fecha original de la operación
+      originalIndex: originalIndex, // Índice original en el array de operaciones
       x: closestChartData.date, // Usar la fecha formateada como x
-      y: op.precioUSD, // Precio para el eje Y
+      y: precioY, // Precio para el eje Y (usar precio del gráfico si es rescate parcial con precio 0)
     };
   }).filter(Boolean) || [];
   
@@ -358,12 +398,7 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
               const fullDate = dataPoint ? dataPoint.fullDate : label;
               
               // Formatear la fecha completa para mostrar
-              const formattedFullDate = fullDate ? new Date(fullDate).toLocaleDateString('es-AR', {
-                weekday: 'short',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-              }) : label;
+              const formattedFullDate = fullDate ? formatearFecha(fullDate) : formatearFecha(label);
               
               // Buscar si hay operaciones, dividendos o rentas en este punto
               const operacionesEnPunto = operacionesPuntos.filter((op: any) => op.date === label);
@@ -388,8 +423,18 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
                   {ppc && (
                     <div className="text-sm mb-2">
                       <span className="text-slate-400">PPC: </span>
-                      <span className="text-amber-400 font-semibold">
+                      <span className="text-green-400 font-semibold">
                         ${ppc.toFixed(decimals)}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* PPV si existe */}
+                  {precioPromedioVenta && (
+                    <div className="text-sm mb-2">
+                      <span className="text-slate-400">PPV: </span>
+                      <span className="text-orange-400 font-semibold">
+                        ${precioPromedioVenta.toFixed(decimals)}
                       </span>
                     </div>
                   )}
@@ -400,13 +445,25 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
                       {operacionesEnPunto.map((op: any, idx: number) => (
                         <div key={idx} className="mb-2">
                           <div className="flex items-center gap-2 mb-1">
-                            <div className={`w-3 h-3 rounded-full ${op.tipo === 'COMPRA' || op.tipo === 'LIC' ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                            <span className={`font-semibold ${op.tipo === 'COMPRA' || op.tipo === 'LIC' ? 'text-green-400' : 'text-red-400'}`}>
-                              {op.tipo === 'LIC' ? 'LIC.' : op.tipo}
+                            <div className={`w-3 h-3 rounded-full ${
+                              op.tipo === 'COMPRA' || op.tipo === 'LIC' 
+                                ? 'bg-green-500' 
+                                : op.tipo === 'RESCATE_PARCIAL'
+                                ? 'bg-orange-500'
+                                : 'bg-red-500'
+                            }`}></div>
+                            <span className={`font-semibold ${
+                              op.tipo === 'COMPRA' || op.tipo === 'LIC' 
+                                ? 'text-green-400' 
+                                : op.tipo === 'RESCATE_PARCIAL'
+                                ? 'text-orange-400'
+                                : 'text-red-400'
+                            }`}>
+                              {op.tipo === 'LIC' ? 'LIC.' : op.tipo === 'RESCATE_PARCIAL' ? 'RESC' : op.tipo}
                             </span>
                           </div>
                           <div className="text-xs text-slate-400 ml-5">
-                            <div>Fecha: <span className="text-slate-300">{op.fechaOperacion}</span></div>
+                            <div>Fecha: <span className="text-slate-300">{formatearFecha(op.fechaOperacion)}</span></div>
                             <div>Cantidad: <span className="text-slate-300">{op.cantidad}</span></div>
                             <div>Precio: <span className="text-slate-300">${op.price.toFixed(decimals)}</span></div>
                           </div>
@@ -465,7 +522,17 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
             <Line 
               type="monotone" 
               dataKey="ppc" 
-              stroke="#f59e0b" 
+              stroke="#10b981" 
+              strokeWidth={2}
+              strokeDasharray="5 5"
+              dot={false}
+            />
+          )}
+          {precioPromedioVenta && (
+            <Line 
+              type="monotone" 
+              dataKey="precioPromedioVenta" 
+              stroke="#f97316" 
               strokeWidth={2}
               strokeDasharray="5 5"
               dot={false}
@@ -474,19 +541,28 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
           
           {/* Marcadores de operaciones usando ReferenceDot con índice numérico */}
           {operacionesPuntos.map((op: any, idx: number) => {
-            const isHovered = hoveredOperacionIndex === idx;
+            // Usar el índice original de la operación para comparar con hoveredOperacionIndex
+            const isHovered = hoveredOperacionIndex === op.originalIndex;
             const isMarkerHovered = hoveredMarker?.type === 'operacion' && hoveredMarker?.index === idx;
-            const shouldShow = !hoveredLegendType || hoveredLegendType === 'COMPRA' || hoveredLegendType === 'VENTA';
+            const shouldShow = !hoveredLegendType || hoveredLegendType === 'COMPRA' || hoveredLegendType === 'VENTA' || hoveredLegendType === 'RESCATE_PARCIAL';
             const isTypeMatch = !hoveredLegendType || hoveredLegendType === op.tipo;
+            // Hacer los marcadores de rescate parcial más grandes para mejor visibilidad
+            const baseRadius = op.tipo === 'RESCATE_PARCIAL' ? 8 : 6;
             return (
               <ReferenceDot
                 key={`op-${idx}`}
                 x={op.x}
                 y={op.y}
-                r={isHovered ? 10 : isMarkerHovered ? 9 : 6}
-                fill={op.tipo === 'COMPRA' || op.tipo === 'LIC' ? '#10b981' : '#ef4444'}
-                stroke={isHovered || isMarkerHovered ? '#fbbf24' : '#fff'}
-                strokeWidth={isHovered || isMarkerHovered ? 3 : 2}
+                r={isHovered ? 12 : isMarkerHovered ? 11 : baseRadius}
+                fill={
+                  op.tipo === 'COMPRA' || op.tipo === 'LIC' 
+                    ? '#10b981' 
+                    : op.tipo === 'RESCATE_PARCIAL'
+                    ? '#f97316'
+                    : '#ef4444'
+                }
+                stroke={isHovered || isMarkerHovered ? '#fbbf24' : op.tipo === 'RESCATE_PARCIAL' ? '#fff' : '#fff'}
+                strokeWidth={isHovered || isMarkerHovered ? 3 : op.tipo === 'RESCATE_PARCIAL' ? 2.5 : 2}
                 isFront={true}
                 fillOpacity={shouldShow && isTypeMatch ? 1 : 0.15}
                 strokeOpacity={shouldShow && isTypeMatch ? 1 : 0.15}
@@ -547,7 +623,7 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
         </ResponsiveContainer>
       </div>
       
-      {/* Leyenda */}
+      {/* Leyenda - Solo mostrar elementos que están en el gráfico */}
       <div className="flex justify-center gap-6 mt-4 text-sm flex-wrap">
         <div className="flex items-center gap-2">
           <div className="w-8 h-0.5 bg-blue-500"></div>
@@ -555,54 +631,85 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, operacione
         </div>
         {ppc && (
           <div className="flex items-center gap-2">
-            <div className="w-8 border-t-2 border-dashed border-amber-500"></div>
+            <div className="w-8 border-t-2 border-dashed border-green-500"></div>
             <span className="text-slate-400">PPC: ${ppc.toFixed(decimals)}</span>
           </div>
         )}
-        {operaciones && operaciones.length > 0 && (
-          <>
-            <div 
-              className="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-100"
-              style={{ opacity: !hoveredLegendType || hoveredLegendType === 'COMPRA' ? 1 : 0.4 }}
-              onMouseEnter={() => setHoveredLegendType('COMPRA')}
-              onMouseLeave={() => setHoveredLegendType(null)}
-            >
-              <div className="w-4 h-4 rounded-full bg-green-500 border-2 border-white"></div>
-              <span className="text-slate-400">Compra</span>
-            </div>
-            <div 
-              className="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-100"
-              style={{ opacity: !hoveredLegendType || hoveredLegendType === 'VENTA' ? 1 : 0.4 }}
-              onMouseEnter={() => setHoveredLegendType('VENTA')}
-              onMouseLeave={() => setHoveredLegendType(null)}
-            >
-              <div className="w-4 h-4 rounded-full bg-red-500 border-2 border-white"></div>
-              <span className="text-slate-400">Venta</span>
-            </div>
-          </>
-        )}
-        {dividendos && dividendos.length > 0 && (
-          <div 
-            className="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-100"
-            style={{ opacity: !hoveredLegendType || hoveredLegendType === 'DIVIDENDO' ? 1 : 0.4 }}
-            onMouseEnter={() => setHoveredLegendType('DIVIDENDO')}
-            onMouseLeave={() => setHoveredLegendType(null)}
-          >
-            <div className="w-4 h-4 rounded-full bg-purple-500 border-2 border-white"></div>
-            <span className="text-slate-400">Dividendo</span>
+        {precioPromedioVenta && (
+          <div className="flex items-center gap-2">
+            <div className="w-8 border-t-2 border-dashed border-orange-500"></div>
+            <span className="text-slate-400">PPV: ${precioPromedioVenta.toFixed(decimals)}</span>
           </div>
         )}
-        {rentas && rentas.length > 0 && (
-          <div 
-            className="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-100"
-            style={{ opacity: !hoveredLegendType || hoveredLegendType === 'RENTA' ? 1 : 0.4 }}
-            onMouseEnter={() => setHoveredLegendType('RENTA')}
-            onMouseLeave={() => setHoveredLegendType(null)}
-          >
-            <div className="w-4 h-4 rounded-full bg-amber-500 border-2 border-white"></div>
-            <span className="text-slate-400">Renta</span>
-          </div>
-        )}
+        {/* Verificar qué tipos de operaciones están realmente en el gráfico */}
+        {(() => {
+          const tiposEnGrafico = new Set(operacionesPuntos.map((op: any) => op.tipo));
+          const tieneCompra = tiposEnGrafico.has('COMPRA') || tiposEnGrafico.has('LIC');
+          const tieneVenta = tiposEnGrafico.has('VENTA');
+          const tieneRescate = tiposEnGrafico.has('RESCATE_PARCIAL');
+          const tieneDividendos = dividendosPuntos.length > 0;
+          const tieneRentas = rentasPuntos.length > 0;
+          
+          return (
+            <>
+              {tieneCompra && (
+                <div 
+                  className="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-100"
+                  style={{ opacity: !hoveredLegendType || hoveredLegendType === 'COMPRA' || hoveredLegendType === 'LIC' ? 1 : 0.4 }}
+                  onMouseEnter={() => setHoveredLegendType('COMPRA')}
+                  onMouseLeave={() => setHoveredLegendType(null)}
+                >
+                  <div className="w-4 h-4 rounded-full bg-green-500 border-2 border-white"></div>
+                  <span className="text-slate-400">Compra</span>
+                </div>
+              )}
+              {tieneVenta && (
+                <div 
+                  className="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-100"
+                  style={{ opacity: !hoveredLegendType || hoveredLegendType === 'VENTA' ? 1 : 0.4 }}
+                  onMouseEnter={() => setHoveredLegendType('VENTA')}
+                  onMouseLeave={() => setHoveredLegendType(null)}
+                >
+                  <div className="w-4 h-4 rounded-full bg-red-500 border-2 border-white"></div>
+                  <span className="text-slate-400">Venta</span>
+                </div>
+              )}
+              {tieneRescate && (
+                <div 
+                  className="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-100"
+                  style={{ opacity: !hoveredLegendType || hoveredLegendType === 'RESCATE_PARCIAL' ? 1 : 0.4 }}
+                  onMouseEnter={() => setHoveredLegendType('RESCATE_PARCIAL')}
+                  onMouseLeave={() => setHoveredLegendType(null)}
+                >
+                  <div className="w-4 h-4 rounded-full bg-orange-500 border-2 border-white"></div>
+                  <span className="text-slate-400">Rescate Parcial</span>
+                </div>
+              )}
+              {tieneDividendos && (
+                <div 
+                  className="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-100"
+                  style={{ opacity: !hoveredLegendType || hoveredLegendType === 'DIVIDENDO' ? 1 : 0.4 }}
+                  onMouseEnter={() => setHoveredLegendType('DIVIDENDO')}
+                  onMouseLeave={() => setHoveredLegendType(null)}
+                >
+                  <div className="w-4 h-4 rounded-full bg-purple-500 border-2 border-white"></div>
+                  <span className="text-slate-400">Dividendo</span>
+                </div>
+              )}
+              {tieneRentas && (
+                <div 
+                  className="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-100"
+                  style={{ opacity: !hoveredLegendType || hoveredLegendType === 'RENTA' ? 1 : 0.4 }}
+                  onMouseEnter={() => setHoveredLegendType('RENTA')}
+                  onMouseLeave={() => setHoveredLegendType(null)}
+                >
+                  <div className="w-4 h-4 rounded-full bg-amber-500 border-2 border-white"></div>
+                  <span className="text-slate-400">Renta</span>
+                </div>
+              )}
+            </>
+          );
+        })()}
       </div>
     </div>
   );

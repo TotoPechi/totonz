@@ -1,0 +1,6241 @@
+{
+    "historico": [
+      {
+        "fecha": "2020-09-30",
+        "milis": 1601424000000,
+        "valorcuotaparte": 1.000828
+      },
+      {
+        "fecha": "2020-10-01",
+        "milis": 1601510400000,
+        "valorcuotaparte": 1.001276
+      },
+      {
+        "fecha": "2020-10-02",
+        "milis": 1601596800000,
+        "valorcuotaparte": 1.001733
+      },
+      {
+        "fecha": "2020-10-05",
+        "milis": 1601856000000,
+        "valorcuotaparte": 1.0033
+      },
+      {
+        "fecha": "2020-10-06",
+        "milis": 1601942400000,
+        "valorcuotaparte": 1.003808
+      },
+      {
+        "fecha": "2020-10-07",
+        "milis": 1602028800000,
+        "valorcuotaparte": 1.004328
+      },
+      {
+        "fecha": "2020-10-08",
+        "milis": 1602115200000,
+        "valorcuotaparte": 1.00487
+      },
+      {
+        "fecha": "2020-10-09",
+        "milis": 1602201600000,
+        "valorcuotaparte": 1.005377
+      },
+      {
+        "fecha": "2020-10-13",
+        "milis": 1602547200000,
+        "valorcuotaparte": 1.00778
+      },
+      {
+        "fecha": "2020-10-14",
+        "milis": 1602633600000,
+        "valorcuotaparte": 1.008388
+      },
+      {
+        "fecha": "2020-10-15",
+        "milis": 1602720000000,
+        "valorcuotaparte": 1.008991
+      },
+      {
+        "fecha": "2020-10-16",
+        "milis": 1602806400000,
+        "valorcuotaparte": 1.009588
+      },
+      {
+        "fecha": "2020-10-19",
+        "milis": 1603065600000,
+        "valorcuotaparte": 1.011513
+      },
+      {
+        "fecha": "2020-10-20",
+        "milis": 1603152000000,
+        "valorcuotaparte": 1.012152
+      },
+      {
+        "fecha": "2020-10-21",
+        "milis": 1603238400000,
+        "valorcuotaparte": 1.012794
+      },
+      {
+        "fecha": "2020-10-22",
+        "milis": 1603324800000,
+        "valorcuotaparte": 1.013442
+      },
+      {
+        "fecha": "2020-10-23",
+        "milis": 1603411200000,
+        "valorcuotaparte": 1.014093
+      },
+      {
+        "fecha": "2020-10-26",
+        "milis": 1603670400000,
+        "valorcuotaparte": 1.016031
+      },
+      {
+        "fecha": "2020-10-27",
+        "milis": 1603756800000,
+        "valorcuotaparte": 1.016689
+      },
+      {
+        "fecha": "2020-10-28",
+        "milis": 1603843200000,
+        "valorcuotaparte": 1.01735
+      },
+      {
+        "fecha": "2020-10-29",
+        "milis": 1603929600000,
+        "valorcuotaparte": 1.018014
+      },
+      {
+        "fecha": "2020-10-30",
+        "milis": 1604016000000,
+        "valorcuotaparte": 1.018703
+      },
+      {
+        "fecha": "2020-11-02",
+        "milis": 1604275200000,
+        "valorcuotaparte": 1.020808
+      },
+      {
+        "fecha": "2020-11-03",
+        "milis": 1604361600000,
+        "valorcuotaparte": 1.021507
+      },
+      {
+        "fecha": "2020-11-04",
+        "milis": 1604448000000,
+        "valorcuotaparte": 1.022214
+      },
+      {
+        "fecha": "2020-11-05",
+        "milis": 1604534400000,
+        "valorcuotaparte": 1.022928
+      },
+      {
+        "fecha": "2020-11-09",
+        "milis": 1604880000000,
+        "valorcuotaparte": 1.025817
+      },
+      {
+        "fecha": "2020-11-10",
+        "milis": 1604966400000,
+        "valorcuotaparte": 1.026551
+      },
+      {
+        "fecha": "2020-11-11",
+        "milis": 1605052800000,
+        "valorcuotaparte": 1.027289
+      },
+      {
+        "fecha": "2020-11-12",
+        "milis": 1605139200000,
+        "valorcuotaparte": 1.028026
+      },
+      {
+        "fecha": "2020-11-13",
+        "milis": 1605225600000,
+        "valorcuotaparte": 1.028769
+      },
+      {
+        "fecha": "2020-11-16",
+        "milis": 1605484800000,
+        "valorcuotaparte": 1.031042
+      },
+      {
+        "fecha": "2020-11-17",
+        "milis": 1605571200000,
+        "valorcuotaparte": 1.031802
+      },
+      {
+        "fecha": "2020-11-18",
+        "milis": 1605657600000,
+        "valorcuotaparte": 1.032564
+      },
+      {
+        "fecha": "2020-11-19",
+        "milis": 1605744000000,
+        "valorcuotaparte": 1.033323
+      },
+      {
+        "fecha": "2020-11-20",
+        "milis": 1605830400000,
+        "valorcuotaparte": 1.034079
+      },
+      {
+        "fecha": "2020-11-24",
+        "milis": 1606176000000,
+        "valorcuotaparte": 1.037143
+      },
+      {
+        "fecha": "2020-11-25",
+        "milis": 1606262400000,
+        "valorcuotaparte": 1.03791
+      },
+      {
+        "fecha": "2020-11-26",
+        "milis": 1606348800000,
+        "valorcuotaparte": 1.038684
+      },
+      {
+        "fecha": "2020-11-27",
+        "milis": 1606435200000,
+        "valorcuotaparte": 1.039461
+      },
+      {
+        "fecha": "2020-11-30",
+        "milis": 1606694400000,
+        "valorcuotaparte": 1.041797
+      },
+      {
+        "fecha": "2020-12-01",
+        "milis": 1606780800000,
+        "valorcuotaparte": 1.042585
+      },
+      {
+        "fecha": "2020-12-02",
+        "milis": 1606867200000,
+        "valorcuotaparte": 1.043376
+      },
+      {
+        "fecha": "2020-12-03",
+        "milis": 1606953600000,
+        "valorcuotaparte": 1.04416
+      },
+      {
+        "fecha": "2020-12-04",
+        "milis": 1607040000000,
+        "valorcuotaparte": 1.044949
+      },
+      {
+        "fecha": "2020-12-09",
+        "milis": 1607472000000,
+        "valorcuotaparte": 1.048885
+      },
+      {
+        "fecha": "2020-12-10",
+        "milis": 1607558400000,
+        "valorcuotaparte": 1.049675
+      },
+      {
+        "fecha": "2020-12-11",
+        "milis": 1607644800000,
+        "valorcuotaparte": 1.050478
+      },
+      {
+        "fecha": "2020-12-14",
+        "milis": 1607904000000,
+        "valorcuotaparte": 1.052933
+      },
+      {
+        "fecha": "2020-12-15",
+        "milis": 1607990400000,
+        "valorcuotaparte": 1.05375
+      },
+      {
+        "fecha": "2020-12-16",
+        "milis": 1608076800000,
+        "valorcuotaparte": 1.054563
+      },
+      {
+        "fecha": "2020-12-17",
+        "milis": 1608163200000,
+        "valorcuotaparte": 1.055385
+      },
+      {
+        "fecha": "2020-12-18",
+        "milis": 1608249600000,
+        "valorcuotaparte": 1.056211
+      },
+      {
+        "fecha": "2020-12-21",
+        "milis": 1608508800000,
+        "valorcuotaparte": 1.058702
+      },
+      {
+        "fecha": "2020-12-22",
+        "milis": 1608595200000,
+        "valorcuotaparte": 1.059558
+      },
+      {
+        "fecha": "2020-12-23",
+        "milis": 1608681600000,
+        "valorcuotaparte": 1.060398
+      },
+      {
+        "fecha": "2020-12-28",
+        "milis": 1609113600000,
+        "valorcuotaparte": 1.064574
+      },
+      {
+        "fecha": "2020-12-29",
+        "milis": 1609200000000,
+        "valorcuotaparte": 1.065419
+      },
+      {
+        "fecha": "2020-12-30",
+        "milis": 1609286400000,
+        "valorcuotaparte": 1.066258
+      },
+      {
+        "fecha": "2021-01-04",
+        "milis": 1609718400000,
+        "valorcuotaparte": 1.070467
+      },
+      {
+        "fecha": "2021-01-05",
+        "milis": 1609804800000,
+        "valorcuotaparte": 1.071322
+      },
+      {
+        "fecha": "2021-01-06",
+        "milis": 1609891200000,
+        "valorcuotaparte": 1.072206
+      },
+      {
+        "fecha": "2021-01-07",
+        "milis": 1609977600000,
+        "valorcuotaparte": 1.073099
+      },
+      {
+        "fecha": "2021-01-08",
+        "milis": 1610064000000,
+        "valorcuotaparte": 1.07399
+      },
+      {
+        "fecha": "2021-01-11",
+        "milis": 1610323200000,
+        "valorcuotaparte": 1.076648
+      },
+      {
+        "fecha": "2021-01-12",
+        "milis": 1610409600000,
+        "valorcuotaparte": 1.077535
+      },
+      {
+        "fecha": "2021-01-13",
+        "milis": 1610496000000,
+        "valorcuotaparte": 1.078425
+      },
+      {
+        "fecha": "2021-01-14",
+        "milis": 1610582400000,
+        "valorcuotaparte": 1.079315
+      },
+      {
+        "fecha": "2021-01-15",
+        "milis": 1610668800000,
+        "valorcuotaparte": 1.080218
+      },
+      {
+        "fecha": "2021-01-18",
+        "milis": 1610928000000,
+        "valorcuotaparte": 1.082887
+      },
+      {
+        "fecha": "2021-01-19",
+        "milis": 1611014400000,
+        "valorcuotaparte": 1.083782
+      },
+      {
+        "fecha": "2021-01-20",
+        "milis": 1611100800000,
+        "valorcuotaparte": 1.084682
+      },
+      {
+        "fecha": "2021-01-21",
+        "milis": 1611187200000,
+        "valorcuotaparte": 1.085584
+      },
+      {
+        "fecha": "2021-01-22",
+        "milis": 1611273600000,
+        "valorcuotaparte": 1.08649
+      },
+      {
+        "fecha": "2021-01-25",
+        "milis": 1611532800000,
+        "valorcuotaparte": 1.089232
+      },
+      {
+        "fecha": "2021-01-26",
+        "milis": 1611619200000,
+        "valorcuotaparte": 1.090148
+      },
+      {
+        "fecha": "2021-01-27",
+        "milis": 1611705600000,
+        "valorcuotaparte": 1.091072
+      },
+      {
+        "fecha": "2021-01-28",
+        "milis": 1611792000000,
+        "valorcuotaparte": 1.092002
+      },
+      {
+        "fecha": "2021-01-29",
+        "milis": 1611878400000,
+        "valorcuotaparte": 1.092922
+      },
+      {
+        "fecha": "2021-02-01",
+        "milis": 1612137600000,
+        "valorcuotaparte": 1.095646
+      },
+      {
+        "fecha": "2021-02-02",
+        "milis": 1612224000000,
+        "valorcuotaparte": 1.09656
+      },
+      {
+        "fecha": "2021-02-03",
+        "milis": 1612310400000,
+        "valorcuotaparte": 1.097474
+      },
+      {
+        "fecha": "2021-02-04",
+        "milis": 1612396800000,
+        "valorcuotaparte": 1.098385
+      },
+      {
+        "fecha": "2021-02-05",
+        "milis": 1612483200000,
+        "valorcuotaparte": 1.099304
+      },
+      {
+        "fecha": "2021-02-08",
+        "milis": 1612742400000,
+        "valorcuotaparte": 1.102111
+      },
+      {
+        "fecha": "2021-02-09",
+        "milis": 1612828800000,
+        "valorcuotaparte": 1.103035
+      },
+      {
+        "fecha": "2021-02-10",
+        "milis": 1612915200000,
+        "valorcuotaparte": 1.103976
+      },
+      {
+        "fecha": "2021-02-11",
+        "milis": 1613001600000,
+        "valorcuotaparte": 1.10493
+      },
+      {
+        "fecha": "2021-02-12",
+        "milis": 1613088000000,
+        "valorcuotaparte": 1.10587
+      },
+      {
+        "fecha": "2021-02-17",
+        "milis": 1613520000000,
+        "valorcuotaparte": 1.110528
+      },
+      {
+        "fecha": "2021-02-18",
+        "milis": 1613606400000,
+        "valorcuotaparte": 1.111463
+      },
+      {
+        "fecha": "2021-02-19",
+        "milis": 1613692800000,
+        "valorcuotaparte": 1.112402
+      },
+      {
+        "fecha": "2021-02-22",
+        "milis": 1613952000000,
+        "valorcuotaparte": 1.115225
+      },
+      {
+        "fecha": "2021-02-23",
+        "milis": 1614038400000,
+        "valorcuotaparte": 1.116168
+      },
+      {
+        "fecha": "2021-02-24",
+        "milis": 1614124800000,
+        "valorcuotaparte": 1.117105
+      },
+      {
+        "fecha": "2021-02-25",
+        "milis": 1614211200000,
+        "valorcuotaparte": 1.118042
+      },
+      {
+        "fecha": "2021-02-26",
+        "milis": 1614297600000,
+        "valorcuotaparte": 1.118983
+      },
+      {
+        "fecha": "2021-03-01",
+        "milis": 1614556800000,
+        "valorcuotaparte": 1.121788
+      },
+      {
+        "fecha": "2021-03-02",
+        "milis": 1614643200000,
+        "valorcuotaparte": 1.12273
+      },
+      {
+        "fecha": "2021-03-03",
+        "milis": 1614729600000,
+        "valorcuotaparte": 1.123671
+      },
+      {
+        "fecha": "2021-03-04",
+        "milis": 1614816000000,
+        "valorcuotaparte": 1.124613
+      },
+      {
+        "fecha": "2021-03-05",
+        "milis": 1614902400000,
+        "valorcuotaparte": 1.125555
+      },
+      {
+        "fecha": "2021-03-08",
+        "milis": 1615161600000,
+        "valorcuotaparte": 1.128383
+      },
+      {
+        "fecha": "2021-03-09",
+        "milis": 1615248000000,
+        "valorcuotaparte": 1.129335
+      },
+      {
+        "fecha": "2021-03-10",
+        "milis": 1615334400000,
+        "valorcuotaparte": 1.130287
+      },
+      {
+        "fecha": "2021-03-11",
+        "milis": 1615420800000,
+        "valorcuotaparte": 1.131242
+      },
+      {
+        "fecha": "2021-03-12",
+        "milis": 1615507200000,
+        "valorcuotaparte": 1.132197
+      },
+      {
+        "fecha": "2021-03-15",
+        "milis": 1615766400000,
+        "valorcuotaparte": 1.135042
+      },
+      {
+        "fecha": "2021-03-16",
+        "milis": 1615852800000,
+        "valorcuotaparte": 1.135992
+      },
+      {
+        "fecha": "2021-03-17",
+        "milis": 1615939200000,
+        "valorcuotaparte": 1.136941
+      },
+      {
+        "fecha": "2021-03-18",
+        "milis": 1616025600000,
+        "valorcuotaparte": 1.137894
+      },
+      {
+        "fecha": "2021-03-19",
+        "milis": 1616112000000,
+        "valorcuotaparte": 1.138839
+      },
+      {
+        "fecha": "2021-03-22",
+        "milis": 1616371200000,
+        "valorcuotaparte": 1.141675
+      },
+      {
+        "fecha": "2021-03-23",
+        "milis": 1616457600000,
+        "valorcuotaparte": 1.142616
+      },
+      {
+        "fecha": "2021-03-25",
+        "milis": 1616630400000,
+        "valorcuotaparte": 1.144489
+      },
+      {
+        "fecha": "2021-03-26",
+        "milis": 1616716800000,
+        "valorcuotaparte": 1.145418
+      },
+      {
+        "fecha": "2021-03-29",
+        "milis": 1616976000000,
+        "valorcuotaparte": 1.148181
+      },
+      {
+        "fecha": "2021-03-30",
+        "milis": 1617062400000,
+        "valorcuotaparte": 1.1491
+      },
+      {
+        "fecha": "2021-03-31",
+        "milis": 1617148800000,
+        "valorcuotaparte": 1.150019
+      },
+      {
+        "fecha": "2021-04-05",
+        "milis": 1617580800000,
+        "valorcuotaparte": 1.15464
+      },
+      {
+        "fecha": "2021-04-06",
+        "milis": 1617667200000,
+        "valorcuotaparte": 1.155565
+      },
+      {
+        "fecha": "2021-04-07",
+        "milis": 1617753600000,
+        "valorcuotaparte": 1.156494
+      },
+      {
+        "fecha": "2021-04-08",
+        "milis": 1617840000000,
+        "valorcuotaparte": 1.157426
+      },
+      {
+        "fecha": "2021-04-09",
+        "milis": 1617926400000,
+        "valorcuotaparte": 1.158359
+      },
+      {
+        "fecha": "2021-04-12",
+        "milis": 1618185600000,
+        "valorcuotaparte": 1.161162
+      },
+      {
+        "fecha": "2021-04-13",
+        "milis": 1618272000000,
+        "valorcuotaparte": 1.162103
+      },
+      {
+        "fecha": "2021-04-14",
+        "milis": 1618358400000,
+        "valorcuotaparte": 1.163044
+      },
+      {
+        "fecha": "2021-04-15",
+        "milis": 1618444800000,
+        "valorcuotaparte": 1.16399
+      },
+      {
+        "fecha": "2021-04-16",
+        "milis": 1618531200000,
+        "valorcuotaparte": 1.164944
+      },
+      {
+        "fecha": "2021-04-19",
+        "milis": 1618790400000,
+        "valorcuotaparte": 1.167829
+      },
+      {
+        "fecha": "2021-04-20",
+        "milis": 1618876800000,
+        "valorcuotaparte": 1.168788
+      },
+      {
+        "fecha": "2021-04-21",
+        "milis": 1618963200000,
+        "valorcuotaparte": 1.169752
+      },
+      {
+        "fecha": "2021-04-22",
+        "milis": 1619049600000,
+        "valorcuotaparte": 1.170716
+      },
+      {
+        "fecha": "2021-04-23",
+        "milis": 1619136000000,
+        "valorcuotaparte": 1.171684
+      },
+      {
+        "fecha": "2021-04-26",
+        "milis": 1619395200000,
+        "valorcuotaparte": 1.174588
+      },
+      {
+        "fecha": "2021-04-27",
+        "milis": 1619481600000,
+        "valorcuotaparte": 1.175555
+      },
+      {
+        "fecha": "2021-04-28",
+        "milis": 1619568000000,
+        "valorcuotaparte": 1.176521
+      },
+      {
+        "fecha": "2021-04-29",
+        "milis": 1619654400000,
+        "valorcuotaparte": 1.177487
+      },
+      {
+        "fecha": "2021-04-30",
+        "milis": 1619740800000,
+        "valorcuotaparte": 1.178448
+      },
+      {
+        "fecha": "2021-05-03",
+        "milis": 1620000000000,
+        "valorcuotaparte": 1.181342
+      },
+      {
+        "fecha": "2021-05-04",
+        "milis": 1620086400000,
+        "valorcuotaparte": 1.182314
+      },
+      {
+        "fecha": "2021-05-05",
+        "milis": 1620172800000,
+        "valorcuotaparte": 1.183277
+      },
+      {
+        "fecha": "2021-05-06",
+        "milis": 1620259200000,
+        "valorcuotaparte": 1.18424
+      },
+      {
+        "fecha": "2021-05-07",
+        "milis": 1620345600000,
+        "valorcuotaparte": 1.185209
+      },
+      {
+        "fecha": "2021-05-10",
+        "milis": 1620604800000,
+        "valorcuotaparte": 1.188135
+      },
+      {
+        "fecha": "2021-05-11",
+        "milis": 1620691200000,
+        "valorcuotaparte": 1.189154
+      },
+      {
+        "fecha": "2021-05-12",
+        "milis": 1620777600000,
+        "valorcuotaparte": 1.190123
+      },
+      {
+        "fecha": "2021-05-13",
+        "milis": 1620864000000,
+        "valorcuotaparte": 1.191101
+      },
+      {
+        "fecha": "2021-05-14",
+        "milis": 1620950400000,
+        "valorcuotaparte": 1.192079
+      },
+      {
+        "fecha": "2021-05-17",
+        "milis": 1621209600000,
+        "valorcuotaparte": 1.195011
+      },
+      {
+        "fecha": "2021-05-18",
+        "milis": 1621296000000,
+        "valorcuotaparte": 1.196006
+      },
+      {
+        "fecha": "2021-05-19",
+        "milis": 1621382400000,
+        "valorcuotaparte": 1.196992
+      },
+      {
+        "fecha": "2021-05-20",
+        "milis": 1621468800000,
+        "valorcuotaparte": 1.197984
+      },
+      {
+        "fecha": "2021-05-21",
+        "milis": 1621555200000,
+        "valorcuotaparte": 1.198976
+      },
+      {
+        "fecha": "2021-05-26",
+        "milis": 1621987200000,
+        "valorcuotaparte": 1.203933
+      },
+      {
+        "fecha": "2021-05-27",
+        "milis": 1622073600000,
+        "valorcuotaparte": 1.204955
+      },
+      {
+        "fecha": "2021-05-28",
+        "milis": 1622160000000,
+        "valorcuotaparte": 1.205951
+      },
+      {
+        "fecha": "2021-05-31",
+        "milis": 1622419200000,
+        "valorcuotaparte": 1.208926
+      },
+      {
+        "fecha": "2021-06-01",
+        "milis": 1622505600000,
+        "valorcuotaparte": 1.20994
+      },
+      {
+        "fecha": "2021-06-02",
+        "milis": 1622592000000,
+        "valorcuotaparte": 1.21094
+      },
+      {
+        "fecha": "2021-06-03",
+        "milis": 1622678400000,
+        "valorcuotaparte": 1.211942
+      },
+      {
+        "fecha": "2021-06-04",
+        "milis": 1622764800000,
+        "valorcuotaparte": 1.212956
+      },
+      {
+        "fecha": "2021-06-07",
+        "milis": 1623024000000,
+        "valorcuotaparte": 1.215975
+      },
+      {
+        "fecha": "2021-06-08",
+        "milis": 1623110400000,
+        "valorcuotaparte": 1.217001
+      },
+      {
+        "fecha": "2021-06-09",
+        "milis": 1623196800000,
+        "valorcuotaparte": 1.218014
+      },
+      {
+        "fecha": "2021-06-10",
+        "milis": 1623283200000,
+        "valorcuotaparte": 1.219027
+      },
+      {
+        "fecha": "2021-06-11",
+        "milis": 1623369600000,
+        "valorcuotaparte": 1.220048
+      },
+      {
+        "fecha": "2021-06-14",
+        "milis": 1623628800000,
+        "valorcuotaparte": 1.223078
+      },
+      {
+        "fecha": "2021-06-15",
+        "milis": 1623715200000,
+        "valorcuotaparte": 1.224107
+      },
+      {
+        "fecha": "2021-06-16",
+        "milis": 1623801600000,
+        "valorcuotaparte": 1.225123
+      },
+      {
+        "fecha": "2021-06-17",
+        "milis": 1623888000000,
+        "valorcuotaparte": 1.226138
+      },
+      {
+        "fecha": "2021-06-18",
+        "milis": 1623974400000,
+        "valorcuotaparte": 1.227155
+      },
+      {
+        "fecha": "2021-06-22",
+        "milis": 1624320000000,
+        "valorcuotaparte": 1.231228
+      },
+      {
+        "fecha": "2021-06-23",
+        "milis": 1624406400000,
+        "valorcuotaparte": 1.232277
+      },
+      {
+        "fecha": "2021-06-24",
+        "milis": 1624492800000,
+        "valorcuotaparte": 1.233305
+      },
+      {
+        "fecha": "2021-06-25",
+        "milis": 1624579200000,
+        "valorcuotaparte": 1.234332
+      },
+      {
+        "fecha": "2021-06-28",
+        "milis": 1624838400000,
+        "valorcuotaparte": 1.237421
+      },
+      {
+        "fecha": "2021-06-29",
+        "milis": 1624924800000,
+        "valorcuotaparte": 1.238465
+      },
+      {
+        "fecha": "2021-06-30",
+        "milis": 1625011200000,
+        "valorcuotaparte": 1.239495
+      },
+      {
+        "fecha": "2021-07-01",
+        "milis": 1625097600000,
+        "valorcuotaparte": 1.240524
+      },
+      {
+        "fecha": "2021-07-02",
+        "milis": 1625184000000,
+        "valorcuotaparte": 1.241555
+      },
+      {
+        "fecha": "2021-07-05",
+        "milis": 1625443200000,
+        "valorcuotaparte": 1.244626
+      },
+      {
+        "fecha": "2021-07-06",
+        "milis": 1625529600000,
+        "valorcuotaparte": 1.245672
+      },
+      {
+        "fecha": "2021-07-07",
+        "milis": 1625616000000,
+        "valorcuotaparte": 1.246702
+      },
+      {
+        "fecha": "2021-07-08",
+        "milis": 1625702400000,
+        "valorcuotaparte": 1.247742
+      },
+      {
+        "fecha": "2021-07-12",
+        "milis": 1626048000000,
+        "valorcuotaparte": 1.251896
+      },
+      {
+        "fecha": "2021-07-13",
+        "milis": 1626134400000,
+        "valorcuotaparte": 1.252955
+      },
+      {
+        "fecha": "2021-07-14",
+        "milis": 1626220800000,
+        "valorcuotaparte": 1.253994
+      },
+      {
+        "fecha": "2021-07-15",
+        "milis": 1626307200000,
+        "valorcuotaparte": 1.255033
+      },
+      {
+        "fecha": "2021-07-16",
+        "milis": 1626393600000,
+        "valorcuotaparte": 1.256072
+      },
+      {
+        "fecha": "2021-07-19",
+        "milis": 1626652800000,
+        "valorcuotaparte": 1.259186
+      },
+      {
+        "fecha": "2021-07-20",
+        "milis": 1626739200000,
+        "valorcuotaparte": 1.26024
+      },
+      {
+        "fecha": "2021-07-21",
+        "milis": 1626825600000,
+        "valorcuotaparte": 1.261285
+      },
+      {
+        "fecha": "2021-07-22",
+        "milis": 1626912000000,
+        "valorcuotaparte": 1.262331
+      },
+      {
+        "fecha": "2021-07-23",
+        "milis": 1626998400000,
+        "valorcuotaparte": 1.263374
+      },
+      {
+        "fecha": "2021-07-26",
+        "milis": 1627257600000,
+        "valorcuotaparte": 1.266503
+      },
+      {
+        "fecha": "2021-07-27",
+        "milis": 1627344000000,
+        "valorcuotaparte": 1.267562
+      },
+      {
+        "fecha": "2021-07-28",
+        "milis": 1627430400000,
+        "valorcuotaparte": 1.268609
+      },
+      {
+        "fecha": "2021-07-29",
+        "milis": 1627516800000,
+        "valorcuotaparte": 1.269657
+      },
+      {
+        "fecha": "2021-07-30",
+        "milis": 1627603200000,
+        "valorcuotaparte": 1.270701
+      },
+      {
+        "fecha": "2021-08-02",
+        "milis": 1627862400000,
+        "valorcuotaparte": 1.273847
+      },
+      {
+        "fecha": "2021-08-03",
+        "milis": 1627948800000,
+        "valorcuotaparte": 1.274908
+      },
+      {
+        "fecha": "2021-08-04",
+        "milis": 1628035200000,
+        "valorcuotaparte": 1.275955
+      },
+      {
+        "fecha": "2021-08-05",
+        "milis": 1628121600000,
+        "valorcuotaparte": 1.277007
+      },
+      {
+        "fecha": "2021-08-06",
+        "milis": 1628208000000,
+        "valorcuotaparte": 1.278059
+      },
+      {
+        "fecha": "2021-08-09",
+        "milis": 1628467200000,
+        "valorcuotaparte": 1.281203
+      },
+      {
+        "fecha": "2021-08-10",
+        "milis": 1628553600000,
+        "valorcuotaparte": 1.282269
+      },
+      {
+        "fecha": "2021-08-11",
+        "milis": 1628640000000,
+        "valorcuotaparte": 1.283325
+      },
+      {
+        "fecha": "2021-08-12",
+        "milis": 1628726400000,
+        "valorcuotaparte": 1.284394
+      },
+      {
+        "fecha": "2021-08-13",
+        "milis": 1628812800000,
+        "valorcuotaparte": 1.285462
+      },
+      {
+        "fecha": "2021-08-17",
+        "milis": 1629158400000,
+        "valorcuotaparte": 1.289715
+      },
+      {
+        "fecha": "2021-08-18",
+        "milis": 1629244800000,
+        "valorcuotaparte": 1.2908
+      },
+      {
+        "fecha": "2021-08-19",
+        "milis": 1629331200000,
+        "valorcuotaparte": 1.291867
+      },
+      {
+        "fecha": "2021-08-20",
+        "milis": 1629417600000,
+        "valorcuotaparte": 1.292914
+      },
+      {
+        "fecha": "2021-08-23",
+        "milis": 1629676800000,
+        "valorcuotaparte": 1.29615
+      },
+      {
+        "fecha": "2021-08-24",
+        "milis": 1629763200000,
+        "valorcuotaparte": 1.297221
+      },
+      {
+        "fecha": "2021-08-25",
+        "milis": 1629849600000,
+        "valorcuotaparte": 1.298294
+      },
+      {
+        "fecha": "2021-08-26",
+        "milis": 1629936000000,
+        "valorcuotaparte": 1.299369
+      },
+      {
+        "fecha": "2021-08-27",
+        "milis": 1630022400000,
+        "valorcuotaparte": 1.300442
+      },
+      {
+        "fecha": "2021-08-30",
+        "milis": 1630281600000,
+        "valorcuotaparte": 1.30368
+      },
+      {
+        "fecha": "2021-08-31",
+        "milis": 1630368000000,
+        "valorcuotaparte": 1.304762
+      },
+      {
+        "fecha": "2021-09-01",
+        "milis": 1630454400000,
+        "valorcuotaparte": 1.305846
+      },
+      {
+        "fecha": "2021-09-02",
+        "milis": 1630540800000,
+        "valorcuotaparte": 1.306924
+      },
+      {
+        "fecha": "2021-09-03",
+        "milis": 1630627200000,
+        "valorcuotaparte": 1.308009
+      },
+      {
+        "fecha": "2021-09-06",
+        "milis": 1630886400000,
+        "valorcuotaparte": 1.311273
+      },
+      {
+        "fecha": "2021-09-07",
+        "milis": 1630972800000,
+        "valorcuotaparte": 1.312363
+      },
+      {
+        "fecha": "2021-09-08",
+        "milis": 1631059200000,
+        "valorcuotaparte": 1.313463
+      },
+      {
+        "fecha": "2021-09-09",
+        "milis": 1631145600000,
+        "valorcuotaparte": 1.314562
+      },
+      {
+        "fecha": "2021-09-10",
+        "milis": 1631232000000,
+        "valorcuotaparte": 1.315664
+      },
+      {
+        "fecha": "2021-09-13",
+        "milis": 1631491200000,
+        "valorcuotaparte": 1.318976
+      },
+      {
+        "fecha": "2021-09-14",
+        "milis": 1631577600000,
+        "valorcuotaparte": 1.32008
+      },
+      {
+        "fecha": "2021-09-15",
+        "milis": 1631664000000,
+        "valorcuotaparte": 1.321183
+      },
+      {
+        "fecha": "2021-09-16",
+        "milis": 1631750400000,
+        "valorcuotaparte": 1.322289
+      },
+      {
+        "fecha": "2021-09-17",
+        "milis": 1631836800000,
+        "valorcuotaparte": 1.323393
+      },
+      {
+        "fecha": "2021-09-20",
+        "milis": 1632096000000,
+        "valorcuotaparte": 1.326706
+      },
+      {
+        "fecha": "2021-09-21",
+        "milis": 1632182400000,
+        "valorcuotaparte": 1.32781
+      },
+      {
+        "fecha": "2021-09-22",
+        "milis": 1632268800000,
+        "valorcuotaparte": 1.328914
+      },
+      {
+        "fecha": "2021-09-23",
+        "milis": 1632355200000,
+        "valorcuotaparte": 1.330021
+      },
+      {
+        "fecha": "2021-09-24",
+        "milis": 1632441600000,
+        "valorcuotaparte": 1.331128
+      },
+      {
+        "fecha": "2021-09-27",
+        "milis": 1632700800000,
+        "valorcuotaparte": 1.334446
+      },
+      {
+        "fecha": "2021-09-28",
+        "milis": 1632787200000,
+        "valorcuotaparte": 1.335544
+      },
+      {
+        "fecha": "2021-09-29",
+        "milis": 1632873600000,
+        "valorcuotaparte": 1.336639
+      },
+      {
+        "fecha": "2021-09-30",
+        "milis": 1632960000000,
+        "valorcuotaparte": 1.337733
+      },
+      {
+        "fecha": "2021-10-01",
+        "milis": 1633046400000,
+        "valorcuotaparte": 1.33883
+      },
+      {
+        "fecha": "2021-10-04",
+        "milis": 1633305600000,
+        "valorcuotaparte": 1.342113
+      },
+      {
+        "fecha": "2021-10-05",
+        "milis": 1633392000000,
+        "valorcuotaparte": 1.343208
+      },
+      {
+        "fecha": "2021-10-06",
+        "milis": 1633478400000,
+        "valorcuotaparte": 1.344304
+      },
+      {
+        "fecha": "2021-10-07",
+        "milis": 1633564800000,
+        "valorcuotaparte": 1.345401
+      },
+      {
+        "fecha": "2021-10-12",
+        "milis": 1633996800000,
+        "valorcuotaparte": 1.350807
+      },
+      {
+        "fecha": "2021-10-13",
+        "milis": 1634083200000,
+        "valorcuotaparte": 1.351944
+      },
+      {
+        "fecha": "2021-10-14",
+        "milis": 1634169600000,
+        "valorcuotaparte": 1.353043
+      },
+      {
+        "fecha": "2021-10-15",
+        "milis": 1634256000000,
+        "valorcuotaparte": 1.354191
+      },
+      {
+        "fecha": "2021-10-18",
+        "milis": 1634515200000,
+        "valorcuotaparte": 1.35757
+      },
+      {
+        "fecha": "2021-10-19",
+        "milis": 1634601600000,
+        "valorcuotaparte": 1.358682
+      },
+      {
+        "fecha": "2021-10-20",
+        "milis": 1634688000000,
+        "valorcuotaparte": 1.359807
+      },
+      {
+        "fecha": "2021-10-21",
+        "milis": 1634774400000,
+        "valorcuotaparte": 1.360932
+      },
+      {
+        "fecha": "2021-10-22",
+        "milis": 1634860800000,
+        "valorcuotaparte": 1.362054
+      },
+      {
+        "fecha": "2021-10-25",
+        "milis": 1635120000000,
+        "valorcuotaparte": 1.365455
+      },
+      {
+        "fecha": "2021-10-26",
+        "milis": 1635206400000,
+        "valorcuotaparte": 1.366556
+      },
+      {
+        "fecha": "2021-10-27",
+        "milis": 1635292800000,
+        "valorcuotaparte": 1.367667
+      },
+      {
+        "fecha": "2021-10-28",
+        "milis": 1635379200000,
+        "valorcuotaparte": 1.368778
+      },
+      {
+        "fecha": "2021-10-29",
+        "milis": 1635465600000,
+        "valorcuotaparte": 1.369871
+      },
+      {
+        "fecha": "2021-11-01",
+        "milis": 1635724800000,
+        "valorcuotaparte": 1.373171
+      },
+      {
+        "fecha": "2021-11-02",
+        "milis": 1635811200000,
+        "valorcuotaparte": 1.374274
+      },
+      {
+        "fecha": "2021-11-03",
+        "milis": 1635897600000,
+        "valorcuotaparte": 1.375384
+      },
+      {
+        "fecha": "2021-11-04",
+        "milis": 1635984000000,
+        "valorcuotaparte": 1.376491
+      },
+      {
+        "fecha": "2021-11-05",
+        "milis": 1636070400000,
+        "valorcuotaparte": 1.377597
+      },
+      {
+        "fecha": "2021-11-08",
+        "milis": 1636329600000,
+        "valorcuotaparte": 1.380914
+      },
+      {
+        "fecha": "2021-11-09",
+        "milis": 1636416000000,
+        "valorcuotaparte": 1.382023
+      },
+      {
+        "fecha": "2021-11-10",
+        "milis": 1636502400000,
+        "valorcuotaparte": 1.38314
+      },
+      {
+        "fecha": "2021-11-11",
+        "milis": 1636588800000,
+        "valorcuotaparte": 1.384263
+      },
+      {
+        "fecha": "2021-11-12",
+        "milis": 1636675200000,
+        "valorcuotaparte": 1.385394
+      },
+      {
+        "fecha": "2021-11-15",
+        "milis": 1636934400000,
+        "valorcuotaparte": 1.388773
+      },
+      {
+        "fecha": "2021-11-16",
+        "milis": 1637020800000,
+        "valorcuotaparte": 1.389904
+      },
+      {
+        "fecha": "2021-11-17",
+        "milis": 1637107200000,
+        "valorcuotaparte": 1.391032
+      },
+      {
+        "fecha": "2021-11-18",
+        "milis": 1637193600000,
+        "valorcuotaparte": 1.392158
+      },
+      {
+        "fecha": "2021-11-19",
+        "milis": 1637280000000,
+        "valorcuotaparte": 1.393287
+      },
+      {
+        "fecha": "2021-11-23",
+        "milis": 1637625600000,
+        "valorcuotaparte": 1.397805
+      },
+      {
+        "fecha": "2021-11-24",
+        "milis": 1637712000000,
+        "valorcuotaparte": 1.398931
+      },
+      {
+        "fecha": "2021-11-25",
+        "milis": 1637798400000,
+        "valorcuotaparte": 1.400058
+      },
+      {
+        "fecha": "2021-11-26",
+        "milis": 1637884800000,
+        "valorcuotaparte": 1.401181
+      },
+      {
+        "fecha": "2021-11-29",
+        "milis": 1638144000000,
+        "valorcuotaparte": 1.404551
+      },
+      {
+        "fecha": "2021-11-30",
+        "milis": 1638230400000,
+        "valorcuotaparte": 1.405678
+      },
+      {
+        "fecha": "2021-12-01",
+        "milis": 1638316800000,
+        "valorcuotaparte": 1.406803
+      },
+      {
+        "fecha": "2021-12-02",
+        "milis": 1638403200000,
+        "valorcuotaparte": 1.407937
+      },
+      {
+        "fecha": "2021-12-03",
+        "milis": 1638489600000,
+        "valorcuotaparte": 1.409069
+      },
+      {
+        "fecha": "2021-12-06",
+        "milis": 1638748800000,
+        "valorcuotaparte": 1.412465
+      },
+      {
+        "fecha": "2021-12-07",
+        "milis": 1638835200000,
+        "valorcuotaparte": 1.413606
+      },
+      {
+        "fecha": "2021-12-09",
+        "milis": 1639008000000,
+        "valorcuotaparte": 1.415886
+      },
+      {
+        "fecha": "2021-12-10",
+        "milis": 1639094400000,
+        "valorcuotaparte": 1.417026
+      },
+      {
+        "fecha": "2021-12-13",
+        "milis": 1639353600000,
+        "valorcuotaparte": 1.420451
+      },
+      {
+        "fecha": "2021-12-14",
+        "milis": 1639440000000,
+        "valorcuotaparte": 1.421595
+      },
+      {
+        "fecha": "2021-12-15",
+        "milis": 1639526400000,
+        "valorcuotaparte": 1.422739
+      },
+      {
+        "fecha": "2021-12-16",
+        "milis": 1639612800000,
+        "valorcuotaparte": 1.423882
+      },
+      {
+        "fecha": "2021-12-17",
+        "milis": 1639699200000,
+        "valorcuotaparte": 1.425011
+      },
+      {
+        "fecha": "2021-12-20",
+        "milis": 1639958400000,
+        "valorcuotaparte": 1.428401
+      },
+      {
+        "fecha": "2021-12-21",
+        "milis": 1640044800000,
+        "valorcuotaparte": 1.429529
+      },
+      {
+        "fecha": "2021-12-22",
+        "milis": 1640131200000,
+        "valorcuotaparte": 1.430675
+      },
+      {
+        "fecha": "2021-12-23",
+        "milis": 1640217600000,
+        "valorcuotaparte": 1.431823
+      },
+      {
+        "fecha": "2021-12-27",
+        "milis": 1640563200000,
+        "valorcuotaparte": 1.43642
+      },
+      {
+        "fecha": "2021-12-28",
+        "milis": 1640649600000,
+        "valorcuotaparte": 1.437559
+      },
+      {
+        "fecha": "2021-12-29",
+        "milis": 1640736000000,
+        "valorcuotaparte": 1.438695
+      },
+      {
+        "fecha": "2021-12-30",
+        "milis": 1640822400000,
+        "valorcuotaparte": 1.439828
+      },
+      {
+        "fecha": "2022-01-03",
+        "milis": 1641168000000,
+        "valorcuotaparte": 1.444401
+      },
+      {
+        "fecha": "2022-01-04",
+        "milis": 1641254400000,
+        "valorcuotaparte": 1.445559
+      },
+      {
+        "fecha": "2022-01-05",
+        "milis": 1641340800000,
+        "valorcuotaparte": 1.446702
+      },
+      {
+        "fecha": "2022-01-06",
+        "milis": 1641427200000,
+        "valorcuotaparte": 1.447847
+      },
+      {
+        "fecha": "2022-01-07",
+        "milis": 1641513600000,
+        "valorcuotaparte": 1.448994
+      },
+      {
+        "fecha": "2022-01-10",
+        "milis": 1641772800000,
+        "valorcuotaparte": 1.452461
+      },
+      {
+        "fecha": "2022-01-11",
+        "milis": 1641859200000,
+        "valorcuotaparte": 1.453622
+      },
+      {
+        "fecha": "2022-01-12",
+        "milis": 1641945600000,
+        "valorcuotaparte": 1.454786
+      },
+      {
+        "fecha": "2022-01-13",
+        "milis": 1642032000000,
+        "valorcuotaparte": 1.455949
+      },
+      {
+        "fecha": "2022-01-14",
+        "milis": 1642118400000,
+        "valorcuotaparte": 1.457118
+      },
+      {
+        "fecha": "2022-01-17",
+        "milis": 1642377600000,
+        "valorcuotaparte": 1.46062
+      },
+      {
+        "fecha": "2022-01-18",
+        "milis": 1642464000000,
+        "valorcuotaparte": 1.461787
+      },
+      {
+        "fecha": "2022-01-19",
+        "milis": 1642550400000,
+        "valorcuotaparte": 1.462952
+      },
+      {
+        "fecha": "2022-01-20",
+        "milis": 1642636800000,
+        "valorcuotaparte": 1.46413
+      },
+      {
+        "fecha": "2022-01-21",
+        "milis": 1642723200000,
+        "valorcuotaparte": 1.46531
+      },
+      {
+        "fecha": "2022-01-24",
+        "milis": 1642982400000,
+        "valorcuotaparte": 1.468857
+      },
+      {
+        "fecha": "2022-01-25",
+        "milis": 1643068800000,
+        "valorcuotaparte": 1.470044
+      },
+      {
+        "fecha": "2022-01-26",
+        "milis": 1643155200000,
+        "valorcuotaparte": 1.471252
+      },
+      {
+        "fecha": "2022-01-27",
+        "milis": 1643241600000,
+        "valorcuotaparte": 1.472412
+      },
+      {
+        "fecha": "2022-01-28",
+        "milis": 1643328000000,
+        "valorcuotaparte": 1.47358
+      },
+      {
+        "fecha": "2022-01-31",
+        "milis": 1643587200000,
+        "valorcuotaparte": 1.477085
+      },
+      {
+        "fecha": "2022-02-01",
+        "milis": 1643673600000,
+        "valorcuotaparte": 1.478274
+      },
+      {
+        "fecha": "2022-02-02",
+        "milis": 1643760000000,
+        "valorcuotaparte": 1.479448
+      },
+      {
+        "fecha": "2022-02-03",
+        "milis": 1643846400000,
+        "valorcuotaparte": 1.480624
+      },
+      {
+        "fecha": "2022-02-04",
+        "milis": 1643932800000,
+        "valorcuotaparte": 1.48181
+      },
+      {
+        "fecha": "2022-02-07",
+        "milis": 1644192000000,
+        "valorcuotaparte": 1.48539
+      },
+      {
+        "fecha": "2022-02-08",
+        "milis": 1644278400000,
+        "valorcuotaparte": 1.486604
+      },
+      {
+        "fecha": "2022-02-09",
+        "milis": 1644364800000,
+        "valorcuotaparte": 1.487808
+      },
+      {
+        "fecha": "2022-02-10",
+        "milis": 1644451200000,
+        "valorcuotaparte": 1.48901
+      },
+      {
+        "fecha": "2022-02-11",
+        "milis": 1644537600000,
+        "valorcuotaparte": 1.490221
+      },
+      {
+        "fecha": "2022-02-14",
+        "milis": 1644796800000,
+        "valorcuotaparte": 1.493859
+      },
+      {
+        "fecha": "2022-02-15",
+        "milis": 1644883200000,
+        "valorcuotaparte": 1.495076
+      },
+      {
+        "fecha": "2022-02-16",
+        "milis": 1644969600000,
+        "valorcuotaparte": 1.496281
+      },
+      {
+        "fecha": "2022-02-17",
+        "milis": 1645056000000,
+        "valorcuotaparte": 1.497501
+      },
+      {
+        "fecha": "2022-02-18",
+        "milis": 1645142400000,
+        "valorcuotaparte": 1.498709
+      },
+      {
+        "fecha": "2022-02-21",
+        "milis": 1645401600000,
+        "valorcuotaparte": 1.502379
+      },
+      {
+        "fecha": "2022-02-22",
+        "milis": 1645488000000,
+        "valorcuotaparte": 1.50361
+      },
+      {
+        "fecha": "2022-02-23",
+        "milis": 1645574400000,
+        "valorcuotaparte": 1.50484
+      },
+      {
+        "fecha": "2022-02-24",
+        "milis": 1645660800000,
+        "valorcuotaparte": 1.506075
+      },
+      {
+        "fecha": "2022-02-25",
+        "milis": 1645747200000,
+        "valorcuotaparte": 1.507314
+      },
+      {
+        "fecha": "2022-03-02",
+        "milis": 1646179200000,
+        "valorcuotaparte": 1.513555
+      },
+      {
+        "fecha": "2022-03-03",
+        "milis": 1646265600000,
+        "valorcuotaparte": 1.514812
+      },
+      {
+        "fecha": "2022-03-04",
+        "milis": 1646352000000,
+        "valorcuotaparte": 1.516071
+      },
+      {
+        "fecha": "2022-03-07",
+        "milis": 1646611200000,
+        "valorcuotaparte": 1.519873
+      },
+      {
+        "fecha": "2022-03-08",
+        "milis": 1646697600000,
+        "valorcuotaparte": 1.52114
+      },
+      {
+        "fecha": "2022-03-09",
+        "milis": 1646784000000,
+        "valorcuotaparte": 1.522418
+      },
+      {
+        "fecha": "2022-03-10",
+        "milis": 1646870400000,
+        "valorcuotaparte": 1.523707
+      },
+      {
+        "fecha": "2022-03-11",
+        "milis": 1646956800000,
+        "valorcuotaparte": 1.525004
+      },
+      {
+        "fecha": "2022-03-14",
+        "milis": 1647216000000,
+        "valorcuotaparte": 1.528891
+      },
+      {
+        "fecha": "2022-03-15",
+        "milis": 1647302400000,
+        "valorcuotaparte": 1.530196
+      },
+      {
+        "fecha": "2022-03-16",
+        "milis": 1647388800000,
+        "valorcuotaparte": 1.531475
+      },
+      {
+        "fecha": "2022-03-17",
+        "milis": 1647475200000,
+        "valorcuotaparte": 1.532759
+      },
+      {
+        "fecha": "2022-03-18",
+        "milis": 1647561600000,
+        "valorcuotaparte": 1.534042
+      },
+      {
+        "fecha": "2022-03-21",
+        "milis": 1647820800000,
+        "valorcuotaparte": 1.537894
+      },
+      {
+        "fecha": "2022-03-22",
+        "milis": 1647907200000,
+        "valorcuotaparte": 1.539186
+      },
+      {
+        "fecha": "2022-03-23",
+        "milis": 1647993600000,
+        "valorcuotaparte": 1.540482
+      },
+      {
+        "fecha": "2022-03-25",
+        "milis": 1648166400000,
+        "valorcuotaparte": 1.543121
+      },
+      {
+        "fecha": "2022-03-28",
+        "milis": 1648425600000,
+        "valorcuotaparte": 1.547125
+      },
+      {
+        "fecha": "2022-03-29",
+        "milis": 1648512000000,
+        "valorcuotaparte": 1.548451
+      },
+      {
+        "fecha": "2022-03-30",
+        "milis": 1648598400000,
+        "valorcuotaparte": 1.54978
+      },
+      {
+        "fecha": "2022-03-31",
+        "milis": 1648684800000,
+        "valorcuotaparte": 1.551121
+      },
+      {
+        "fecha": "2022-04-01",
+        "milis": 1648771200000,
+        "valorcuotaparte": 1.552462
+      },
+      {
+        "fecha": "2022-04-04",
+        "milis": 1649030400000,
+        "valorcuotaparte": 1.556598
+      },
+      {
+        "fecha": "2022-04-05",
+        "milis": 1649116800000,
+        "valorcuotaparte": 1.557974
+      },
+      {
+        "fecha": "2022-04-06",
+        "milis": 1649203200000,
+        "valorcuotaparte": 1.559351
+      },
+      {
+        "fecha": "2022-04-07",
+        "milis": 1649289600000,
+        "valorcuotaparte": 1.560727
+      },
+      {
+        "fecha": "2022-04-08",
+        "milis": 1649376000000,
+        "valorcuotaparte": 1.562114
+      },
+      {
+        "fecha": "2022-04-11",
+        "milis": 1649635200000,
+        "valorcuotaparte": 1.566241
+      },
+      {
+        "fecha": "2022-04-12",
+        "milis": 1649721600000,
+        "valorcuotaparte": 1.567624
+      },
+      {
+        "fecha": "2022-04-13",
+        "milis": 1649808000000,
+        "valorcuotaparte": 1.569036
+      },
+      {
+        "fecha": "2022-04-18",
+        "milis": 1650240000000,
+        "valorcuotaparte": 1.576144
+      },
+      {
+        "fecha": "2022-04-19",
+        "milis": 1650326400000,
+        "valorcuotaparte": 1.577588
+      },
+      {
+        "fecha": "2022-04-20",
+        "milis": 1650412800000,
+        "valorcuotaparte": 1.579051
+      },
+      {
+        "fecha": "2022-04-21",
+        "milis": 1650499200000,
+        "valorcuotaparte": 1.580512
+      },
+      {
+        "fecha": "2022-04-22",
+        "milis": 1650585600000,
+        "valorcuotaparte": 1.581955
+      },
+      {
+        "fecha": "2022-04-25",
+        "milis": 1650844800000,
+        "valorcuotaparte": 1.586282
+      },
+      {
+        "fecha": "2022-04-26",
+        "milis": 1650931200000,
+        "valorcuotaparte": 1.58773
+      },
+      {
+        "fecha": "2022-04-27",
+        "milis": 1651017600000,
+        "valorcuotaparte": 1.589192
+      },
+      {
+        "fecha": "2022-04-28",
+        "milis": 1651104000000,
+        "valorcuotaparte": 1.590657
+      },
+      {
+        "fecha": "2022-04-29",
+        "milis": 1651190400000,
+        "valorcuotaparte": 1.592142
+      },
+      {
+        "fecha": "2022-05-02",
+        "milis": 1651449600000,
+        "valorcuotaparte": 1.596609
+      },
+      {
+        "fecha": "2022-05-03",
+        "milis": 1651536000000,
+        "valorcuotaparte": 1.598111
+      },
+      {
+        "fecha": "2022-05-04",
+        "milis": 1651622400000,
+        "valorcuotaparte": 1.599622
+      },
+      {
+        "fecha": "2022-05-05",
+        "milis": 1651708800000,
+        "valorcuotaparte": 1.601143
+      },
+      {
+        "fecha": "2022-05-06",
+        "milis": 1651795200000,
+        "valorcuotaparte": 1.60267
+      },
+      {
+        "fecha": "2022-05-09",
+        "milis": 1652054400000,
+        "valorcuotaparte": 1.607237
+      },
+      {
+        "fecha": "2022-05-10",
+        "milis": 1652140800000,
+        "valorcuotaparte": 1.608761
+      },
+      {
+        "fecha": "2022-05-11",
+        "milis": 1652227200000,
+        "valorcuotaparte": 1.610302
+      },
+      {
+        "fecha": "2022-05-12",
+        "milis": 1652313600000,
+        "valorcuotaparte": 1.611857
+      },
+      {
+        "fecha": "2022-05-13",
+        "milis": 1652400000000,
+        "valorcuotaparte": 1.613422
+      },
+      {
+        "fecha": "2022-05-16",
+        "milis": 1652659200000,
+        "valorcuotaparte": 1.618179
+      },
+      {
+        "fecha": "2022-05-17",
+        "milis": 1652745600000,
+        "valorcuotaparte": 1.619765
+      },
+      {
+        "fecha": "2022-05-19",
+        "milis": 1652918400000,
+        "valorcuotaparte": 1.622931
+      },
+      {
+        "fecha": "2022-05-20",
+        "milis": 1653004800000,
+        "valorcuotaparte": 1.624522
+      },
+      {
+        "fecha": "2022-05-23",
+        "milis": 1653264000000,
+        "valorcuotaparte": 1.629344
+      },
+      {
+        "fecha": "2022-05-24",
+        "milis": 1653350400000,
+        "valorcuotaparte": 1.63096
+      },
+      {
+        "fecha": "2022-05-26",
+        "milis": 1653523200000,
+        "valorcuotaparte": 1.634207
+      },
+      {
+        "fecha": "2022-05-27",
+        "milis": 1653609600000,
+        "valorcuotaparte": 1.635829
+      },
+      {
+        "fecha": "2022-05-30",
+        "milis": 1653868800000,
+        "valorcuotaparte": 1.640716
+      },
+      {
+        "fecha": "2022-05-31",
+        "milis": 1653955200000,
+        "valorcuotaparte": 1.642347
+      },
+      {
+        "fecha": "2022-06-01",
+        "milis": 1654041600000,
+        "valorcuotaparte": 1.643988
+      },
+      {
+        "fecha": "2022-06-02",
+        "milis": 1654128000000,
+        "valorcuotaparte": 1.64562
+      },
+      {
+        "fecha": "2022-06-03",
+        "milis": 1654214400000,
+        "valorcuotaparte": 1.647272
+      },
+      {
+        "fecha": "2022-06-06",
+        "milis": 1654473600000,
+        "valorcuotaparte": 1.652341
+      },
+      {
+        "fecha": "2022-06-07",
+        "milis": 1654560000000,
+        "valorcuotaparte": 1.65404
+      },
+      {
+        "fecha": "2022-06-08",
+        "milis": 1654646400000,
+        "valorcuotaparte": 1.655758
+      },
+      {
+        "fecha": "2022-06-09",
+        "milis": 1654732800000,
+        "valorcuotaparte": 1.657463
+      },
+      {
+        "fecha": "2022-06-10",
+        "milis": 1654819200000,
+        "valorcuotaparte": 1.659186
+      },
+      {
+        "fecha": "2022-06-13",
+        "milis": 1655078400000,
+        "valorcuotaparte": 1.664358
+      },
+      {
+        "fecha": "2022-06-14",
+        "milis": 1655164800000,
+        "valorcuotaparte": 1.66607
+      },
+      {
+        "fecha": "2022-06-15",
+        "milis": 1655251200000,
+        "valorcuotaparte": 1.667797
+      },
+      {
+        "fecha": "2022-06-16",
+        "milis": 1655337600000,
+        "valorcuotaparte": 1.669517
+      },
+      {
+        "fecha": "2022-06-21",
+        "milis": 1655769600000,
+        "valorcuotaparte": 1.678063
+      },
+      {
+        "fecha": "2022-06-22",
+        "milis": 1655856000000,
+        "valorcuotaparte": 1.679844
+      },
+      {
+        "fecha": "2022-06-23",
+        "milis": 1655942400000,
+        "valorcuotaparte": 1.681634
+      },
+      {
+        "fecha": "2022-06-24",
+        "milis": 1656028800000,
+        "valorcuotaparte": 1.683424
+      },
+      {
+        "fecha": "2022-06-27",
+        "milis": 1656288000000,
+        "valorcuotaparte": 1.688823
+      },
+      {
+        "fecha": "2022-06-28",
+        "milis": 1656374400000,
+        "valorcuotaparte": 1.690633
+      },
+      {
+        "fecha": "2022-06-29",
+        "milis": 1656460800000,
+        "valorcuotaparte": 1.692444
+      },
+      {
+        "fecha": "2022-06-30",
+        "milis": 1656547200000,
+        "valorcuotaparte": 1.694269
+      },
+      {
+        "fecha": "2022-07-01",
+        "milis": 1656633600000,
+        "valorcuotaparte": 1.696095
+      },
+      {
+        "fecha": "2022-07-04",
+        "milis": 1656892800000,
+        "valorcuotaparte": 1.701582
+      },
+      {
+        "fecha": "2022-07-05",
+        "milis": 1656979200000,
+        "valorcuotaparte": 1.703432
+      },
+      {
+        "fecha": "2022-07-06",
+        "milis": 1657065600000,
+        "valorcuotaparte": 1.705289
+      },
+      {
+        "fecha": "2022-07-07",
+        "milis": 1657152000000,
+        "valorcuotaparte": 1.7071
+      },
+      {
+        "fecha": "2022-07-08",
+        "milis": 1657238400000,
+        "valorcuotaparte": 1.708877
+      },
+      {
+        "fecha": "2022-07-11",
+        "milis": 1657497600000,
+        "valorcuotaparte": 1.714222
+      },
+      {
+        "fecha": "2022-07-12",
+        "milis": 1657584000000,
+        "valorcuotaparte": 1.716003
+      },
+      {
+        "fecha": "2022-07-13",
+        "milis": 1657670400000,
+        "valorcuotaparte": 1.717778
+      },
+      {
+        "fecha": "2022-07-14",
+        "milis": 1657756800000,
+        "valorcuotaparte": 1.719557
+      },
+      {
+        "fecha": "2022-07-15",
+        "milis": 1657843200000,
+        "valorcuotaparte": 1.721335
+      },
+      {
+        "fecha": "2022-07-18",
+        "milis": 1658102400000,
+        "valorcuotaparte": 1.726721
+      },
+      {
+        "fecha": "2022-07-19",
+        "milis": 1658188800000,
+        "valorcuotaparte": 1.728584
+      },
+      {
+        "fecha": "2022-07-20",
+        "milis": 1658275200000,
+        "valorcuotaparte": 1.730461
+      },
+      {
+        "fecha": "2022-07-21",
+        "milis": 1658361600000,
+        "valorcuotaparte": 1.732331
+      },
+      {
+        "fecha": "2022-07-22",
+        "milis": 1658448000000,
+        "valorcuotaparte": 1.734203
+      },
+      {
+        "fecha": "2022-07-25",
+        "milis": 1658707200000,
+        "valorcuotaparte": 1.739887
+      },
+      {
+        "fecha": "2022-07-26",
+        "milis": 1658793600000,
+        "valorcuotaparte": 1.741785
+      },
+      {
+        "fecha": "2022-07-27",
+        "milis": 1658880000000,
+        "valorcuotaparte": 1.74369
+      },
+      {
+        "fecha": "2022-07-28",
+        "milis": 1658966400000,
+        "valorcuotaparte": 1.745601
+      },
+      {
+        "fecha": "2022-07-29",
+        "milis": 1659052800000,
+        "valorcuotaparte": 1.747599
+      },
+      {
+        "fecha": "2022-08-01",
+        "milis": 1659312000000,
+        "valorcuotaparte": 1.753643
+      },
+      {
+        "fecha": "2022-08-02",
+        "milis": 1659398400000,
+        "valorcuotaparte": 1.75568
+      },
+      {
+        "fecha": "2022-08-03",
+        "milis": 1659484800000,
+        "valorcuotaparte": 1.757754
+      },
+      {
+        "fecha": "2022-08-04",
+        "milis": 1659571200000,
+        "valorcuotaparte": 1.759841
+      },
+      {
+        "fecha": "2022-08-05",
+        "milis": 1659657600000,
+        "valorcuotaparte": 1.761932
+      },
+      {
+        "fecha": "2022-08-08",
+        "milis": 1659916800000,
+        "valorcuotaparte": 1.768206
+      },
+      {
+        "fecha": "2022-08-09",
+        "milis": 1660003200000,
+        "valorcuotaparte": 1.770303
+      },
+      {
+        "fecha": "2022-08-10",
+        "milis": 1660089600000,
+        "valorcuotaparte": 1.772411
+      },
+      {
+        "fecha": "2022-08-11",
+        "milis": 1660176000000,
+        "valorcuotaparte": 1.77452
+      },
+      {
+        "fecha": "2022-08-12",
+        "milis": 1660262400000,
+        "valorcuotaparte": 1.776813
+      },
+      {
+        "fecha": "2022-08-16",
+        "milis": 1660608000000,
+        "valorcuotaparte": 1.78641
+      },
+      {
+        "fecha": "2022-08-17",
+        "milis": 1660694400000,
+        "valorcuotaparte": 1.788815
+      },
+      {
+        "fecha": "2022-08-18",
+        "milis": 1660780800000,
+        "valorcuotaparte": 1.791247
+      },
+      {
+        "fecha": "2022-08-19",
+        "milis": 1660867200000,
+        "valorcuotaparte": 1.793706
+      },
+      {
+        "fecha": "2022-08-22",
+        "milis": 1661126400000,
+        "valorcuotaparte": 1.80116
+      },
+      {
+        "fecha": "2022-08-23",
+        "milis": 1661212800000,
+        "valorcuotaparte": 1.803664
+      },
+      {
+        "fecha": "2022-08-24",
+        "milis": 1661299200000,
+        "valorcuotaparte": 1.806188
+      },
+      {
+        "fecha": "2022-08-25",
+        "milis": 1661385600000,
+        "valorcuotaparte": 1.808738
+      },
+      {
+        "fecha": "2022-08-26",
+        "milis": 1661472000000,
+        "valorcuotaparte": 1.811315
+      },
+      {
+        "fecha": "2022-08-29",
+        "milis": 1661731200000,
+        "valorcuotaparte": 1.819126
+      },
+      {
+        "fecha": "2022-08-30",
+        "milis": 1661817600000,
+        "valorcuotaparte": 1.821739
+      },
+      {
+        "fecha": "2022-08-31",
+        "milis": 1661904000000,
+        "valorcuotaparte": 1.824367
+      },
+      {
+        "fecha": "2022-09-01",
+        "milis": 1661990400000,
+        "valorcuotaparte": 1.827015
+      },
+      {
+        "fecha": "2022-09-05",
+        "milis": 1662336000000,
+        "valorcuotaparte": 1.837658
+      },
+      {
+        "fecha": "2022-09-06",
+        "milis": 1662422400000,
+        "valorcuotaparte": 1.840406
+      },
+      {
+        "fecha": "2022-09-07",
+        "milis": 1662508800000,
+        "valorcuotaparte": 1.843163
+      },
+      {
+        "fecha": "2022-09-08",
+        "milis": 1662595200000,
+        "valorcuotaparte": 1.845923
+      },
+      {
+        "fecha": "2022-09-09",
+        "milis": 1662681600000,
+        "valorcuotaparte": 1.848677
+      },
+      {
+        "fecha": "2022-09-12",
+        "milis": 1662940800000,
+        "valorcuotaparte": 1.856968
+      },
+      {
+        "fecha": "2022-09-13",
+        "milis": 1663027200000,
+        "valorcuotaparte": 1.859741
+      },
+      {
+        "fecha": "2022-09-14",
+        "milis": 1663113600000,
+        "valorcuotaparte": 1.862516
+      },
+      {
+        "fecha": "2022-09-15",
+        "milis": 1663200000000,
+        "valorcuotaparte": 1.865294
+      },
+      {
+        "fecha": "2022-09-16",
+        "milis": 1663286400000,
+        "valorcuotaparte": 1.868073
+      },
+      {
+        "fecha": "2022-09-19",
+        "milis": 1663545600000,
+        "valorcuotaparte": 1.876861
+      },
+      {
+        "fecha": "2022-09-20",
+        "milis": 1663632000000,
+        "valorcuotaparte": 1.879799
+      },
+      {
+        "fecha": "2022-09-21",
+        "milis": 1663718400000,
+        "valorcuotaparte": 1.882741
+      },
+      {
+        "fecha": "2022-09-22",
+        "milis": 1663804800000,
+        "valorcuotaparte": 1.885692
+      },
+      {
+        "fecha": "2022-09-23",
+        "milis": 1663891200000,
+        "valorcuotaparte": 1.888653
+      },
+      {
+        "fecha": "2022-09-26",
+        "milis": 1664150400000,
+        "valorcuotaparte": 1.897567
+      },
+      {
+        "fecha": "2022-09-27",
+        "milis": 1664236800000,
+        "valorcuotaparte": 1.900554
+      },
+      {
+        "fecha": "2022-09-28",
+        "milis": 1664323200000,
+        "valorcuotaparte": 1.903547
+      },
+      {
+        "fecha": "2022-09-29",
+        "milis": 1664409600000,
+        "valorcuotaparte": 1.906564
+      },
+      {
+        "fecha": "2022-09-30",
+        "milis": 1664496000000,
+        "valorcuotaparte": 1.909598
+      },
+      {
+        "fecha": "2022-10-03",
+        "milis": 1664755200000,
+        "valorcuotaparte": 1.918709
+      },
+      {
+        "fecha": "2022-10-04",
+        "milis": 1664841600000,
+        "valorcuotaparte": 1.92182
+      },
+      {
+        "fecha": "2022-10-05",
+        "milis": 1664928000000,
+        "valorcuotaparte": 1.924959
+      },
+      {
+        "fecha": "2022-10-06",
+        "milis": 1665014400000,
+        "valorcuotaparte": 1.92812
+      },
+      {
+        "fecha": "2022-10-11",
+        "milis": 1665446400000,
+        "valorcuotaparte": 1.943953
+      },
+      {
+        "fecha": "2022-10-12",
+        "milis": 1665532800000,
+        "valorcuotaparte": 1.947129
+      },
+      {
+        "fecha": "2022-10-13",
+        "milis": 1665619200000,
+        "valorcuotaparte": 1.950315
+      },
+      {
+        "fecha": "2022-10-14",
+        "milis": 1665705600000,
+        "valorcuotaparte": 1.953509
+      },
+      {
+        "fecha": "2022-10-17",
+        "milis": 1665964800000,
+        "valorcuotaparte": 1.9631
+      },
+      {
+        "fecha": "2022-10-18",
+        "milis": 1666051200000,
+        "valorcuotaparte": 1.966308
+      },
+      {
+        "fecha": "2022-10-19",
+        "milis": 1666137600000,
+        "valorcuotaparte": 1.969523
+      },
+      {
+        "fecha": "2022-10-20",
+        "milis": 1666224000000,
+        "valorcuotaparte": 1.972737
+      },
+      {
+        "fecha": "2022-10-21",
+        "milis": 1666310400000,
+        "valorcuotaparte": 1.975958
+      },
+      {
+        "fecha": "2022-10-24",
+        "milis": 1666569600000,
+        "valorcuotaparte": 1.985668
+      },
+      {
+        "fecha": "2022-10-25",
+        "milis": 1666656000000,
+        "valorcuotaparte": 1.988912
+      },
+      {
+        "fecha": "2022-10-26",
+        "milis": 1666742400000,
+        "valorcuotaparte": 1.992166
+      },
+      {
+        "fecha": "2022-10-27",
+        "milis": 1666828800000,
+        "valorcuotaparte": 1.995433
+      },
+      {
+        "fecha": "2022-10-28",
+        "milis": 1666915200000,
+        "valorcuotaparte": 1.99871
+      },
+      {
+        "fecha": "2022-10-31",
+        "milis": 1667174400000,
+        "valorcuotaparte": 2.008553
+      },
+      {
+        "fecha": "2022-11-01",
+        "milis": 1667260800000,
+        "valorcuotaparte": 2.011835
+      },
+      {
+        "fecha": "2022-11-02",
+        "milis": 1667347200000,
+        "valorcuotaparte": 2.015189
+      },
+      {
+        "fecha": "2022-11-03",
+        "milis": 1667433600000,
+        "valorcuotaparte": 2.018575
+      },
+      {
+        "fecha": "2022-11-04",
+        "milis": 1667520000000,
+        "valorcuotaparte": 2.021989
+      },
+      {
+        "fecha": "2022-11-07",
+        "milis": 1667779200000,
+        "valorcuotaparte": 2.032218
+      },
+      {
+        "fecha": "2022-11-08",
+        "milis": 1667865600000,
+        "valorcuotaparte": 2.035627
+      },
+      {
+        "fecha": "2022-11-09",
+        "milis": 1667952000000,
+        "valorcuotaparte": 2.039037
+      },
+      {
+        "fecha": "2022-11-10",
+        "milis": 1668038400000,
+        "valorcuotaparte": 2.042447
+      },
+      {
+        "fecha": "2022-11-11",
+        "milis": 1668124800000,
+        "valorcuotaparte": 2.045856
+      },
+      {
+        "fecha": "2022-11-14",
+        "milis": 1668384000000,
+        "valorcuotaparte": 2.056079
+      },
+      {
+        "fecha": "2022-11-15",
+        "milis": 1668470400000,
+        "valorcuotaparte": 2.059483
+      },
+      {
+        "fecha": "2022-11-16",
+        "milis": 1668556800000,
+        "valorcuotaparte": 2.062892
+      },
+      {
+        "fecha": "2022-11-17",
+        "milis": 1668643200000,
+        "valorcuotaparte": 2.066305
+      },
+      {
+        "fecha": "2022-11-18",
+        "milis": 1668729600000,
+        "valorcuotaparte": 2.069716
+      },
+      {
+        "fecha": "2022-11-22",
+        "milis": 1669075200000,
+        "valorcuotaparte": 2.083379
+      },
+      {
+        "fecha": "2022-11-23",
+        "milis": 1669161600000,
+        "valorcuotaparte": 2.086807
+      },
+      {
+        "fecha": "2022-11-24",
+        "milis": 1669248000000,
+        "valorcuotaparte": 2.090241
+      },
+      {
+        "fecha": "2022-11-25",
+        "milis": 1669334400000,
+        "valorcuotaparte": 2.093685
+      },
+      {
+        "fecha": "2022-11-28",
+        "milis": 1669593600000,
+        "valorcuotaparte": 2.104081
+      },
+      {
+        "fecha": "2022-11-29",
+        "milis": 1669680000000,
+        "valorcuotaparte": 2.107542
+      },
+      {
+        "fecha": "2022-11-30",
+        "milis": 1669766400000,
+        "valorcuotaparte": 2.111007
+      },
+      {
+        "fecha": "2022-12-01",
+        "milis": 1669852800000,
+        "valorcuotaparte": 2.114489
+      },
+      {
+        "fecha": "2022-12-02",
+        "milis": 1669939200000,
+        "valorcuotaparte": 2.118024
+      },
+      {
+        "fecha": "2022-12-05",
+        "milis": 1670198400000,
+        "valorcuotaparte": 2.128691
+      },
+      {
+        "fecha": "2022-12-06",
+        "milis": 1670284800000,
+        "valorcuotaparte": 2.132268
+      },
+      {
+        "fecha": "2022-12-07",
+        "milis": 1670371200000,
+        "valorcuotaparte": 2.135841
+      },
+      {
+        "fecha": "2022-12-12",
+        "milis": 1670803200000,
+        "valorcuotaparte": 2.153808
+      },
+      {
+        "fecha": "2022-12-13",
+        "milis": 1670889600000,
+        "valorcuotaparte": 2.157388
+      },
+      {
+        "fecha": "2022-12-14",
+        "milis": 1670976000000,
+        "valorcuotaparte": 2.160971
+      },
+      {
+        "fecha": "2022-12-15",
+        "milis": 1671062400000,
+        "valorcuotaparte": 2.164557
+      },
+      {
+        "fecha": "2022-12-16",
+        "milis": 1671148800000,
+        "valorcuotaparte": 2.168146
+      },
+      {
+        "fecha": "2022-12-19",
+        "milis": 1671408000000,
+        "valorcuotaparte": 2.17902
+      },
+      {
+        "fecha": "2022-12-20",
+        "milis": 1671494400000,
+        "valorcuotaparte": 2.18262
+      },
+      {
+        "fecha": "2022-12-21",
+        "milis": 1671580800000,
+        "valorcuotaparte": 2.186236
+      },
+      {
+        "fecha": "2022-12-22",
+        "milis": 1671667200000,
+        "valorcuotaparte": 2.189839
+      },
+      {
+        "fecha": "2022-12-23",
+        "milis": 1671753600000,
+        "valorcuotaparte": 2.193433
+      },
+      {
+        "fecha": "2022-12-26",
+        "milis": 1672012800000,
+        "valorcuotaparte": 2.204356
+      },
+      {
+        "fecha": "2022-12-27",
+        "milis": 1672099200000,
+        "valorcuotaparte": 2.207955
+      },
+      {
+        "fecha": "2022-12-28",
+        "milis": 1672185600000,
+        "valorcuotaparte": 2.211611
+      },
+      {
+        "fecha": "2022-12-29",
+        "milis": 1672272000000,
+        "valorcuotaparte": 2.215274
+      },
+      {
+        "fecha": "2022-12-30",
+        "milis": 1672358400000,
+        "valorcuotaparte": 2.218894
+      },
+      {
+        "fecha": "2023-01-02",
+        "milis": 1672617600000,
+        "valorcuotaparte": 2.229791
+      },
+      {
+        "fecha": "2023-01-03",
+        "milis": 1672704000000,
+        "valorcuotaparte": 2.233509
+      },
+      {
+        "fecha": "2023-01-04",
+        "milis": 1672790400000,
+        "valorcuotaparte": 2.237265
+      },
+      {
+        "fecha": "2023-01-05",
+        "milis": 1672876800000,
+        "valorcuotaparte": 2.241028
+      },
+      {
+        "fecha": "2023-01-06",
+        "milis": 1672963200000,
+        "valorcuotaparte": 2.244791
+      },
+      {
+        "fecha": "2023-01-09",
+        "milis": 1673222400000,
+        "valorcuotaparte": 2.256081
+      },
+      {
+        "fecha": "2023-01-10",
+        "milis": 1673308800000,
+        "valorcuotaparte": 2.259851
+      },
+      {
+        "fecha": "2023-01-11",
+        "milis": 1673395200000,
+        "valorcuotaparte": 2.263643
+      },
+      {
+        "fecha": "2023-01-12",
+        "milis": 1673481600000,
+        "valorcuotaparte": 2.267436
+      },
+      {
+        "fecha": "2023-01-13",
+        "milis": 1673568000000,
+        "valorcuotaparte": 2.271232
+      },
+      {
+        "fecha": "2023-01-16",
+        "milis": 1673827200000,
+        "valorcuotaparte": 2.282537
+      },
+      {
+        "fecha": "2023-01-17",
+        "milis": 1673913600000,
+        "valorcuotaparte": 2.286323
+      },
+      {
+        "fecha": "2023-01-18",
+        "milis": 1674000000000,
+        "valorcuotaparte": 2.290111
+      },
+      {
+        "fecha": "2023-01-19",
+        "milis": 1674086400000,
+        "valorcuotaparte": 2.293905
+      },
+      {
+        "fecha": "2023-01-20",
+        "milis": 1674172800000,
+        "valorcuotaparte": 2.297716
+      },
+      {
+        "fecha": "2023-01-23",
+        "milis": 1674432000000,
+        "valorcuotaparte": 2.30916
+      },
+      {
+        "fecha": "2023-01-24",
+        "milis": 1674518400000,
+        "valorcuotaparte": 2.313177
+      },
+      {
+        "fecha": "2023-01-25",
+        "milis": 1674604800000,
+        "valorcuotaparte": 2.317214
+      },
+      {
+        "fecha": "2023-01-26",
+        "milis": 1674691200000,
+        "valorcuotaparte": 2.321264
+      },
+      {
+        "fecha": "2023-01-27",
+        "milis": 1674777600000,
+        "valorcuotaparte": 2.325311
+      },
+      {
+        "fecha": "2023-01-30",
+        "milis": 1675036800000,
+        "valorcuotaparte": 2.336971
+      },
+      {
+        "fecha": "2023-01-31",
+        "milis": 1675123200000,
+        "valorcuotaparte": 2.34096
+      },
+      {
+        "fecha": "2023-02-01",
+        "milis": 1675209600000,
+        "valorcuotaparte": 2.344919
+      },
+      {
+        "fecha": "2023-02-02",
+        "milis": 1675296000000,
+        "valorcuotaparte": 2.348933
+      },
+      {
+        "fecha": "2023-02-03",
+        "milis": 1675382400000,
+        "valorcuotaparte": 2.352994
+      },
+      {
+        "fecha": "2023-02-06",
+        "milis": 1675641600000,
+        "valorcuotaparte": 2.365229
+      },
+      {
+        "fecha": "2023-02-07",
+        "milis": 1675728000000,
+        "valorcuotaparte": 2.36939
+      },
+      {
+        "fecha": "2023-02-08",
+        "milis": 1675814400000,
+        "valorcuotaparte": 2.373504
+      },
+      {
+        "fecha": "2023-02-09",
+        "milis": 1675900800000,
+        "valorcuotaparte": 2.377628
+      },
+      {
+        "fecha": "2023-02-10",
+        "milis": 1675987200000,
+        "valorcuotaparte": 2.381749
+      },
+      {
+        "fecha": "2023-02-13",
+        "milis": 1676246400000,
+        "valorcuotaparte": 2.394158
+      },
+      {
+        "fecha": "2023-02-14",
+        "milis": 1676332800000,
+        "valorcuotaparte": 2.398333
+      },
+      {
+        "fecha": "2023-02-15",
+        "milis": 1676419200000,
+        "valorcuotaparte": 2.402459
+      },
+      {
+        "fecha": "2023-02-16",
+        "milis": 1676505600000,
+        "valorcuotaparte": 2.406593
+      },
+      {
+        "fecha": "2023-02-17",
+        "milis": 1676592000000,
+        "valorcuotaparte": 2.410732
+      },
+      {
+        "fecha": "2023-02-22",
+        "milis": 1677024000000,
+        "valorcuotaparte": 2.431454
+      },
+      {
+        "fecha": "2023-02-23",
+        "milis": 1677110400000,
+        "valorcuotaparte": 2.435721
+      },
+      {
+        "fecha": "2023-02-24",
+        "milis": 1677196800000,
+        "valorcuotaparte": 2.439876
+      },
+      {
+        "fecha": "2023-02-27",
+        "milis": 1677456000000,
+        "valorcuotaparte": 2.452376
+      },
+      {
+        "fecha": "2023-02-28",
+        "milis": 1677542400000,
+        "valorcuotaparte": 2.456606
+      },
+      {
+        "fecha": "2023-03-01",
+        "milis": 1677628800000,
+        "valorcuotaparte": 2.460782
+      },
+      {
+        "fecha": "2023-03-02",
+        "milis": 1677715200000,
+        "valorcuotaparte": 2.465043
+      },
+      {
+        "fecha": "2023-03-03",
+        "milis": 1677801600000,
+        "valorcuotaparte": 2.469326
+      },
+      {
+        "fecha": "2023-03-06",
+        "milis": 1678060800000,
+        "valorcuotaparte": 2.4823
+      },
+      {
+        "fecha": "2023-03-07",
+        "milis": 1678147200000,
+        "valorcuotaparte": 2.486685
+      },
+      {
+        "fecha": "2023-03-08",
+        "milis": 1678233600000,
+        "valorcuotaparte": 2.491024
+      },
+      {
+        "fecha": "2023-03-09",
+        "milis": 1678320000000,
+        "valorcuotaparte": 2.495376
+      },
+      {
+        "fecha": "2023-03-10",
+        "milis": 1678406400000,
+        "valorcuotaparte": 2.499733
+      },
+      {
+        "fecha": "2023-03-13",
+        "milis": 1678665600000,
+        "valorcuotaparte": 2.512781
+      },
+      {
+        "fecha": "2023-03-14",
+        "milis": 1678752000000,
+        "valorcuotaparte": 2.517206
+      },
+      {
+        "fecha": "2023-03-15",
+        "milis": 1678838400000,
+        "valorcuotaparte": 2.521581
+      },
+      {
+        "fecha": "2023-03-16",
+        "milis": 1678924800000,
+        "valorcuotaparte": 2.525964
+      },
+      {
+        "fecha": "2023-03-17",
+        "milis": 1679011200000,
+        "valorcuotaparte": 2.530343
+      },
+      {
+        "fecha": "2023-03-20",
+        "milis": 1679270400000,
+        "valorcuotaparte": 2.543434
+      },
+      {
+        "fecha": "2023-03-21",
+        "milis": 1679356800000,
+        "valorcuotaparte": 2.547876
+      },
+      {
+        "fecha": "2023-03-22",
+        "milis": 1679443200000,
+        "valorcuotaparte": 2.552261
+      },
+      {
+        "fecha": "2023-03-23",
+        "milis": 1679529600000,
+        "valorcuotaparte": 2.556652
+      },
+      {
+        "fecha": "2023-03-27",
+        "milis": 1679875200000,
+        "valorcuotaparte": 2.574249
+      },
+      {
+        "fecha": "2023-03-28",
+        "milis": 1679961600000,
+        "valorcuotaparte": 2.578729
+      },
+      {
+        "fecha": "2023-03-29",
+        "milis": 1680048000000,
+        "valorcuotaparte": 2.583122
+      },
+      {
+        "fecha": "2023-03-30",
+        "milis": 1680134400000,
+        "valorcuotaparte": 2.587523
+      },
+      {
+        "fecha": "2023-03-31",
+        "milis": 1680220800000,
+        "valorcuotaparte": 2.591935
+      },
+      {
+        "fecha": "2023-04-03",
+        "milis": 1680480000000,
+        "valorcuotaparte": 2.60526
+      },
+      {
+        "fecha": "2023-04-04",
+        "milis": 1680566400000,
+        "valorcuotaparte": 2.609849
+      },
+      {
+        "fecha": "2023-04-05",
+        "milis": 1680652800000,
+        "valorcuotaparte": 2.614391
+      },
+      {
+        "fecha": "2023-04-10",
+        "milis": 1681084800000,
+        "valorcuotaparte": 2.637272
+      },
+      {
+        "fecha": "2023-04-11",
+        "milis": 1681171200000,
+        "valorcuotaparte": 2.642017
+      },
+      {
+        "fecha": "2023-04-12",
+        "milis": 1681257600000,
+        "valorcuotaparte": 2.646646
+      },
+      {
+        "fecha": "2023-04-13",
+        "milis": 1681344000000,
+        "valorcuotaparte": 2.651298
+      },
+      {
+        "fecha": "2023-04-14",
+        "milis": 1681430400000,
+        "valorcuotaparte": 2.65596
+      },
+      {
+        "fecha": "2023-04-17",
+        "milis": 1681689600000,
+        "valorcuotaparte": 2.669962
+      },
+      {
+        "fecha": "2023-04-18",
+        "milis": 1681776000000,
+        "valorcuotaparte": 2.674714
+      },
+      {
+        "fecha": "2023-04-19",
+        "milis": 1681862400000,
+        "valorcuotaparte": 2.679398
+      },
+      {
+        "fecha": "2023-04-20",
+        "milis": 1681948800000,
+        "valorcuotaparte": 2.684045
+      },
+      {
+        "fecha": "2023-04-21",
+        "milis": 1682035200000,
+        "valorcuotaparte": 2.688839
+      },
+      {
+        "fecha": "2023-04-24",
+        "milis": 1682294400000,
+        "valorcuotaparte": 2.703271
+      },
+      {
+        "fecha": "2023-04-25",
+        "milis": 1682380800000,
+        "valorcuotaparte": 2.70808
+      },
+      {
+        "fecha": "2023-04-26",
+        "milis": 1682467200000,
+        "valorcuotaparte": 2.712908
+      },
+      {
+        "fecha": "2023-04-27",
+        "milis": 1682553600000,
+        "valorcuotaparte": 2.717746
+      },
+      {
+        "fecha": "2023-04-28",
+        "milis": 1682640000000,
+        "valorcuotaparte": 2.722878
+      },
+      {
+        "fecha": "2023-05-02",
+        "milis": 1682985600000,
+        "valorcuotaparte": 2.74409
+      },
+      {
+        "fecha": "2023-05-03",
+        "milis": 1683072000000,
+        "valorcuotaparte": 2.749448
+      },
+      {
+        "fecha": "2023-05-04",
+        "milis": 1683158400000,
+        "valorcuotaparte": 2.754919
+      },
+      {
+        "fecha": "2023-05-05",
+        "milis": 1683244800000,
+        "valorcuotaparte": 2.760415
+      },
+      {
+        "fecha": "2023-05-08",
+        "milis": 1683504000000,
+        "valorcuotaparte": 2.77711
+      },
+      {
+        "fecha": "2023-05-09",
+        "milis": 1683590400000,
+        "valorcuotaparte": 2.78265
+      },
+      {
+        "fecha": "2023-05-10",
+        "milis": 1683676800000,
+        "valorcuotaparte": 2.788197
+      },
+      {
+        "fecha": "2023-05-11",
+        "milis": 1683763200000,
+        "valorcuotaparte": 2.793781
+      },
+      {
+        "fecha": "2023-05-12",
+        "milis": 1683849600000,
+        "valorcuotaparte": 2.7994
+      },
+      {
+        "fecha": "2023-05-15",
+        "milis": 1684108800000,
+        "valorcuotaparte": 2.816361
+      },
+      {
+        "fecha": "2023-05-16",
+        "milis": 1684195200000,
+        "valorcuotaparte": 2.822292
+      },
+      {
+        "fecha": "2023-05-17",
+        "milis": 1684281600000,
+        "valorcuotaparte": 2.828234
+      },
+      {
+        "fecha": "2023-05-18",
+        "milis": 1684368000000,
+        "valorcuotaparte": 2.834217
+      },
+      {
+        "fecha": "2023-05-19",
+        "milis": 1684454400000,
+        "valorcuotaparte": 2.840219
+      },
+      {
+        "fecha": "2023-05-22",
+        "milis": 1684713600000,
+        "valorcuotaparte": 2.858304
+      },
+      {
+        "fecha": "2023-05-23",
+        "milis": 1684800000000,
+        "valorcuotaparte": 2.864349
+      },
+      {
+        "fecha": "2023-05-24",
+        "milis": 1684886400000,
+        "valorcuotaparte": 2.870442
+      },
+      {
+        "fecha": "2023-05-29",
+        "milis": 1685318400000,
+        "valorcuotaparte": 2.901106
+      },
+      {
+        "fecha": "2023-05-30",
+        "milis": 1685404800000,
+        "valorcuotaparte": 2.907252
+      },
+      {
+        "fecha": "2023-05-31",
+        "milis": 1685491200000,
+        "valorcuotaparte": 2.913439
+      },
+      {
+        "fecha": "2023-06-01",
+        "milis": 1685577600000,
+        "valorcuotaparte": 2.919653
+      },
+      {
+        "fecha": "2023-06-02",
+        "milis": 1685664000000,
+        "valorcuotaparte": 2.925998
+      },
+      {
+        "fecha": "2023-06-05",
+        "milis": 1685923200000,
+        "valorcuotaparte": 2.945455
+      },
+      {
+        "fecha": "2023-06-06",
+        "milis": 1686009600000,
+        "valorcuotaparte": 2.951975
+      },
+      {
+        "fecha": "2023-06-07",
+        "milis": 1686096000000,
+        "valorcuotaparte": 2.958504
+      },
+      {
+        "fecha": "2023-06-08",
+        "milis": 1686182400000,
+        "valorcuotaparte": 2.96504
+      },
+      {
+        "fecha": "2023-06-09",
+        "milis": 1686268800000,
+        "valorcuotaparte": 2.971584
+      },
+      {
+        "fecha": "2023-06-12",
+        "milis": 1686528000000,
+        "valorcuotaparte": 2.991422
+      },
+      {
+        "fecha": "2023-06-13",
+        "milis": 1686614400000,
+        "valorcuotaparte": 2.997997
+      },
+      {
+        "fecha": "2023-06-14",
+        "milis": 1686700800000,
+        "valorcuotaparte": 3.004574
+      },
+      {
+        "fecha": "2023-06-15",
+        "milis": 1686787200000,
+        "valorcuotaparte": 3.011173
+      },
+      {
+        "fecha": "2023-06-16",
+        "milis": 1686873600000,
+        "valorcuotaparte": 3.01779
+      },
+      {
+        "fecha": "2023-06-21",
+        "milis": 1687305600000,
+        "valorcuotaparte": 3.051041
+      },
+      {
+        "fecha": "2023-06-22",
+        "milis": 1687392000000,
+        "valorcuotaparte": 3.057674
+      },
+      {
+        "fecha": "2023-06-23",
+        "milis": 1687478400000,
+        "valorcuotaparte": 3.064333
+      },
+      {
+        "fecha": "2023-06-26",
+        "milis": 1687737600000,
+        "valorcuotaparte": 3.084501
+      },
+      {
+        "fecha": "2023-06-27",
+        "milis": 1687824000000,
+        "valorcuotaparte": 3.091185
+      },
+      {
+        "fecha": "2023-06-28",
+        "milis": 1687910400000,
+        "valorcuotaparte": 3.097866
+      },
+      {
+        "fecha": "2023-06-29",
+        "milis": 1687996800000,
+        "valorcuotaparte": 3.104559
+      },
+      {
+        "fecha": "2023-06-30",
+        "milis": 1688083200000,
+        "valorcuotaparte": 3.11132
+      },
+      {
+        "fecha": "2023-07-03",
+        "milis": 1688342400000,
+        "valorcuotaparte": 3.131393
+      },
+      {
+        "fecha": "2023-07-04",
+        "milis": 1688428800000,
+        "valorcuotaparte": 3.138261
+      },
+      {
+        "fecha": "2023-07-05",
+        "milis": 1688515200000,
+        "valorcuotaparte": 3.14523
+      },
+      {
+        "fecha": "2023-07-06",
+        "milis": 1688601600000,
+        "valorcuotaparte": 3.152251
+      },
+      {
+        "fecha": "2023-07-07",
+        "milis": 1688688000000,
+        "valorcuotaparte": 3.159277
+      },
+      {
+        "fecha": "2023-07-10",
+        "milis": 1688947200000,
+        "valorcuotaparte": 3.180504
+      },
+      {
+        "fecha": "2023-07-11",
+        "milis": 1689033600000,
+        "valorcuotaparte": 3.187576
+      },
+      {
+        "fecha": "2023-07-12",
+        "milis": 1689120000000,
+        "valorcuotaparte": 3.194665
+      },
+      {
+        "fecha": "2023-07-13",
+        "milis": 1689206400000,
+        "valorcuotaparte": 3.201758
+      },
+      {
+        "fecha": "2023-07-14",
+        "milis": 1689292800000,
+        "valorcuotaparte": 3.208865
+      },
+      {
+        "fecha": "2023-07-17",
+        "milis": 1689552000000,
+        "valorcuotaparte": 3.230261
+      },
+      {
+        "fecha": "2023-07-18",
+        "milis": 1689638400000,
+        "valorcuotaparte": 3.237407
+      },
+      {
+        "fecha": "2023-07-19",
+        "milis": 1689724800000,
+        "valorcuotaparte": 3.244567
+      },
+      {
+        "fecha": "2023-07-20",
+        "milis": 1689811200000,
+        "valorcuotaparte": 3.251735
+      },
+      {
+        "fecha": "2023-07-21",
+        "milis": 1689897600000,
+        "valorcuotaparte": 3.258912
+      },
+      {
+        "fecha": "2023-07-24",
+        "milis": 1690156800000,
+        "valorcuotaparte": 3.280497
+      },
+      {
+        "fecha": "2023-07-25",
+        "milis": 1690243200000,
+        "valorcuotaparte": 3.287684
+      },
+      {
+        "fecha": "2023-07-26",
+        "milis": 1690329600000,
+        "valorcuotaparte": 3.294886
+      },
+      {
+        "fecha": "2023-07-27",
+        "milis": 1690416000000,
+        "valorcuotaparte": 3.302106
+      },
+      {
+        "fecha": "2023-07-28",
+        "milis": 1690502400000,
+        "valorcuotaparte": 3.309346
+      },
+      {
+        "fecha": "2023-07-31",
+        "milis": 1690761600000,
+        "valorcuotaparte": 3.331111
+      },
+      {
+        "fecha": "2023-08-01",
+        "milis": 1690848000000,
+        "valorcuotaparte": 3.338318
+      },
+      {
+        "fecha": "2023-08-02",
+        "milis": 1690934400000,
+        "valorcuotaparte": 3.345683
+      },
+      {
+        "fecha": "2023-08-03",
+        "milis": 1691020800000,
+        "valorcuotaparte": 3.353166
+      },
+      {
+        "fecha": "2023-08-04",
+        "milis": 1691107200000,
+        "valorcuotaparte": 3.360668
+      },
+      {
+        "fecha": "2023-08-07",
+        "milis": 1691366400000,
+        "valorcuotaparte": 3.383155
+      },
+      {
+        "fecha": "2023-08-08",
+        "milis": 1691452800000,
+        "valorcuotaparte": 3.390711
+      },
+      {
+        "fecha": "2023-08-09",
+        "milis": 1691539200000,
+        "valorcuotaparte": 3.398246
+      },
+      {
+        "fecha": "2023-08-10",
+        "milis": 1691625600000,
+        "valorcuotaparte": 3.405835
+      },
+      {
+        "fecha": "2023-08-11",
+        "milis": 1691712000000,
+        "valorcuotaparte": 3.413404
+      },
+      {
+        "fecha": "2023-08-14",
+        "milis": 1691971200000,
+        "valorcuotaparte": 3.436183
+      },
+      {
+        "fecha": "2023-08-15",
+        "milis": 1692057600000,
+        "valorcuotaparte": 3.444797
+      },
+      {
+        "fecha": "2023-08-16",
+        "milis": 1692144000000,
+        "valorcuotaparte": 3.453429
+      },
+      {
+        "fecha": "2023-08-17",
+        "milis": 1692230400000,
+        "valorcuotaparte": 3.462115
+      },
+      {
+        "fecha": "2023-08-18",
+        "milis": 1692316800000,
+        "valorcuotaparte": 3.470907
+      },
+      {
+        "fecha": "2023-08-22",
+        "milis": 1692662400000,
+        "valorcuotaparte": 3.506182
+      },
+      {
+        "fecha": "2023-08-23",
+        "milis": 1692748800000,
+        "valorcuotaparte": 3.514965
+      },
+      {
+        "fecha": "2023-08-24",
+        "milis": 1692835200000,
+        "valorcuotaparte": 3.5238
+      },
+      {
+        "fecha": "2023-08-25",
+        "milis": 1692921600000,
+        "valorcuotaparte": 3.532702
+      },
+      {
+        "fecha": "2023-08-28",
+        "milis": 1693180800000,
+        "valorcuotaparte": 3.559255
+      },
+      {
+        "fecha": "2023-08-29",
+        "milis": 1693267200000,
+        "valorcuotaparte": 3.568198
+      },
+      {
+        "fecha": "2023-08-30",
+        "milis": 1693353600000,
+        "valorcuotaparte": 3.57723
+      },
+      {
+        "fecha": "2023-08-31",
+        "milis": 1693440000000,
+        "valorcuotaparte": 3.586319
+      },
+      {
+        "fecha": "2023-09-01",
+        "milis": 1693526400000,
+        "valorcuotaparte": 3.5953
+      },
+      {
+        "fecha": "2023-09-04",
+        "milis": 1693785600000,
+        "valorcuotaparte": 3.62313
+      },
+      {
+        "fecha": "2023-09-05",
+        "milis": 1693872000000,
+        "valorcuotaparte": 3.632621
+      },
+      {
+        "fecha": "2023-09-06",
+        "milis": 1693958400000,
+        "valorcuotaparte": 3.642246
+      },
+      {
+        "fecha": "2023-09-07",
+        "milis": 1694044800000,
+        "valorcuotaparte": 3.651916
+      },
+      {
+        "fecha": "2023-09-08",
+        "milis": 1694131200000,
+        "valorcuotaparte": 3.66156
+      },
+      {
+        "fecha": "2023-09-11",
+        "milis": 1694390400000,
+        "valorcuotaparte": 3.690766
+      },
+      {
+        "fecha": "2023-09-12",
+        "milis": 1694476800000,
+        "valorcuotaparte": 3.70047
+      },
+      {
+        "fecha": "2023-09-13",
+        "milis": 1694563200000,
+        "valorcuotaparte": 3.710295
+      },
+      {
+        "fecha": "2023-09-14",
+        "milis": 1694649600000,
+        "valorcuotaparte": 3.720174
+      },
+      {
+        "fecha": "2023-09-15",
+        "milis": 1694736000000,
+        "valorcuotaparte": 3.730116
+      },
+      {
+        "fecha": "2023-09-18",
+        "milis": 1694995200000,
+        "valorcuotaparte": 3.75987
+      },
+      {
+        "fecha": "2023-09-19",
+        "milis": 1695081600000,
+        "valorcuotaparte": 3.769854
+      },
+      {
+        "fecha": "2023-09-20",
+        "milis": 1695168000000,
+        "valorcuotaparte": 3.779842
+      },
+      {
+        "fecha": "2023-09-21",
+        "milis": 1695254400000,
+        "valorcuotaparte": 3.789862
+      },
+      {
+        "fecha": "2023-09-22",
+        "milis": 1695340800000,
+        "valorcuotaparte": 3.799915
+      },
+      {
+        "fecha": "2023-09-25",
+        "milis": 1695600000000,
+        "valorcuotaparte": 3.830076
+      },
+      {
+        "fecha": "2023-09-26",
+        "milis": 1695686400000,
+        "valorcuotaparte": 3.840143
+      },
+      {
+        "fecha": "2023-09-27",
+        "milis": 1695772800000,
+        "valorcuotaparte": 3.850216
+      },
+      {
+        "fecha": "2023-09-28",
+        "milis": 1695859200000,
+        "valorcuotaparte": 3.860313
+      },
+      {
+        "fecha": "2023-09-29",
+        "milis": 1695945600000,
+        "valorcuotaparte": 3.870423
+      },
+      {
+        "fecha": "2023-10-02",
+        "milis": 1696204800000,
+        "valorcuotaparte": 3.900734
+      },
+      {
+        "fecha": "2023-10-03",
+        "milis": 1696291200000,
+        "valorcuotaparte": 3.911096
+      },
+      {
+        "fecha": "2023-10-04",
+        "milis": 1696377600000,
+        "valorcuotaparte": 3.921616
+      },
+      {
+        "fecha": "2023-10-05",
+        "milis": 1696464000000,
+        "valorcuotaparte": 3.93215
+      },
+      {
+        "fecha": "2023-10-06",
+        "milis": 1696550400000,
+        "valorcuotaparte": 3.942693
+      },
+      {
+        "fecha": "2023-10-09",
+        "milis": 1696809600000,
+        "valorcuotaparte": 3.974376
+      },
+      {
+        "fecha": "2023-10-10",
+        "milis": 1696896000000,
+        "valorcuotaparte": 3.984969
+      },
+      {
+        "fecha": "2023-10-11",
+        "milis": 1696982400000,
+        "valorcuotaparte": 3.995567
+      },
+      {
+        "fecha": "2023-10-12",
+        "milis": 1697068800000,
+        "valorcuotaparte": 4.006168
+      },
+      {
+        "fecha": "2023-10-17",
+        "milis": 1697500800000,
+        "valorcuotaparte": 4.059213
+      },
+      {
+        "fecha": "2023-10-18",
+        "milis": 1697587200000,
+        "valorcuotaparte": 4.070621
+      },
+      {
+        "fecha": "2023-10-19",
+        "milis": 1697673600000,
+        "valorcuotaparte": 4.081972
+      },
+      {
+        "fecha": "2023-10-20",
+        "milis": 1697760000000,
+        "valorcuotaparte": 4.093338
+      },
+      {
+        "fecha": "2023-10-23",
+        "milis": 1698019200000,
+        "valorcuotaparte": 4.12729
+      },
+      {
+        "fecha": "2023-10-24",
+        "milis": 1698105600000,
+        "valorcuotaparte": 4.138725
+      },
+      {
+        "fecha": "2023-10-25",
+        "milis": 1698192000000,
+        "valorcuotaparte": 4.150237
+      },
+      {
+        "fecha": "2023-10-26",
+        "milis": 1698278400000,
+        "valorcuotaparte": 4.161846
+      },
+      {
+        "fecha": "2023-10-27",
+        "milis": 1698364800000,
+        "valorcuotaparte": 4.173532
+      },
+      {
+        "fecha": "2023-10-30",
+        "milis": 1698624000000,
+        "valorcuotaparte": 4.208892
+      },
+      {
+        "fecha": "2023-10-31",
+        "milis": 1698710400000,
+        "valorcuotaparte": 4.220756
+      },
+      {
+        "fecha": "2023-11-01",
+        "milis": 1698796800000,
+        "valorcuotaparte": 4.232618
+      },
+      {
+        "fecha": "2023-11-02",
+        "milis": 1698883200000,
+        "valorcuotaparte": 4.244926
+      },
+      {
+        "fecha": "2023-11-03",
+        "milis": 1698969600000,
+        "valorcuotaparte": 4.257614
+      },
+      {
+        "fecha": "2023-11-07",
+        "milis": 1699315200000,
+        "valorcuotaparte": 4.30839
+      },
+      {
+        "fecha": "2023-11-08",
+        "milis": 1699401600000,
+        "valorcuotaparte": 4.321183
+      },
+      {
+        "fecha": "2023-11-09",
+        "milis": 1699488000000,
+        "valorcuotaparte": 4.334038
+      },
+      {
+        "fecha": "2023-11-10",
+        "milis": 1699574400000,
+        "valorcuotaparte": 4.346934
+      },
+      {
+        "fecha": "2023-11-13",
+        "milis": 1699833600000,
+        "valorcuotaparte": 4.385681
+      },
+      {
+        "fecha": "2023-11-14",
+        "milis": 1699920000000,
+        "valorcuotaparte": 4.398613
+      },
+      {
+        "fecha": "2023-11-15",
+        "milis": 1700006400000,
+        "valorcuotaparte": 4.411556
+      },
+      {
+        "fecha": "2023-11-16",
+        "milis": 1700092800000,
+        "valorcuotaparte": 4.424512
+      },
+      {
+        "fecha": "2023-11-17",
+        "milis": 1700179200000,
+        "valorcuotaparte": 4.437466
+      },
+      {
+        "fecha": "2023-11-21",
+        "milis": 1700524800000,
+        "valorcuotaparte": 4.489202
+      },
+      {
+        "fecha": "2023-11-22",
+        "milis": 1700611200000,
+        "valorcuotaparte": 4.502113
+      },
+      {
+        "fecha": "2023-11-23",
+        "milis": 1700697600000,
+        "valorcuotaparte": 4.514979
+      },
+      {
+        "fecha": "2023-11-24",
+        "milis": 1700784000000,
+        "valorcuotaparte": 4.527753
+      },
+      {
+        "fecha": "2023-11-27",
+        "milis": 1701043200000,
+        "valorcuotaparte": 4.565463
+      },
+      {
+        "fecha": "2023-11-28",
+        "milis": 1701129600000,
+        "valorcuotaparte": 4.577951
+      },
+      {
+        "fecha": "2023-11-29",
+        "milis": 1701216000000,
+        "valorcuotaparte": 4.590354
+      },
+      {
+        "fecha": "2023-11-30",
+        "milis": 1701302400000,
+        "valorcuotaparte": 4.602681
+      },
+      {
+        "fecha": "2023-12-01",
+        "milis": 1701388800000,
+        "valorcuotaparte": 4.615085
+      },
+      {
+        "fecha": "2023-12-04",
+        "milis": 1701648000000,
+        "valorcuotaparte": 4.653249
+      },
+      {
+        "fecha": "2023-12-05",
+        "milis": 1701734400000,
+        "valorcuotaparte": 4.666204
+      },
+      {
+        "fecha": "2023-12-06",
+        "milis": 1701820800000,
+        "valorcuotaparte": 4.679165
+      },
+      {
+        "fecha": "2023-12-07",
+        "milis": 1701907200000,
+        "valorcuotaparte": 4.692077
+      },
+      {
+        "fecha": "2023-12-11",
+        "milis": 1702252800000,
+        "valorcuotaparte": 4.742969
+      },
+      {
+        "fecha": "2023-12-12",
+        "milis": 1702339200000,
+        "valorcuotaparte": 4.755229
+      },
+      {
+        "fecha": "2023-12-13",
+        "milis": 1702425600000,
+        "valorcuotaparte": 4.766829
+      },
+      {
+        "fecha": "2023-12-14",
+        "milis": 1702512000000,
+        "valorcuotaparte": 4.777762
+      },
+      {
+        "fecha": "2023-12-15",
+        "milis": 1702598400000,
+        "valorcuotaparte": 4.788873
+      },
+      {
+        "fecha": "2023-12-18",
+        "milis": 1702857600000,
+        "valorcuotaparte": 4.822459
+      },
+      {
+        "fecha": "2023-12-19",
+        "milis": 1702944000000,
+        "valorcuotaparte": 4.833852
+      },
+      {
+        "fecha": "2023-12-20",
+        "milis": 1703030400000,
+        "valorcuotaparte": 4.84525
+      },
+      {
+        "fecha": "2023-12-21",
+        "milis": 1703116800000,
+        "valorcuotaparte": 4.856683
+      },
+      {
+        "fecha": "2023-12-22",
+        "milis": 1703203200000,
+        "valorcuotaparte": 4.868093
+      },
+      {
+        "fecha": "2023-12-26",
+        "milis": 1703548800000,
+        "valorcuotaparte": 4.913844
+      },
+      {
+        "fecha": "2023-12-27",
+        "milis": 1703635200000,
+        "valorcuotaparte": 4.925315
+      },
+      {
+        "fecha": "2023-12-28",
+        "milis": 1703721600000,
+        "valorcuotaparte": 4.936809
+      },
+      {
+        "fecha": "2023-12-29",
+        "milis": 1703808000000,
+        "valorcuotaparte": 4.948299
+      },
+      {
+        "fecha": "2024-01-02",
+        "milis": 1704153600000,
+        "valorcuotaparte": 4.994441
+      },
+      {
+        "fecha": "2024-01-03",
+        "milis": 1704240000000,
+        "valorcuotaparte": 5.006166
+      },
+      {
+        "fecha": "2024-01-04",
+        "milis": 1704326400000,
+        "valorcuotaparte": 5.018161
+      },
+      {
+        "fecha": "2024-01-05",
+        "milis": 1704412800000,
+        "valorcuotaparte": 5.03013
+      },
+      {
+        "fecha": "2024-01-08",
+        "milis": 1704672000000,
+        "valorcuotaparte": 5.066023
+      },
+      {
+        "fecha": "2024-01-09",
+        "milis": 1704758400000,
+        "valorcuotaparte": 5.077975
+      },
+      {
+        "fecha": "2024-01-10",
+        "milis": 1704844800000,
+        "valorcuotaparte": 5.089923
+      },
+      {
+        "fecha": "2024-01-11",
+        "milis": 1704931200000,
+        "valorcuotaparte": 5.101887
+      },
+      {
+        "fecha": "2024-01-12",
+        "milis": 1705017600000,
+        "valorcuotaparte": 5.113856
+      },
+      {
+        "fecha": "2024-01-15",
+        "milis": 1705276800000,
+        "valorcuotaparte": 5.149774
+      },
+      {
+        "fecha": "2024-01-16",
+        "milis": 1705363200000,
+        "valorcuotaparte": 5.161683
+      },
+      {
+        "fecha": "2024-01-17",
+        "milis": 1705449600000,
+        "valorcuotaparte": 5.17356
+      },
+      {
+        "fecha": "2024-01-18",
+        "milis": 1705536000000,
+        "valorcuotaparte": 5.185445
+      },
+      {
+        "fecha": "2024-01-19",
+        "milis": 1705622400000,
+        "valorcuotaparte": 5.197319
+      },
+      {
+        "fecha": "2024-01-22",
+        "milis": 1705881600000,
+        "valorcuotaparte": 5.233047
+      },
+      {
+        "fecha": "2024-01-23",
+        "milis": 1705968000000,
+        "valorcuotaparte": 5.244921
+      },
+      {
+        "fecha": "2024-01-24",
+        "milis": 1706054400000,
+        "valorcuotaparte": 5.256748
+      },
+      {
+        "fecha": "2024-01-25",
+        "milis": 1706140800000,
+        "valorcuotaparte": 5.268576
+      },
+      {
+        "fecha": "2024-01-26",
+        "milis": 1706227200000,
+        "valorcuotaparte": 5.280457
+      },
+      {
+        "fecha": "2024-01-29",
+        "milis": 1706486400000,
+        "valorcuotaparte": 5.316197
+      },
+      {
+        "fecha": "2024-01-30",
+        "milis": 1706572800000,
+        "valorcuotaparte": 5.328092
+      },
+      {
+        "fecha": "2024-01-31",
+        "milis": 1706659200000,
+        "valorcuotaparte": 5.340009
+      },
+      {
+        "fecha": "2024-02-01",
+        "milis": 1706745600000,
+        "valorcuotaparte": 5.351877
+      },
+      {
+        "fecha": "2024-02-02",
+        "milis": 1706832000000,
+        "valorcuotaparte": 5.364079
+      },
+      {
+        "fecha": "2024-02-05",
+        "milis": 1707091200000,
+        "valorcuotaparte": 5.402221
+      },
+      {
+        "fecha": "2024-02-06",
+        "milis": 1707177600000,
+        "valorcuotaparte": 5.415028
+      },
+      {
+        "fecha": "2024-02-07",
+        "milis": 1707264000000,
+        "valorcuotaparte": 5.427861
+      },
+      {
+        "fecha": "2024-02-08",
+        "milis": 1707350400000,
+        "valorcuotaparte": 5.440715
+      },
+      {
+        "fecha": "2024-02-09",
+        "milis": 1707436800000,
+        "valorcuotaparte": 5.453596
+      },
+      {
+        "fecha": "2024-02-14",
+        "milis": 1707868800000,
+        "valorcuotaparte": 5.518291
+      },
+      {
+        "fecha": "2024-02-15",
+        "milis": 1707955200000,
+        "valorcuotaparte": 5.531231
+      },
+      {
+        "fecha": "2024-02-16",
+        "milis": 1708041600000,
+        "valorcuotaparte": 5.544182
+      },
+      {
+        "fecha": "2024-02-19",
+        "milis": 1708300800000,
+        "valorcuotaparte": 5.583174
+      },
+      {
+        "fecha": "2024-02-20",
+        "milis": 1708387200000,
+        "valorcuotaparte": 5.596143
+      },
+      {
+        "fecha": "2024-02-21",
+        "milis": 1708473600000,
+        "valorcuotaparte": 5.609261
+      },
+      {
+        "fecha": "2024-02-22",
+        "milis": 1708560000000,
+        "valorcuotaparte": 5.622396
+      },
+      {
+        "fecha": "2024-02-23",
+        "milis": 1708646400000,
+        "valorcuotaparte": 5.635507
+      },
+      {
+        "fecha": "2024-02-26",
+        "milis": 1708905600000,
+        "valorcuotaparte": 5.674834
+      },
+      {
+        "fecha": "2024-02-27",
+        "milis": 1708992000000,
+        "valorcuotaparte": 5.68797
+      },
+      {
+        "fecha": "2024-02-28",
+        "milis": 1709078400000,
+        "valorcuotaparte": 5.701102
+      },
+      {
+        "fecha": "2024-02-29",
+        "milis": 1709164800000,
+        "valorcuotaparte": 5.714291
+      },
+      {
+        "fecha": "2024-03-01",
+        "milis": 1709251200000,
+        "valorcuotaparte": 5.727434
+      },
+      {
+        "fecha": "2024-03-04",
+        "milis": 1709510400000,
+        "valorcuotaparte": 5.767756
+      },
+      {
+        "fecha": "2024-03-05",
+        "milis": 1709596800000,
+        "valorcuotaparte": 5.781471
+      },
+      {
+        "fecha": "2024-03-06",
+        "milis": 1709683200000,
+        "valorcuotaparte": 5.795179
+      },
+      {
+        "fecha": "2024-03-07",
+        "milis": 1709769600000,
+        "valorcuotaparte": 5.808982
+      },
+      {
+        "fecha": "2024-03-08",
+        "milis": 1709856000000,
+        "valorcuotaparte": 5.822793
+      },
+      {
+        "fecha": "2024-03-11",
+        "milis": 1710115200000,
+        "valorcuotaparte": 5.864079
+      },
+      {
+        "fecha": "2024-03-12",
+        "milis": 1710201600000,
+        "valorcuotaparte": 5.877856
+      },
+      {
+        "fecha": "2024-03-13",
+        "milis": 1710288000000,
+        "valorcuotaparte": 5.889803
+      },
+      {
+        "fecha": "2024-03-14",
+        "milis": 1710374400000,
+        "valorcuotaparte": 5.901796
+      },
+      {
+        "fecha": "2024-03-15",
+        "milis": 1710460800000,
+        "valorcuotaparte": 5.913765
+      },
+      {
+        "fecha": "2024-03-18",
+        "milis": 1710720000000,
+        "valorcuotaparte": 5.949553
+      },
+      {
+        "fecha": "2024-03-19",
+        "milis": 1710806400000,
+        "valorcuotaparte": 5.961473
+      },
+      {
+        "fecha": "2024-03-20",
+        "milis": 1710892800000,
+        "valorcuotaparte": 5.973391
+      },
+      {
+        "fecha": "2024-03-21",
+        "milis": 1710979200000,
+        "valorcuotaparte": 5.985261
+      },
+      {
+        "fecha": "2024-03-22",
+        "milis": 1711065600000,
+        "valorcuotaparte": 5.997074
+      },
+      {
+        "fecha": "2024-03-25",
+        "milis": 1711324800000,
+        "valorcuotaparte": 6.032538
+      },
+      {
+        "fecha": "2024-03-26",
+        "milis": 1711411200000,
+        "valorcuotaparte": 6.044318
+      },
+      {
+        "fecha": "2024-03-27",
+        "milis": 1711497600000,
+        "valorcuotaparte": 6.056104
+      },
+      {
+        "fecha": "2024-04-03",
+        "milis": 1712102400000,
+        "valorcuotaparte": 6.139011
+      },
+      {
+        "fecha": "2024-04-04",
+        "milis": 1712188800000,
+        "valorcuotaparte": 6.150933
+      },
+      {
+        "fecha": "2024-04-05",
+        "milis": 1712275200000,
+        "valorcuotaparte": 6.162976
+      },
+      {
+        "fecha": "2024-04-08",
+        "milis": 1712534400000,
+        "valorcuotaparte": 6.198956
+      },
+      {
+        "fecha": "2024-04-09",
+        "milis": 1712620800000,
+        "valorcuotaparte": 6.210889
+      },
+      {
+        "fecha": "2024-04-10",
+        "milis": 1712707200000,
+        "valorcuotaparte": 6.222799
+      },
+      {
+        "fecha": "2024-04-11",
+        "milis": 1712793600000,
+        "valorcuotaparte": 6.234729
+      },
+      {
+        "fecha": "2024-04-12",
+        "milis": 1712880000000,
+        "valorcuotaparte": 6.24593
+      },
+      {
+        "fecha": "2024-04-15",
+        "milis": 1713139200000,
+        "valorcuotaparte": 6.279022
+      },
+      {
+        "fecha": "2024-04-16",
+        "milis": 1713225600000,
+        "valorcuotaparte": 6.289635
+      },
+      {
+        "fecha": "2024-04-17",
+        "milis": 1713312000000,
+        "valorcuotaparte": 6.300322
+      },
+      {
+        "fecha": "2024-04-18",
+        "milis": 1713398400000,
+        "valorcuotaparte": 6.31103
+      },
+      {
+        "fecha": "2024-04-19",
+        "milis": 1713484800000,
+        "valorcuotaparte": 6.32171
+      },
+      {
+        "fecha": "2024-04-22",
+        "milis": 1713744000000,
+        "valorcuotaparte": 6.353771
+      },
+      {
+        "fecha": "2024-04-23",
+        "milis": 1713830400000,
+        "valorcuotaparte": 6.364466
+      },
+      {
+        "fecha": "2024-04-24",
+        "milis": 1713916800000,
+        "valorcuotaparte": 6.375103
+      },
+      {
+        "fecha": "2024-04-25",
+        "milis": 1714003200000,
+        "valorcuotaparte": 6.385691
+      },
+      {
+        "fecha": "2024-04-26",
+        "milis": 1714089600000,
+        "valorcuotaparte": 6.395486
+      },
+      {
+        "fecha": "2024-04-29",
+        "milis": 1714348800000,
+        "valorcuotaparte": 6.423943
+      },
+      {
+        "fecha": "2024-04-30",
+        "milis": 1714435200000,
+        "valorcuotaparte": 6.433469
+      },
+      {
+        "fecha": "2024-05-02",
+        "milis": 1714608000000,
+        "valorcuotaparte": 6.452091
+      },
+      {
+        "fecha": "2024-05-03",
+        "milis": 1714694400000,
+        "valorcuotaparte": 6.460748
+      },
+      {
+        "fecha": "2024-05-06",
+        "milis": 1714953600000,
+        "valorcuotaparte": 6.48542
+      },
+      {
+        "fecha": "2024-05-07",
+        "milis": 1715040000000,
+        "valorcuotaparte": 6.493556
+      },
+      {
+        "fecha": "2024-05-08",
+        "milis": 1715126400000,
+        "valorcuotaparte": 6.501726
+      },
+      {
+        "fecha": "2024-05-09",
+        "milis": 1715212800000,
+        "valorcuotaparte": 6.509807
+      },
+      {
+        "fecha": "2024-05-10",
+        "milis": 1715299200000,
+        "valorcuotaparte": 6.517858
+      },
+      {
+        "fecha": "2024-05-13",
+        "milis": 1715558400000,
+        "valorcuotaparte": 6.542113
+      },
+      {
+        "fecha": "2024-05-14",
+        "milis": 1715644800000,
+        "valorcuotaparte": 6.550326
+      },
+      {
+        "fecha": "2024-05-15",
+        "milis": 1715731200000,
+        "valorcuotaparte": 6.558425
+      },
+      {
+        "fecha": "2024-05-16",
+        "milis": 1715817600000,
+        "valorcuotaparte": 6.56573
+      },
+      {
+        "fecha": "2024-05-17",
+        "milis": 1715904000000,
+        "valorcuotaparte": 6.573112
+      },
+      {
+        "fecha": "2024-05-20",
+        "milis": 1716163200000,
+        "valorcuotaparte": 6.594105
+      },
+      {
+        "fecha": "2024-05-21",
+        "milis": 1716249600000,
+        "valorcuotaparte": 6.601279
+      },
+      {
+        "fecha": "2024-05-22",
+        "milis": 1716336000000,
+        "valorcuotaparte": 6.608278
+      },
+      {
+        "fecha": "2024-05-23",
+        "milis": 1716422400000,
+        "valorcuotaparte": 6.615051
+      },
+      {
+        "fecha": "2024-05-24",
+        "milis": 1716508800000,
+        "valorcuotaparte": 6.621716
+      },
+      {
+        "fecha": "2024-05-27",
+        "milis": 1716768000000,
+        "valorcuotaparte": 6.641922
+      },
+      {
+        "fecha": "2024-05-28",
+        "milis": 1716854400000,
+        "valorcuotaparte": 6.64852
+      },
+      {
+        "fecha": "2024-05-29",
+        "milis": 1716940800000,
+        "valorcuotaparte": 6.655038
+      },
+      {
+        "fecha": "2024-05-30",
+        "milis": 1717027200000,
+        "valorcuotaparte": 6.661459
+      },
+      {
+        "fecha": "2024-05-31",
+        "milis": 1717113600000,
+        "valorcuotaparte": 6.667827
+      },
+      {
+        "fecha": "2024-06-03",
+        "milis": 1717372800000,
+        "valorcuotaparte": 6.687329
+      },
+      {
+        "fecha": "2024-06-04",
+        "milis": 1717459200000,
+        "valorcuotaparte": 6.693977
+      },
+      {
+        "fecha": "2024-06-05",
+        "milis": 1717545600000,
+        "valorcuotaparte": 6.700483
+      },
+      {
+        "fecha": "2024-06-06",
+        "milis": 1717632000000,
+        "valorcuotaparte": 6.707079
+      },
+      {
+        "fecha": "2024-06-07",
+        "milis": 1717718400000,
+        "valorcuotaparte": 6.713659
+      },
+      {
+        "fecha": "2024-06-10",
+        "milis": 1717977600000,
+        "valorcuotaparte": 6.7331
+      },
+      {
+        "fecha": "2024-06-11",
+        "milis": 1718064000000,
+        "valorcuotaparte": 6.739543
+      },
+      {
+        "fecha": "2024-06-12",
+        "milis": 1718150400000,
+        "valorcuotaparte": 6.746041
+      },
+      {
+        "fecha": "2024-06-13",
+        "milis": 1718236800000,
+        "valorcuotaparte": 6.75248
+      },
+      {
+        "fecha": "2024-06-14",
+        "milis": 1718323200000,
+        "valorcuotaparte": 6.758817
+      },
+      {
+        "fecha": "2024-06-18",
+        "milis": 1718668800000,
+        "valorcuotaparte": 6.784124
+      },
+      {
+        "fecha": "2024-06-19",
+        "milis": 1718755200000,
+        "valorcuotaparte": 6.790407
+      },
+      {
+        "fecha": "2024-06-24",
+        "milis": 1719187200000,
+        "valorcuotaparte": 6.821457
+      },
+      {
+        "fecha": "2024-06-25",
+        "milis": 1719273600000,
+        "valorcuotaparte": 6.827698
+      },
+      {
+        "fecha": "2024-06-26",
+        "milis": 1719360000000,
+        "valorcuotaparte": 6.833971
+      },
+      {
+        "fecha": "2024-06-27",
+        "milis": 1719446400000,
+        "valorcuotaparte": 6.840259
+      },
+      {
+        "fecha": "2024-06-28",
+        "milis": 1719532800000,
+        "valorcuotaparte": 6.846596
+      },
+      {
+        "fecha": "2024-07-01",
+        "milis": 1719792000000,
+        "valorcuotaparte": 6.865785
+      },
+      {
+        "fecha": "2024-07-02",
+        "milis": 1719878400000,
+        "valorcuotaparte": 6.872118
+      },
+      {
+        "fecha": "2024-07-03",
+        "milis": 1719964800000,
+        "valorcuotaparte": 6.87848
+      },
+      {
+        "fecha": "2024-07-04",
+        "milis": 1720051200000,
+        "valorcuotaparte": 6.884921
+      },
+      {
+        "fecha": "2024-07-05",
+        "milis": 1720137600000,
+        "valorcuotaparte": 6.891371
+      },
+      {
+        "fecha": "2024-07-08",
+        "milis": 1720396800000,
+        "valorcuotaparte": 6.910784
+      },
+      {
+        "fecha": "2024-07-10",
+        "milis": 1720569600000,
+        "valorcuotaparte": 6.923642
+      },
+      {
+        "fecha": "2024-07-11",
+        "milis": 1720656000000,
+        "valorcuotaparte": 6.930177
+      },
+      {
+        "fecha": "2024-07-12",
+        "milis": 1720742400000,
+        "valorcuotaparte": 6.936734
+      },
+      {
+        "fecha": "2024-07-15",
+        "milis": 1721001600000,
+        "valorcuotaparte": 6.956535
+      },
+      {
+        "fecha": "2024-07-16",
+        "milis": 1721088000000,
+        "valorcuotaparte": 6.963168
+      },
+      {
+        "fecha": "2024-07-17",
+        "milis": 1721174400000,
+        "valorcuotaparte": 6.969816
+      },
+      {
+        "fecha": "2024-07-18",
+        "milis": 1721260800000,
+        "valorcuotaparte": 6.976489
+      },
+      {
+        "fecha": "2024-07-19",
+        "milis": 1721347200000,
+        "valorcuotaparte": 6.983252
+      },
+      {
+        "fecha": "2024-07-22",
+        "milis": 1721606400000,
+        "valorcuotaparte": 7.003517
+      },
+      {
+        "fecha": "2024-07-23",
+        "milis": 1721692800000,
+        "valorcuotaparte": 7.010384
+      },
+      {
+        "fecha": "2024-07-24",
+        "milis": 1721779200000,
+        "valorcuotaparte": 7.017228
+      },
+      {
+        "fecha": "2024-07-25",
+        "milis": 1721865600000,
+        "valorcuotaparte": 7.023958
+      },
+      {
+        "fecha": "2024-07-26",
+        "milis": 1721952000000,
+        "valorcuotaparte": 7.030739
+      },
+      {
+        "fecha": "2024-07-29",
+        "milis": 1722211200000,
+        "valorcuotaparte": 7.051008
+      },
+      {
+        "fecha": "2024-07-30",
+        "milis": 1722297600000,
+        "valorcuotaparte": 7.057833
+      },
+      {
+        "fecha": "2024-07-31",
+        "milis": 1722384000000,
+        "valorcuotaparte": 7.064714
+      },
+      {
+        "fecha": "2024-08-01",
+        "milis": 1722470400000,
+        "valorcuotaparte": 7.071506
+      },
+      {
+        "fecha": "2024-08-02",
+        "milis": 1722556800000,
+        "valorcuotaparte": 7.078415
+      },
+      {
+        "fecha": "2024-08-05",
+        "milis": 1722816000000,
+        "valorcuotaparte": 7.099191
+      },
+      {
+        "fecha": "2024-08-06",
+        "milis": 1722902400000,
+        "valorcuotaparte": 7.106201
+      },
+      {
+        "fecha": "2024-08-07",
+        "milis": 1722988800000,
+        "valorcuotaparte": 7.113153
+      },
+      {
+        "fecha": "2024-08-08",
+        "milis": 1723075200000,
+        "valorcuotaparte": 7.12024
+      },
+      {
+        "fecha": "2024-08-09",
+        "milis": 1723161600000,
+        "valorcuotaparte": 7.127374
+      },
+      {
+        "fecha": "2024-08-12",
+        "milis": 1723420800000,
+        "valorcuotaparte": 7.148708
+      },
+      {
+        "fecha": "2024-08-13",
+        "milis": 1723507200000,
+        "valorcuotaparte": 7.155671
+      },
+      {
+        "fecha": "2024-08-14",
+        "milis": 1723593600000,
+        "valorcuotaparte": 7.162637
+      },
+      {
+        "fecha": "2024-08-15",
+        "milis": 1723680000000,
+        "valorcuotaparte": 7.169647
+      },
+      {
+        "fecha": "2024-08-16",
+        "milis": 1723766400000,
+        "valorcuotaparte": 7.176689
+      },
+      {
+        "fecha": "2024-08-19",
+        "milis": 1724025600000,
+        "valorcuotaparte": 7.19814
+      },
+      {
+        "fecha": "2024-08-20",
+        "milis": 1724112000000,
+        "valorcuotaparte": 7.205129
+      },
+      {
+        "fecha": "2024-08-21",
+        "milis": 1724198400000,
+        "valorcuotaparte": 7.212139
+      },
+      {
+        "fecha": "2024-08-22",
+        "milis": 1724284800000,
+        "valorcuotaparte": 7.219098
+      },
+      {
+        "fecha": "2024-08-23",
+        "milis": 1724371200000,
+        "valorcuotaparte": 7.226101
+      },
+      {
+        "fecha": "2024-08-26",
+        "milis": 1724630400000,
+        "valorcuotaparte": 7.247136
+      },
+      {
+        "fecha": "2024-08-27",
+        "milis": 1724716800000,
+        "valorcuotaparte": 7.254166
+      },
+      {
+        "fecha": "2024-08-28",
+        "milis": 1724803200000,
+        "valorcuotaparte": 7.261127
+      },
+      {
+        "fecha": "2024-08-29",
+        "milis": 1724889600000,
+        "valorcuotaparte": 7.268009
+      },
+      {
+        "fecha": "2024-08-30",
+        "milis": 1724976000000,
+        "valorcuotaparte": 7.274839
+      },
+      {
+        "fecha": "2024-09-02",
+        "milis": 1725235200000,
+        "valorcuotaparte": 7.295876
+      },
+      {
+        "fecha": "2024-09-03",
+        "milis": 1725321600000,
+        "valorcuotaparte": 7.302881
+      },
+      {
+        "fecha": "2024-09-04",
+        "milis": 1725408000000,
+        "valorcuotaparte": 7.309849
+      },
+      {
+        "fecha": "2024-09-05",
+        "milis": 1725494400000,
+        "valorcuotaparte": 7.316809
+      },
+      {
+        "fecha": "2024-09-06",
+        "milis": 1725580800000,
+        "valorcuotaparte": 7.323766
+      },
+      {
+        "fecha": "2024-09-09",
+        "milis": 1725840000000,
+        "valorcuotaparte": 7.344619
+      },
+      {
+        "fecha": "2024-09-10",
+        "milis": 1725926400000,
+        "valorcuotaparte": 7.351524
+      },
+      {
+        "fecha": "2024-09-11",
+        "milis": 1726012800000,
+        "valorcuotaparte": 7.358438
+      },
+      {
+        "fecha": "2024-09-12",
+        "milis": 1726099200000,
+        "valorcuotaparte": 7.365397
+      },
+      {
+        "fecha": "2024-09-13",
+        "milis": 1726185600000,
+        "valorcuotaparte": 7.372385
+      },
+      {
+        "fecha": "2024-09-16",
+        "milis": 1726444800000,
+        "valorcuotaparte": 7.39385
+      },
+      {
+        "fecha": "2024-09-17",
+        "milis": 1726531200000,
+        "valorcuotaparte": 7.400991
+      },
+      {
+        "fecha": "2024-09-18",
+        "milis": 1726617600000,
+        "valorcuotaparte": 7.408186
+      },
+      {
+        "fecha": "2024-09-19",
+        "milis": 1726704000000,
+        "valorcuotaparte": 7.41546
+      },
+      {
+        "fecha": "2024-09-20",
+        "milis": 1726790400000,
+        "valorcuotaparte": 7.422774
+      },
+      {
+        "fecha": "2024-09-23",
+        "milis": 1727049600000,
+        "valorcuotaparte": 7.444745
+      },
+      {
+        "fecha": "2024-09-24",
+        "milis": 1727136000000,
+        "valorcuotaparte": 7.452091
+      },
+      {
+        "fecha": "2024-09-25",
+        "milis": 1727222400000,
+        "valorcuotaparte": 7.45941
+      },
+      {
+        "fecha": "2024-09-26",
+        "milis": 1727308800000,
+        "valorcuotaparte": 7.46678
+      },
+      {
+        "fecha": "2024-09-27",
+        "milis": 1727395200000,
+        "valorcuotaparte": 7.474172
+      },
+      {
+        "fecha": "2024-09-30",
+        "milis": 1727654400000,
+        "valorcuotaparte": 7.496413
+      },
+      {
+        "fecha": "2024-10-01",
+        "milis": 1727740800000,
+        "valorcuotaparte": 7.503799
+      },
+      {
+        "fecha": "2024-10-02",
+        "milis": 1727827200000,
+        "valorcuotaparte": 7.511237
+      },
+      {
+        "fecha": "2024-10-03",
+        "milis": 1727913600000,
+        "valorcuotaparte": 7.518715
+      },
+      {
+        "fecha": "2024-10-04",
+        "milis": 1728000000000,
+        "valorcuotaparte": 7.526217
+      },
+      {
+        "fecha": "2024-10-07",
+        "milis": 1728259200000,
+        "valorcuotaparte": 7.5487
+      },
+      {
+        "fecha": "2024-10-08",
+        "milis": 1728345600000,
+        "valorcuotaparte": 7.556179
+      },
+      {
+        "fecha": "2024-10-09",
+        "milis": 1728432000000,
+        "valorcuotaparte": 7.563654
+      },
+      {
+        "fecha": "2024-10-10",
+        "milis": 1728518400000,
+        "valorcuotaparte": 7.571132
+      },
+      {
+        "fecha": "2024-10-14",
+        "milis": 1728864000000,
+        "valorcuotaparte": 7.60152
+      },
+      {
+        "fecha": "2024-10-15",
+        "milis": 1728950400000,
+        "valorcuotaparte": 7.609072
+      },
+      {
+        "fecha": "2024-10-16",
+        "milis": 1729036800000,
+        "valorcuotaparte": 7.616752
+      },
+      {
+        "fecha": "2024-10-17",
+        "milis": 1729123200000,
+        "valorcuotaparte": 7.624369
+      },
+      {
+        "fecha": "2024-10-18",
+        "milis": 1729209600000,
+        "valorcuotaparte": 7.63201
+      },
+      {
+        "fecha": "2024-10-21",
+        "milis": 1729468800000,
+        "valorcuotaparte": 7.654542
+      },
+      {
+        "fecha": "2024-10-22",
+        "milis": 1729555200000,
+        "valorcuotaparte": 7.661942
+      },
+      {
+        "fecha": "2024-10-23",
+        "milis": 1729641600000,
+        "valorcuotaparte": 7.669389
+      },
+      {
+        "fecha": "2024-10-24",
+        "milis": 1729728000000,
+        "valorcuotaparte": 7.676844
+      },
+      {
+        "fecha": "2024-10-25",
+        "milis": 1729814400000,
+        "valorcuotaparte": 7.684344
+      },
+      {
+        "fecha": "2024-10-28",
+        "milis": 1730073600000,
+        "valorcuotaparte": 7.706864
+      },
+      {
+        "fecha": "2024-10-29",
+        "milis": 1730160000000,
+        "valorcuotaparte": 7.714378
+      },
+      {
+        "fecha": "2024-10-30",
+        "milis": 1730246400000,
+        "valorcuotaparte": 7.72185
+      },
+      {
+        "fecha": "2024-10-31",
+        "milis": 1730332800000,
+        "valorcuotaparte": 7.729347
+      },
+      {
+        "fecha": "2024-11-01",
+        "milis": 1730419200000,
+        "valorcuotaparte": 7.736835
+      },
+      {
+        "fecha": "2024-11-04",
+        "milis": 1730678400000,
+        "valorcuotaparte": 7.757579
+      },
+      {
+        "fecha": "2024-11-05",
+        "milis": 1730764800000,
+        "valorcuotaparte": 7.764536
+      },
+      {
+        "fecha": "2024-11-07",
+        "milis": 1730937600000,
+        "valorcuotaparte": 7.778496
+      },
+      {
+        "fecha": "2024-11-08",
+        "milis": 1731024000000,
+        "valorcuotaparte": 7.785347
+      },
+      {
+        "fecha": "2024-11-11",
+        "milis": 1731283200000,
+        "valorcuotaparte": 7.806062
+      },
+      {
+        "fecha": "2024-11-12",
+        "milis": 1731369600000,
+        "valorcuotaparte": 7.812918
+      },
+      {
+        "fecha": "2024-11-13",
+        "milis": 1731456000000,
+        "valorcuotaparte": 7.819908
+      },
+      {
+        "fecha": "2024-11-14",
+        "milis": 1731542400000,
+        "valorcuotaparte": 7.826839
+      },
+      {
+        "fecha": "2024-11-15",
+        "milis": 1731628800000,
+        "valorcuotaparte": 7.833785
+      },
+      {
+        "fecha": "2024-11-19",
+        "milis": 1731974400000,
+        "valorcuotaparte": 7.86157
+      },
+      {
+        "fecha": "2024-11-20",
+        "milis": 1732060800000,
+        "valorcuotaparte": 7.868621
+      },
+      {
+        "fecha": "2024-11-21",
+        "milis": 1732147200000,
+        "valorcuotaparte": 7.875657
+      },
+      {
+        "fecha": "2024-11-22",
+        "milis": 1732233600000,
+        "valorcuotaparte": 7.882683
+      },
+      {
+        "fecha": "2024-11-25",
+        "milis": 1732492800000,
+        "valorcuotaparte": 7.903642
+      },
+      {
+        "fecha": "2024-11-26",
+        "milis": 1732579200000,
+        "valorcuotaparte": 7.910659
+      },
+      {
+        "fecha": "2024-11-27",
+        "milis": 1732665600000,
+        "valorcuotaparte": 7.917606
+      },
+      {
+        "fecha": "2024-11-28",
+        "milis": 1732752000000,
+        "valorcuotaparte": 7.924516
+      },
+      {
+        "fecha": "2024-11-29",
+        "milis": 1732838400000,
+        "valorcuotaparte": 7.931496
+      },
+      {
+        "fecha": "2024-12-02",
+        "milis": 1733097600000,
+        "valorcuotaparte": 7.952338
+      },
+      {
+        "fecha": "2024-12-03",
+        "milis": 1733184000000,
+        "valorcuotaparte": 7.959286
+      },
+      {
+        "fecha": "2024-12-04",
+        "milis": 1733270400000,
+        "valorcuotaparte": 7.96618
+      },
+      {
+        "fecha": "2024-12-05",
+        "milis": 1733356800000,
+        "valorcuotaparte": 7.973055
+      },
+      {
+        "fecha": "2024-12-06",
+        "milis": 1733443200000,
+        "valorcuotaparte": 7.979967
+      },
+      {
+        "fecha": "2024-12-09",
+        "milis": 1733702400000,
+        "valorcuotaparte": 7.999707
+      },
+      {
+        "fecha": "2024-12-10",
+        "milis": 1733788800000,
+        "valorcuotaparte": 8.00627
+      },
+      {
+        "fecha": "2024-12-11",
+        "milis": 1733875200000,
+        "valorcuotaparte": 8.012886
+      },
+      {
+        "fecha": "2024-12-12",
+        "milis": 1733961600000,
+        "valorcuotaparte": 8.019455
+      },
+      {
+        "fecha": "2024-12-13",
+        "milis": 1734048000000,
+        "valorcuotaparte": 8.026097
+      },
+      {
+        "fecha": "2024-12-16",
+        "milis": 1734307200000,
+        "valorcuotaparte": 8.045721
+      },
+      {
+        "fecha": "2024-12-17",
+        "milis": 1734393600000,
+        "valorcuotaparte": 8.0523
+      },
+      {
+        "fecha": "2024-12-18",
+        "milis": 1734480000000,
+        "valorcuotaparte": 8.05878
+      },
+      {
+        "fecha": "2024-12-19",
+        "milis": 1734566400000,
+        "valorcuotaparte": 8.065244
+      },
+      {
+        "fecha": "2024-12-20",
+        "milis": 1734652800000,
+        "valorcuotaparte": 8.071832
+      },
+      {
+        "fecha": "2024-12-23",
+        "milis": 1734912000000,
+        "valorcuotaparte": 8.091153
+      },
+      {
+        "fecha": "2024-12-26",
+        "milis": 1735171200000,
+        "valorcuotaparte": 8.110489
+      },
+      {
+        "fecha": "2024-12-27",
+        "milis": 1735257600000,
+        "valorcuotaparte": 8.1169
+      },
+      {
+        "fecha": "2024-12-30",
+        "milis": 1735516800000,
+        "valorcuotaparte": 8.136615
+      },
+      {
+        "fecha": "2025-01-02",
+        "milis": 1735776000000,
+        "valorcuotaparte": 8.156654
+      },
+      {
+        "fecha": "2025-01-03",
+        "milis": 1735862400000,
+        "valorcuotaparte": 8.163407
+      },
+      {
+        "fecha": "2025-01-06",
+        "milis": 1736121600000,
+        "valorcuotaparte": 8.183145
+      },
+      {
+        "fecha": "2025-01-07",
+        "milis": 1736208000000,
+        "valorcuotaparte": 8.189667
+      },
+      {
+        "fecha": "2025-01-08",
+        "milis": 1736294400000,
+        "valorcuotaparte": 8.196056
+      },
+      {
+        "fecha": "2025-01-09",
+        "milis": 1736380800000,
+        "valorcuotaparte": 8.202277
+      },
+      {
+        "fecha": "2025-01-10",
+        "milis": 1736467200000,
+        "valorcuotaparte": 8.208571
+      },
+      {
+        "fecha": "2025-01-13",
+        "milis": 1736726400000,
+        "valorcuotaparte": 8.227961
+      },
+      {
+        "fecha": "2025-01-14",
+        "milis": 1736812800000,
+        "valorcuotaparte": 8.234578
+      },
+      {
+        "fecha": "2025-01-15",
+        "milis": 1736899200000,
+        "valorcuotaparte": 8.241378
+      },
+      {
+        "fecha": "2025-01-16",
+        "milis": 1736985600000,
+        "valorcuotaparte": 8.247957
+      },
+      {
+        "fecha": "2025-01-17",
+        "milis": 1737072000000,
+        "valorcuotaparte": 8.25451
+      },
+      {
+        "fecha": "2025-01-20",
+        "milis": 1737331200000,
+        "valorcuotaparte": 8.274368
+      },
+      {
+        "fecha": "2025-01-21",
+        "milis": 1737417600000,
+        "valorcuotaparte": 8.281032
+      },
+      {
+        "fecha": "2025-01-22",
+        "milis": 1737504000000,
+        "valorcuotaparte": 8.287675
+      },
+      {
+        "fecha": "2025-01-23",
+        "milis": 1737590400000,
+        "valorcuotaparte": 8.294334
+      },
+      {
+        "fecha": "2025-01-24",
+        "milis": 1737676800000,
+        "valorcuotaparte": 8.301075
+      },
+      {
+        "fecha": "2025-01-27",
+        "milis": 1737936000000,
+        "valorcuotaparte": 8.321217
+      },
+      {
+        "fecha": "2025-01-28",
+        "milis": 1738022400000,
+        "valorcuotaparte": 8.327931
+      },
+      {
+        "fecha": "2025-01-29",
+        "milis": 1738108800000,
+        "valorcuotaparte": 8.33461
+      },
+      {
+        "fecha": "2025-01-30",
+        "milis": 1738195200000,
+        "valorcuotaparte": 8.341283
+      },
+      {
+        "fecha": "2025-01-31",
+        "milis": 1738281600000,
+        "valorcuotaparte": 8.347921
+      },
+      {
+        "fecha": "2025-02-03",
+        "milis": 1738540800000,
+        "valorcuotaparte": 8.366495
+      },
+      {
+        "fecha": "2025-02-04",
+        "milis": 1738627200000,
+        "valorcuotaparte": 8.372741
+      },
+      {
+        "fecha": "2025-02-05",
+        "milis": 1738713600000,
+        "valorcuotaparte": 8.378942
+      },
+      {
+        "fecha": "2025-02-06",
+        "milis": 1738800000000,
+        "valorcuotaparte": 8.385188
+      },
+      {
+        "fecha": "2025-02-07",
+        "milis": 1738886400000,
+        "valorcuotaparte": 8.391454
+      },
+      {
+        "fecha": "2025-02-10",
+        "milis": 1739145600000,
+        "valorcuotaparte": 8.41036
+      },
+      {
+        "fecha": "2025-02-11",
+        "milis": 1739232000000,
+        "valorcuotaparte": 8.41657
+      },
+      {
+        "fecha": "2025-02-12",
+        "milis": 1739318400000,
+        "valorcuotaparte": 8.422753
+      },
+      {
+        "fecha": "2025-02-13",
+        "milis": 1739404800000,
+        "valorcuotaparte": 8.429058
+      },
+      {
+        "fecha": "2025-02-14",
+        "milis": 1739491200000,
+        "valorcuotaparte": 8.43532
+      },
+      {
+        "fecha": "2025-02-17",
+        "milis": 1739750400000,
+        "valorcuotaparte": 8.453674
+      },
+      {
+        "fecha": "2025-02-18",
+        "milis": 1739836800000,
+        "valorcuotaparte": 8.459714
+      },
+      {
+        "fecha": "2025-02-19",
+        "milis": 1739923200000,
+        "valorcuotaparte": 8.465716
+      },
+      {
+        "fecha": "2025-02-20",
+        "milis": 1740009600000,
+        "valorcuotaparte": 8.471655
+      },
+      {
+        "fecha": "2025-02-21",
+        "milis": 1740096000000,
+        "valorcuotaparte": 8.477539
+      },
+      {
+        "fecha": "2025-02-24",
+        "milis": 1740355200000,
+        "valorcuotaparte": 8.495227
+      },
+      {
+        "fecha": "2025-02-25",
+        "milis": 1740441600000,
+        "valorcuotaparte": 8.501064
+      },
+      {
+        "fecha": "2025-02-26",
+        "milis": 1740528000000,
+        "valorcuotaparte": 8.5069
+      },
+      {
+        "fecha": "2025-02-27",
+        "milis": 1740614400000,
+        "valorcuotaparte": 8.512756
+      },
+      {
+        "fecha": "2025-02-28",
+        "milis": 1740700800000,
+        "valorcuotaparte": 8.51858
+      },
+      {
+        "fecha": "2025-03-05",
+        "milis": 1741132800000,
+        "valorcuotaparte": 8.548329
+      },
+      {
+        "fecha": "2025-03-06",
+        "milis": 1741219200000,
+        "valorcuotaparte": 8.554263
+      },
+      {
+        "fecha": "2025-03-07",
+        "milis": 1741305600000,
+        "valorcuotaparte": 8.56011
+      },
+      {
+        "fecha": "2025-03-10",
+        "milis": 1741564800000,
+        "valorcuotaparte": 8.577598
+      },
+      {
+        "fecha": "2025-03-11",
+        "milis": 1741651200000,
+        "valorcuotaparte": 8.583405
+      },
+      {
+        "fecha": "2025-03-12",
+        "milis": 1741737600000,
+        "valorcuotaparte": 8.589251
+      },
+      {
+        "fecha": "2025-03-13",
+        "milis": 1741824000000,
+        "valorcuotaparte": 8.595095
+      },
+      {
+        "fecha": "2025-03-14",
+        "milis": 1741910400000,
+        "valorcuotaparte": 8.600994
+      },
+      {
+        "fecha": "2025-03-17",
+        "milis": 1742169600000,
+        "valorcuotaparte": 8.618593
+      },
+      {
+        "fecha": "2025-03-18",
+        "milis": 1742256000000,
+        "valorcuotaparte": 8.624453
+      },
+      {
+        "fecha": "2025-03-19",
+        "milis": 1742342400000,
+        "valorcuotaparte": 8.630312
+      },
+      {
+        "fecha": "2025-03-20",
+        "milis": 1742428800000,
+        "valorcuotaparte": 8.6362
+      },
+      {
+        "fecha": "2025-03-21",
+        "milis": 1742515200000,
+        "valorcuotaparte": 8.642132
+      },
+      {
+        "fecha": "2025-03-25",
+        "milis": 1742860800000,
+        "valorcuotaparte": 8.66621
+      },
+      {
+        "fecha": "2025-03-26",
+        "milis": 1742947200000,
+        "valorcuotaparte": 8.672266
+      },
+      {
+        "fecha": "2025-03-27",
+        "milis": 1743033600000,
+        "valorcuotaparte": 8.678428
+      },
+      {
+        "fecha": "2025-03-28",
+        "milis": 1743120000000,
+        "valorcuotaparte": 8.684656
+      },
+      {
+        "fecha": "2025-03-31",
+        "milis": 1743379200000,
+        "valorcuotaparte": 8.703251
+      },
+      {
+        "fecha": "2025-04-01",
+        "milis": 1743465600000,
+        "valorcuotaparte": 8.709329
+      },
+      {
+        "fecha": "2025-04-03",
+        "milis": 1743638400000,
+        "valorcuotaparte": 8.721646
+      },
+      {
+        "fecha": "2025-04-04",
+        "milis": 1743724800000,
+        "valorcuotaparte": 8.727812
+      },
+      {
+        "fecha": "2025-04-07",
+        "milis": 1743984000000,
+        "valorcuotaparte": 8.746377
+      },
+      {
+        "fecha": "2025-04-08",
+        "milis": 1744070400000,
+        "valorcuotaparte": 8.752584
+      },
+      {
+        "fecha": "2025-04-09",
+        "milis": 1744156800000,
+        "valorcuotaparte": 8.758794
+      },
+      {
+        "fecha": "2025-04-10",
+        "milis": 1744243200000,
+        "valorcuotaparte": 8.765102
+      },
+      {
+        "fecha": "2025-04-11",
+        "milis": 1744329600000,
+        "valorcuotaparte": 8.771491
+      },
+      {
+        "fecha": "2025-04-14",
+        "milis": 1744588800000,
+        "valorcuotaparte": 8.792528
+      },
+      {
+        "fecha": "2025-04-15",
+        "milis": 1744675200000,
+        "valorcuotaparte": 8.800129
+      },
+      {
+        "fecha": "2025-04-16",
+        "milis": 1744761600000,
+        "valorcuotaparte": 8.807658
+      },
+      {
+        "fecha": "2025-04-21",
+        "milis": 1745193600000,
+        "valorcuotaparte": 8.841223
+      },
+      {
+        "fecha": "2025-04-22",
+        "milis": 1745280000000,
+        "valorcuotaparte": 8.847556
+      },
+      {
+        "fecha": "2025-04-23",
+        "milis": 1745366400000,
+        "valorcuotaparte": 8.853557
+      },
+      {
+        "fecha": "2025-04-24",
+        "milis": 1745452800000,
+        "valorcuotaparte": 8.859478
+      },
+      {
+        "fecha": "2025-04-25",
+        "milis": 1745539200000,
+        "valorcuotaparte": 8.8655
+      },
+      {
+        "fecha": "2025-04-28",
+        "milis": 1745798400000,
+        "valorcuotaparte": 8.884643
+      },
+      {
+        "fecha": "2025-04-29",
+        "milis": 1745884800000,
+        "valorcuotaparte": 8.891114
+      },
+      {
+        "fecha": "2025-04-30",
+        "milis": 1745971200000,
+        "valorcuotaparte": 8.897857
+      },
+      {
+        "fecha": "2025-05-05",
+        "milis": 1746403200000,
+        "valorcuotaparte": 8.930984
+      },
+      {
+        "fecha": "2025-05-06",
+        "milis": 1746489600000,
+        "valorcuotaparte": 8.937575
+      },
+      {
+        "fecha": "2025-05-07",
+        "milis": 1746576000000,
+        "valorcuotaparte": 8.944163
+      },
+      {
+        "fecha": "2025-05-08",
+        "milis": 1746662400000,
+        "valorcuotaparte": 8.95077
+      },
+      {
+        "fecha": "2025-05-09",
+        "milis": 1746748800000,
+        "valorcuotaparte": 8.957332
+      },
+      {
+        "fecha": "2025-05-12",
+        "milis": 1747008000000,
+        "valorcuotaparte": 8.976771
+      },
+      {
+        "fecha": "2025-05-13",
+        "milis": 1747094400000,
+        "valorcuotaparte": 8.98327
+      },
+      {
+        "fecha": "2025-05-14",
+        "milis": 1747180800000,
+        "valorcuotaparte": 8.989881
+      },
+      {
+        "fecha": "2025-05-15",
+        "milis": 1747267200000,
+        "valorcuotaparte": 8.996513
+      },
+      {
+        "fecha": "2025-05-16",
+        "milis": 1747353600000,
+        "valorcuotaparte": 9.003113
+      },
+      {
+        "fecha": "2025-05-19",
+        "milis": 1747612800000,
+        "valorcuotaparte": 9.022672
+      },
+      {
+        "fecha": "2025-05-20",
+        "milis": 1747699200000,
+        "valorcuotaparte": 9.029374
+      },
+      {
+        "fecha": "2025-05-21",
+        "milis": 1747785600000,
+        "valorcuotaparte": 9.035905
+      },
+      {
+        "fecha": "2025-05-22",
+        "milis": 1747872000000,
+        "valorcuotaparte": 9.042415
+      },
+      {
+        "fecha": "2025-05-23",
+        "milis": 1747958400000,
+        "valorcuotaparte": 9.048975
+      },
+      {
+        "fecha": "2025-05-26",
+        "milis": 1748217600000,
+        "valorcuotaparte": 9.069116
+      },
+      {
+        "fecha": "2025-05-27",
+        "milis": 1748304000000,
+        "valorcuotaparte": 9.075702
+      },
+      {
+        "fecha": "2025-05-28",
+        "milis": 1748390400000,
+        "valorcuotaparte": 9.082267
+      },
+      {
+        "fecha": "2025-05-29",
+        "milis": 1748476800000,
+        "valorcuotaparte": 9.08875
+      },
+      {
+        "fecha": "2025-05-30",
+        "milis": 1748563200000,
+        "valorcuotaparte": 9.095366
+      },
+      {
+        "fecha": "2025-06-02",
+        "milis": 1748822400000,
+        "valorcuotaparte": 9.115828
+      },
+      {
+        "fecha": "2025-06-03",
+        "milis": 1748908800000,
+        "valorcuotaparte": 9.122631
+      },
+      {
+        "fecha": "2025-06-04",
+        "milis": 1748995200000,
+        "valorcuotaparte": 9.129283
+      },
+      {
+        "fecha": "2025-06-05",
+        "milis": 1749081600000,
+        "valorcuotaparte": 9.13595
+      },
+      {
+        "fecha": "2025-06-06",
+        "milis": 1749168000000,
+        "valorcuotaparte": 9.142652
+      },
+      {
+        "fecha": "2025-06-09",
+        "milis": 1749427200000,
+        "valorcuotaparte": 9.162771
+      },
+      {
+        "fecha": "2025-06-10",
+        "milis": 1749513600000,
+        "valorcuotaparte": 9.169493
+      },
+      {
+        "fecha": "2025-06-11",
+        "milis": 1749600000000,
+        "valorcuotaparte": 9.176357
+      },
+      {
+        "fecha": "2025-06-12",
+        "milis": 1749686400000,
+        "valorcuotaparte": 9.183376
+      },
+      {
+        "fecha": "2025-06-13",
+        "milis": 1749772800000,
+        "valorcuotaparte": 9.190531
+      },
+      {
+        "fecha": "2025-06-17",
+        "milis": 1750118400000,
+        "valorcuotaparte": 9.218739
+      },
+      {
+        "fecha": "2025-06-18",
+        "milis": 1750204800000,
+        "valorcuotaparte": 9.225881
+      },
+      {
+        "fecha": "2025-06-19",
+        "milis": 1750291200000,
+        "valorcuotaparte": 9.232901
+      },
+      {
+        "fecha": "2025-06-23",
+        "milis": 1750636800000,
+        "valorcuotaparte": 9.260701
+      },
+      {
+        "fecha": "2025-06-24",
+        "milis": 1750723200000,
+        "valorcuotaparte": 9.267747
+      },
+      {
+        "fecha": "2025-06-25",
+        "milis": 1750809600000,
+        "valorcuotaparte": 9.274813
+      },
+      {
+        "fecha": "2025-06-26",
+        "milis": 1750896000000,
+        "valorcuotaparte": 9.28176
+      },
+      {
+        "fecha": "2025-06-27",
+        "milis": 1750982400000,
+        "valorcuotaparte": 9.288761
+      },
+      {
+        "fecha": "2025-06-30",
+        "milis": 1751241600000,
+        "valorcuotaparte": 9.310405
+      },
+      {
+        "fecha": "2025-07-01",
+        "milis": 1751328000000,
+        "valorcuotaparte": 9.317316
+      },
+      {
+        "fecha": "2025-07-02",
+        "milis": 1751414400000,
+        "valorcuotaparte": 9.324186
+      },
+      {
+        "fecha": "2025-07-03",
+        "milis": 1751500800000,
+        "valorcuotaparte": 9.330868
+      },
+      {
+        "fecha": "2025-07-04",
+        "milis": 1751587200000,
+        "valorcuotaparte": 9.337433
+      },
+      {
+        "fecha": "2025-07-07",
+        "milis": 1751846400000,
+        "valorcuotaparte": 9.356842
+      },
+      {
+        "fecha": "2025-07-08",
+        "milis": 1751932800000,
+        "valorcuotaparte": 9.363337
+      },
+      {
+        "fecha": "2025-07-10",
+        "milis": 1752105600000,
+        "valorcuotaparte": 9.376346
+      },
+      {
+        "fecha": "2025-07-11",
+        "milis": 1752192000000,
+        "valorcuotaparte": 9.382585
+      },
+      {
+        "fecha": "2025-07-14",
+        "milis": 1752451200000,
+        "valorcuotaparte": 9.399436
+      },
+      {
+        "fecha": "2025-07-15",
+        "milis": 1752537600000,
+        "valorcuotaparte": 9.405282
+      },
+      {
+        "fecha": "2025-07-16",
+        "milis": 1752624000000,
+        "valorcuotaparte": 9.411824
+      },
+      {
+        "fecha": "2025-07-17",
+        "milis": 1752710400000,
+        "valorcuotaparte": 9.418922
+      },
+      {
+        "fecha": "2025-07-18",
+        "milis": 1752796800000,
+        "valorcuotaparte": 9.425984
+      },
+      {
+        "fecha": "2025-07-21",
+        "milis": 1753056000000,
+        "valorcuotaparte": 9.448477
+      },
+      {
+        "fecha": "2025-07-22",
+        "milis": 1753142400000,
+        "valorcuotaparte": 9.457314
+      },
+      {
+        "fecha": "2025-07-23",
+        "milis": 1753228800000,
+        "valorcuotaparte": 9.467388
+      },
+      {
+        "fecha": "2025-07-24",
+        "milis": 1753315200000,
+        "valorcuotaparte": 9.476065
+      },
+      {
+        "fecha": "2025-07-25",
+        "milis": 1753401600000,
+        "valorcuotaparte": 9.483931
+      },
+      {
+        "fecha": "2025-07-28",
+        "milis": 1753660800000,
+        "valorcuotaparte": 9.505505
+      },
+      {
+        "fecha": "2025-07-29",
+        "milis": 1753747200000,
+        "valorcuotaparte": 9.513613
+      },
+      {
+        "fecha": "2025-07-30",
+        "milis": 1753833600000,
+        "valorcuotaparte": 9.521717
+      },
+      {
+        "fecha": "2025-07-31",
+        "milis": 1753920000000,
+        "valorcuotaparte": 9.528873
+      },
+      {
+        "fecha": "2025-08-01",
+        "milis": 1754006400000,
+        "valorcuotaparte": 9.536257
+      },
+      {
+        "fecha": "2025-08-04",
+        "milis": 1754265600000,
+        "valorcuotaparte": 9.559238
+      },
+      {
+        "fecha": "2025-08-05",
+        "milis": 1754352000000,
+        "valorcuotaparte": 9.567077
+      },
+      {
+        "fecha": "2025-08-06",
+        "milis": 1754438400000,
+        "valorcuotaparte": 9.574725
+      },
+      {
+        "fecha": "2025-08-07",
+        "milis": 1754524800000,
+        "valorcuotaparte": 9.582351
+      },
+      {
+        "fecha": "2025-08-08",
+        "milis": 1754611200000,
+        "valorcuotaparte": 9.591408
+      },
+      {
+        "fecha": "2025-08-11",
+        "milis": 1754870400000,
+        "valorcuotaparte": 9.62022
+      },
+      {
+        "fecha": "2025-08-12",
+        "milis": 1754956800000,
+        "valorcuotaparte": 9.630683
+      },
+      {
+        "fecha": "2025-08-13",
+        "milis": 1755043200000,
+        "valorcuotaparte": 9.641001
+      },
+      {
+        "fecha": "2025-08-14",
+        "milis": 1755129600000,
+        "valorcuotaparte": 9.652008
+      },
+      {
+        "fecha": "2025-08-18",
+        "milis": 1755475200000,
+        "valorcuotaparte": 9.695255
+      },
+      {
+        "fecha": "2025-08-19",
+        "milis": 1755561600000,
+        "valorcuotaparte": 9.704317
+      },
+      {
+        "fecha": "2025-08-20",
+        "milis": 1755648000000,
+        "valorcuotaparte": 9.711855
+      },
+      {
+        "fecha": "2025-08-21",
+        "milis": 1755734400000,
+        "valorcuotaparte": 9.721181
+      },
+      {
+        "fecha": "2025-08-22",
+        "milis": 1755820800000,
+        "valorcuotaparte": 9.731949
+      },
+      {
+        "fecha": "2025-08-25",
+        "milis": 1756080000000,
+        "valorcuotaparte": 9.764042
+      },
+      {
+        "fecha": "2025-08-26",
+        "milis": 1756166400000,
+        "valorcuotaparte": 9.774746
+      },
+      {
+        "fecha": "2025-08-27",
+        "milis": 1756252800000,
+        "valorcuotaparte": 9.785417
+      },
+      {
+        "fecha": "2025-08-28",
+        "milis": 1756339200000,
+        "valorcuotaparte": 9.795759
+      },
+      {
+        "fecha": "2025-08-29",
+        "milis": 1756425600000,
+        "valorcuotaparte": 9.806218
+      },
+      {
+        "fecha": "2025-09-01",
+        "milis": 1756684800000,
+        "valorcuotaparte": 9.838967
+      },
+      {
+        "fecha": "2025-09-02",
+        "milis": 1756771200000,
+        "valorcuotaparte": 9.850241
+      },
+      {
+        "fecha": "2025-09-03",
+        "milis": 1756857600000,
+        "valorcuotaparte": 9.861449
+      },
+      {
+        "fecha": "2025-09-04",
+        "milis": 1756944000000,
+        "valorcuotaparte": 9.872941
+      },
+      {
+        "fecha": "2025-09-05",
+        "milis": 1757030400000,
+        "valorcuotaparte": 9.884619
+      },
+      {
+        "fecha": "2025-09-08",
+        "milis": 1757289600000,
+        "valorcuotaparte": 9.919924
+      },
+      {
+        "fecha": "2025-09-09",
+        "milis": 1757376000000,
+        "valorcuotaparte": 9.931815
+      },
+      {
+        "fecha": "2025-09-10",
+        "milis": 1757462400000,
+        "valorcuotaparte": 9.942799
+      },
+      {
+        "fecha": "2025-09-11",
+        "milis": 1757548800000,
+        "valorcuotaparte": 9.953138
+      },
+      {
+        "fecha": "2025-09-12",
+        "milis": 1757635200000,
+        "valorcuotaparte": 9.963662
+      },
+      {
+        "fecha": "2025-09-15",
+        "milis": 1757894400000,
+        "valorcuotaparte": 9.994631
+      },
+      {
+        "fecha": "2025-09-16",
+        "milis": 1757980800000,
+        "valorcuotaparte": 10.004604
+      },
+      {
+        "fecha": "2025-09-17",
+        "milis": 1758067200000,
+        "valorcuotaparte": 10.014807
+      },
+      {
+        "fecha": "2025-09-18",
+        "milis": 1758153600000,
+        "valorcuotaparte": 10.025015
+      },
+      {
+        "fecha": "2025-09-19",
+        "milis": 1758240000000,
+        "valorcuotaparte": 10.035092
+      },
+      {
+        "fecha": "2025-09-22",
+        "milis": 1758499200000,
+        "valorcuotaparte": 10.065184
+      },
+      {
+        "fecha": "2025-09-23",
+        "milis": 1758585600000,
+        "valorcuotaparte": 10.075376
+      },
+      {
+        "fecha": "2025-09-24",
+        "milis": 1758672000000,
+        "valorcuotaparte": 10.08594
+      },
+      {
+        "fecha": "2025-09-25",
+        "milis": 1758758400000,
+        "valorcuotaparte": 10.094924
+      },
+      {
+        "fecha": "2025-09-26",
+        "milis": 1758844800000,
+        "valorcuotaparte": 10.103893
+      },
+      {
+        "fecha": "2025-09-29",
+        "milis": 1759104000000,
+        "valorcuotaparte": 10.129791
+      },
+      {
+        "fecha": "2025-09-30",
+        "milis": 1759190400000,
+        "valorcuotaparte": 10.135963
+      },
+      {
+        "fecha": "2025-10-01",
+        "milis": 1759276800000,
+        "valorcuotaparte": 10.144087
+      },
+      {
+        "fecha": "2025-10-02",
+        "milis": 1759363200000,
+        "valorcuotaparte": 10.152673
+      },
+      {
+        "fecha": "2025-10-03",
+        "milis": 1759449600000,
+        "valorcuotaparte": 10.161014
+      },
+      {
+        "fecha": "2025-10-06",
+        "milis": 1759708800000,
+        "valorcuotaparte": 10.18635
+      },
+      {
+        "fecha": "2025-10-07",
+        "milis": 1759795200000,
+        "valorcuotaparte": 10.195662
+      },
+      {
+        "fecha": "2025-10-08",
+        "milis": 1759881600000,
+        "valorcuotaparte": 10.205483
+      },
+      {
+        "fecha": "2025-10-09",
+        "milis": 1759968000000,
+        "valorcuotaparte": 10.216322
+      },
+      {
+        "fecha": "2025-10-13",
+        "milis": 1760313600000,
+        "valorcuotaparte": 10.261488
+      },
+      {
+        "fecha": "2025-10-14",
+        "milis": 1760400000000,
+        "valorcuotaparte": 10.273425
+      },
+      {
+        "fecha": "2025-10-15",
+        "milis": 1760486400000,
+        "valorcuotaparte": 10.289581
+      },
+      {
+        "fecha": "2025-10-16",
+        "milis": 1760572800000,
+        "valorcuotaparte": 10.305708
+      },
+      {
+        "fecha": "2025-10-17",
+        "milis": 1760659200000,
+        "valorcuotaparte": 10.317796
+      },
+      {
+        "fecha": "2025-10-20",
+        "milis": 1760918400000,
+        "valorcuotaparte": 10.343064
+      },
+      {
+        "fecha": "2025-10-21",
+        "milis": 1761004800000,
+        "valorcuotaparte": 10.351411
+      },
+      {
+        "fecha": "2025-10-22",
+        "milis": 1761091200000,
+        "valorcuotaparte": 10.359184
+      },
+      {
+        "fecha": "2025-10-23",
+        "milis": 1761177600000,
+        "valorcuotaparte": 10.367172
+      },
+      {
+        "fecha": "2025-10-24",
+        "milis": 1761264000000,
+        "valorcuotaparte": 10.376266
+      },
+      {
+        "fecha": "2025-10-27",
+        "milis": 1761523200000,
+        "valorcuotaparte": 10.412142
+      },
+      {
+        "fecha": "2025-10-28",
+        "milis": 1761609600000,
+        "valorcuotaparte": 10.426066
+      },
+      {
+        "fecha": "2025-10-29",
+        "milis": 1761696000000,
+        "valorcuotaparte": 10.438444
+      },
+      {
+        "fecha": "2025-10-30",
+        "milis": 1761782400000,
+        "valorcuotaparte": 10.447153
+      },
+      {
+        "fecha": "2025-10-31",
+        "milis": 1761868800000,
+        "valorcuotaparte": 10.455539
+      },
+      {
+        "fecha": "2025-11-03",
+        "milis": 1762128000000,
+        "valorcuotaparte": 10.478919
+      },
+      {
+        "fecha": "2025-11-04",
+        "milis": 1762214400000,
+        "valorcuotaparte": 10.486374
+      },
+      {
+        "fecha": "2025-11-05",
+        "milis": 1762300800000,
+        "valorcuotaparte": 10.493626
+      },
+      {
+        "fecha": "2025-11-07",
+        "milis": 1762473600000,
+        "valorcuotaparte": 10.507127
+      },
+      {
+        "fecha": "2025-11-10",
+        "milis": 1762732800000,
+        "valorcuotaparte": 10.527409
+      },
+      {
+        "fecha": "2025-11-11",
+        "milis": 1762819200000,
+        "valorcuotaparte": 10.534202
+      },
+      {
+        "fecha": "2025-11-12",
+        "milis": 1762905600000,
+        "valorcuotaparte": 10.540978
+      },
+      {
+        "fecha": "2025-11-13",
+        "milis": 1762992000000,
+        "valorcuotaparte": 10.547849
+      },
+      {
+        "fecha": "2025-11-14",
+        "milis": 1763078400000,
+        "valorcuotaparte": 10.554726
+      }
+    ],
+    "eventos": [],
+    "source": "BZMD"
+  }

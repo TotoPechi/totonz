@@ -82,7 +82,6 @@ testBalanzAuth.clearCache()
 ### Archivos Relacionados
 
 - `src/services/balanzAuth.ts` - Servicio de autenticación
-- `src/services/balanzAuthTest.ts` - Utilidades de testing
 - `.env.local` - Credenciales (NO se sube a Git)
 - `.env.example` - Template de configuración
 

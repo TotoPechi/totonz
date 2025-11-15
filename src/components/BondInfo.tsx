@@ -1,5 +1,36 @@
 import React from 'react';
 
+// Función para formatear fecha de YYYY-MM-DD a DD/MM/YYYY
+function formatearFecha(fecha: string): string {
+  if (!fecha) return '';
+  
+  // Si ya está en formato DD/MM/YYYY, retornarlo
+  if (fecha.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+    return fecha;
+  }
+  
+  // Si está en formato YYYY-MM-DD
+  if (fecha.match(/^\d{4}-\d{2}-\d{2}/)) {
+    const [anio, mes, dia] = fecha.split('-');
+    return `${dia}/${mes}/${anio}`;
+  }
+  
+  // Intentar parsear como Date
+  try {
+    const date = new Date(fecha);
+    if (!isNaN(date.getTime())) {
+      const dia = String(date.getDate()).padStart(2, '0');
+      const mes = String(date.getMonth() + 1).padStart(2, '0');
+      const anio = date.getFullYear();
+      return `${dia}/${mes}/${anio}`;
+    }
+  } catch (e) {
+    // Ignorar error
+  }
+  
+  return fecha; // Retornar original si no se pudo formatear
+}
+
 interface BondInfoProps {
   bond: any;
   showBondDescTooltip: boolean;
@@ -42,7 +73,7 @@ const BondInfo: React.FC<BondInfoProps> = ({ bond, showBondDescTooltip, setShowB
         <div className="flex justify-between items-center">
           <span className="text-slate-400">Próximo Pago:</span>
           <span className="text-slate-200 text-right">
-            {bond.nextPaymentDate}
+            {formatearFecha(bond.nextPaymentDate)}
             {bond.nextPaymentDays !== undefined && (
               <span className="text-slate-400 text-xs ml-1">
                 ({bond.nextPaymentDays}d)
@@ -65,7 +96,7 @@ const BondInfo: React.FC<BondInfoProps> = ({ bond, showBondDescTooltip, setShowB
         <div className="flex gap-6 mt-4">
           <div className="flex flex-col flex-1 gap-2">
             <div className="text-slate-400">
-              Emisión: <span className="text-slate-200">{bond.issuanceDate}</span>
+              Emisión: <span className="text-slate-200">{formatearFecha(bond.issuanceDate)}</span>
             </div>
             <div className="text-slate-400">
               TIR: <span className="text-green-400 font-bold">{bond.yield}</span>
@@ -73,7 +104,7 @@ const BondInfo: React.FC<BondInfoProps> = ({ bond, showBondDescTooltip, setShowB
           </div>
           <div className="flex flex-col flex-1 items-end gap-2">
             <div className="text-slate-400">
-              Vto: <span className="text-slate-200">{bond.maturity}</span>
+              Vto: <span className="text-slate-200">{formatearFecha(bond.maturity)}</span>
             </div>
             <div className="text-slate-400">
               Jurisdicción: <span className="text-slate-200">{bond.jurisdiction}</span>

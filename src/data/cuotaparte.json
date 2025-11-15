@@ -1,0 +1,135 @@
+{
+    "Cotizacion": {
+      "UltimaCotizacion": "14/11/2025",
+      "Ticker": "BCMMA",
+      "Descripcion": "Money Market Clase A",
+      "Cotizacion": "10.554726",
+      "VarDiaria": "0.0652",
+      "VarSemanal": "0.45",
+      "VarMensual": "2.74",
+      "Var90Dias": "9.35",
+      "Var180Dias": "17.41",
+      "VarAnual": "34.85",
+      "VarYTD": "29.72",
+      "varTnaDiaria": "23.8",
+      "variacionPrincipal": "23.8",
+      "tipoVariacionPrincipal": "TNA",
+      "VarDiariaNeta": "0.01",
+      "VarSemanalNeta": "0.05",
+      "VarMensualNeta": "0.28",
+      "Var90DiasNeta": "0.9",
+      "Var180DiasNeta": "1.56",
+      "VarAnualNeta": "2.73",
+      "VarYTDNeta": "2.42",
+      "Patrimonio": "619604617345",
+      "Clase": "A",
+      "Clases": "BCMMA,BCMMB,BCMMC,BCMMD,BCMML",
+      "idMoneda": 1,
+      "FechaInicio": "28/09/2020",
+      "Riesgo": "AA+f(arg)",
+      "PlazoRescate": "Inmediato",
+      "CalificadoraRiesgo": "Fixs SCR SA",
+      "TickerSuscripcion": "BCMM",
+      "NombreCorto": "Money Market",
+      "panel": 10,
+      "SimboloMoneda": "$",
+      "Moneda": "Pesos",
+      "CotizacionCuotaparte": "10.554726"
+    },
+    "info": {
+      "descripcion": "<p>Fondo de mercado de dinero cl&aacute;sico que invierte en el mercado local, con un horizonte de inversi&oacute;n de corto plazo. El objetivo del fondo es buscar un rendimiento diario estable del valor cuota, invirtiendo principalmente, en activos de elevada liquidez y minimizando el riesgo y la volatilidad.&nbsp;<br />\n<br />\nIdeal para la administraci&oacute;n de la liquidez de corto plazo de personas f&iacute;sicas y jur&iacute;dicas.&nbsp;</p>\n\n<ul>\n\t<li>Horizonte de Inversi&oacute;n <strong>Corto Plazo</strong></li>\n\t<li>Tipo de Fondo <strong>Mercado de Dinero</strong></li>\n\t<li>Inversi&oacute;n m&iacute;nima <strong>$ 1.000</strong></li>\n\t<li>Plazo de Rescate <strong>Inmediato</strong></li>\n</ul>\n",
+      "Nombre": "Money Market",
+      "NombreAbreviado": "BCMM",
+      "ComposicionCarteraFecha": "2025-09-30T03:00:00.0",
+      "PerfilInversor": "Conservador",
+      "color": "#59B964",
+      "TipoFondo": "Mercado de Dinero",
+      "Horizonte": "Corto plazo",
+      "InversionMinima": 1000,
+      "TipoInversionMinima": "MONEDA",
+      "TickerBloomberg": "BCMOMAC AR Equity",
+      "UrlVideo": "",
+      "PortfolioManager": "Ailin do Pazo Glave"
+    },
+    "composicion": [
+      {
+        "name": "Cuenta Remunerada",
+        "value": 27.8
+      },
+      {
+        "name": "Plazo Fijo Tradicional",
+        "value": 29.9
+      },
+      {
+        "name": "Plazo Fijo Precancelable",
+        "value": 3.8
+      },
+      {
+        "name": "Cauciones",
+        "value": 38.5
+      }
+    ],
+    "documentos": [
+      {
+        "name": "Factsheet en Español",
+        "url": "https://cms.balanz.com/PFS/098457_moneymarket.esp.pdf"
+      },
+      {
+        "name": "Factsheet en Inglés",
+        "url": "https://cms.balanz.com/PFS/098489_moneymarket.eng.pdf"
+      },
+      {
+        "name": "Reglamento de Gestión",
+        "url": "https://cms.balanz.com/PFS/093990_20250306torgbalanzcapitalmoneymarketbalanz.pdf"
+      },
+      {
+        "name": "Calificación FIX",
+        "url": "https://cms.balanz.com/PFS/101453_blzcapmm300925.pdf"
+      },
+      {
+        "name": "Cuentas Bancarias",
+        "url": "https://cms.balanz.com/PFS/055928_cuentas_balanz_2021nuevo.pdf"
+      },
+      {
+        "name": "Resolución 917 BBPP - 2021",
+        "url": "https://cms.balanz.com/PFS/068542_5404048_res917cnvreg.inf.bbppejercicio2021.pdf?"
+      },
+      {
+        "name": "Resolución 917 BBPP - 2022",
+        "url": "https://cms.balanz.com/PFS/074270_resolucion_917_2022.pdf"
+      },
+      {
+        "name": "Resolución 917 BBPP - 2023",
+        "url": "https://cms.balanz.com/PFS/082290_resolucion917bbpp2023.pdf"
+      },
+      {
+        "name": "Resolución 917 BBPP - 2024",
+        "url": "https://cms.balanz.com/PFS/091951_res917cnvreg.inf.bbppejercicio30122024.pdf"
+      },
+      {
+        "name": "Informe Trimestral de Riesgos",
+        "url": "https://cms.balanz.com/PFS/098223_informetrimestralderiesgos.balanzcapitalmoneymarketrg.cnv757_junio2025.pdf"
+      },
+      {
+        "name": "Hecho Relevante Julio 2021",
+        "url": "https://cms.balanz.com/PFS/058866_5050494_20210716hrcambiodemontoencuotasbalanzsgfci.pdf?"
+      },
+      {
+        "name": "Hecho Relevante Julio 2023",
+        "url": "https://cms.balanz.com/PFS/078781_20230727hraumentofeessgbalanzmoneymarket.pdf"
+      },
+      {
+        "name": "Hecho Relevante Enero 2024",
+        "url": "https://cms.balanz.com/PFS/082423_hechorelevante2024balanzcapitalmoneymarket.pdf"
+      },
+      {
+        "name": "Hecho Relevante Febrero 2024",
+        "url": "https://cms.balanz.com/PFS/082982_20240130hraumentofeessgbalanzmoneymarket.pdf"
+      },
+      {
+        "name": "Calificación FIX",
+        "url": "https://cms.balanz.com/PFS/101453_blzcapmm300925.pdf"
+      }
+    ],
+    "source": "BZMD"
+  }

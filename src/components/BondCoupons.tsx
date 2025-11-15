@@ -1,5 +1,36 @@
 import React from 'react';
 
+// Función para formatear fecha de YYYY-MM-DD a DD/MM/YYYY
+function formatearFecha(fecha: string): string {
+  if (!fecha) return '';
+  
+  // Si ya está en formato DD/MM/YYYY, retornarlo
+  if (fecha.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+    return fecha;
+  }
+  
+  // Si está en formato YYYY-MM-DD
+  if (fecha.match(/^\d{4}-\d{2}-\d{2}/)) {
+    const [anio, mes, dia] = fecha.split('-');
+    return `${dia}/${mes}/${anio}`;
+  }
+  
+  // Intentar parsear como Date
+  try {
+    const date = new Date(fecha);
+    if (!isNaN(date.getTime())) {
+      const dia = String(date.getDate()).padStart(2, '0');
+      const mes = String(date.getMonth() + 1).padStart(2, '0');
+      const anio = date.getFullYear();
+      return `${dia}/${mes}/${anio}`;
+    }
+  } catch (e) {
+    // Ignorar error
+  }
+  
+  return fecha; // Retornar original si no se pudo formatear
+}
+
 interface BondCouponsProps {
   rentas: Array<{ fecha: string; montoNeto: number; impuestosRetenidos: number; esInteresDevengado?: boolean }>;
   nextPaymentDate?: string;
@@ -28,16 +59,16 @@ const BondCoupons: React.FC<BondCouponsProps> = ({ rentas, nextPaymentDate, next
         {/* Próximo pago */}
         {nextPaymentDate && nextPaymentAmount !== undefined && (
           <div className="text-slate-300">
-            <span className="text-slate-400">{nextPaymentDate}</span>
+            <span className="text-slate-400">{formatearFecha(nextPaymentDate)}</span>
             <span className="text-slate-300"> - </span>
             <span className="font-semibold">${nextPaymentAmount.total.toFixed(2)}</span>
-            <span className="text-slate-500 text-xs ml-1">(próximo pago)</span>
+            <span className="text-slate-400 text-xs ml-1">(próximo pago)</span>
           </div>
         )}
         {/* Pagos históricos */}
         {rentas.map((rent, idx) => (
           <div key={idx} className="text-slate-300">
-            <span className="text-slate-400">{rent.fecha}</span>
+            <span className="text-slate-400">{formatearFecha(rent.fecha)}</span>
             <span className="text-slate-300"> - </span>
             <span className="text-green-400 font-semibold">
               ${rent.montoNeto.toFixed(2)}
@@ -47,7 +78,7 @@ const BondCoupons: React.FC<BondCouponsProps> = ({ rentas, nextPaymentDate, next
                 (I.D.)
               </span>
             )}
-            <span className="text-slate-500 text-xs ml-1">
+            <span className="text-slate-400 text-xs ml-1">
               (+${rent.impuestosRetenidos.toFixed(2)} de imp.)
             </span>
           </div>
