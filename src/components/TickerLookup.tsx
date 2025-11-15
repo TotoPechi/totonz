@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { getTickerHoldingData } from '../services/tickerHoldingData';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getTickerQuote, getTickerCandles, clearTickerCache } from '../services/tickerApi';
-import { getEstadoCuentaConCache, getDolarMEP, clearEstadoCuentaCache, getOrdenesHistoricasConCache, getMovimientosHistoricosConCache, getDividendosPorTicker, getRentasPorTicker, getOperacionesPorTicker, MovimientoHistorico } from '../services/balanzApi';
-import { getDolarHistoricoCacheInfo, clearDolarHistoricoCache, getCotizacionesHistoricas, getDolarParaFechaDesdeCotizaciones } from '../services/dolarHistoricoApi';
+import { clearTickerCache, getTickerQuote } from '../services/tickerApi';
+import { clearEstadoCuentaCache, getMovimientosHistoricosConCache, MovimientoHistorico } from '../services/balanzApi';
+import { getDolarHistoricoCacheInfo, clearDolarHistoricoCache } from '../services/dolarHistoricoApi';
 import { preserveAuthTokens } from '../utils/cacheHelpers';
 import { clearCache } from '../utils/cacheManager';
-import { normalizeTicker, tickersMatch } from '../utils/tickerHelpers';
+import { normalizeTicker, tickersMatch, getFechaRangoHistorico, formatearFechaParaMostrar } from '../utils/tickerHelpers';
+import { Position } from '../types/balanz';
 import { useTickerCache } from '../hooks/useTickerCache';
+import { useTickerInfo } from '../hooks/useTickerInfo';
+import { useTickerOperations } from '../hooks/useTickerOperations';
 import TickerHeader from './TickerHeader';
 import TickerChart from './TickerChart';
 import TickerOrders from './TickerOrders';
@@ -16,160 +19,45 @@ import BondCashflow from './BondCashflow';
 import HistoricalSummary from './HistoricalSummary';
 import HistoricalTickerView from './HistoricalTickerView';
 
-// Función para normalizar fechas a formato YYYY-MM-DD
-function normalizarFecha(fecha: string): string {
-  if (!fecha) return '';
-  
-  // Si ya está en formato YYYY-MM-DD
-  if (fecha.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    return fecha;
-  }
-  
-  // Si viene en formato DD/MM/YYYY
-  if (fecha.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-    const [dia, mes, anio] = fecha.split('/');
-    return `${anio}-${mes}-${dia}`;
-  }
-  
-  // Si viene con hora (YYYY-MM-DDTHH:mm:ss)
-  const fechaSinHora = fecha.split('T')[0].trim();
-  if (fechaSinHora.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    return fechaSinHora;
-  }
-  
-  // Intentar parsear como Date
-  try {
-    const date = new Date(fecha);
-    if (!isNaN(date.getTime())) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    }
-  } catch (e) {
-    // Ignorar error
-  }
-  
-  return fecha; // Retornar original si no se pudo normalizar
-}
-
-interface TickerInfo {
-  ticker: string;
-  name: string;
-  price: number;
-  change: number;
-  changePercent: number;
-  currency: string;
-  marketCap?: string;
-  volume?: string;
-  pe?: string;
-  high52w?: number;
-  low52w?: number;
-  mappedSymbol?: string; // Símbolo transformado si se usó mapeo especial
-  description?: string; // Descripción detallada del instrumento
-  type?: string; // Tipo de instrumento
-  category?: string; // Categoría (industryGroup - industrySector - industrySubgroup)
-  lastClose?: number; // Precio de último cierre
-  open?: number; // Precio de apertura
-  marketId?: string; // Identificador del mercado
-  tickerCurrency?: string; // Moneda original del ticker (ARS, USD, CCL, etc.)
-  ratio?: string; // Ratio de conversión (ej: "25 VN = 1 ADR")
-  // Información del bono (si aplica)
-  bond?: {
-    couponType?: string; // "Fixed rate", "Variable", etc.
-    coupon?: string; // "5%" como string
-    nextPaymentDate?: string; // "2026-04-30"
-    nextPaymentDays?: number; // 174
-    currentYield?: string; // "5.2%" como string
-    frequency?: string; // "Semiannual", "Quarterly", etc.
-    description?: string; // Descripción completa
-    issuanceDate?: string; // "2024-01-05"
-    jurisdiction?: string; // "ARG", "USA", etc.
-    maturity?: string; // "2027-10-31"
-    yield?: string; // "7.6%" como string
-    type?: string; // "BOPREAL", "Treasury", etc.
-    cashFlow?: Array<{
-      date: string;
-      coupon: string;
-      amortization: string;
-      effectiveRent: string;
-      residualValue: number;
-      amortizationValue: number;
-      rent: number;
-      cashflow: number;
-      currency: number;
-    }>;
-  };
-}
-
-interface CandleData {
-  time: string;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
-}
-
 interface TickerLookupProps {
   availableTickers: string[];
-  positions: any[]; // Array de posiciones de la cartera
+  positions: Position[]; // Array de posiciones de la cartera
 }
 
 const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions }) => {
   const { ticker: urlTicker } = useParams<{ ticker?: string }>();
   const navigate = useNavigate();
   const [selectedTicker, setSelectedTicker] = useState<string>(urlTicker || 'GBTC.E');
-  const [tickerInfo, setTickerInfo] = useState<TickerInfo | null>(null);
-  const [historicalData, setHistoricalData] = useState<CandleData[]>([]);
+  
+  // Usar hooks para manejar datos del ticker
+  const {
+    tickerInfo,
+    historicalData,
+    loading,
+    error,
+    isHistoricalOnly,
+    historicalSummary,
+    historicalOperations,
+    fetchTickerInfo
+  } = useTickerInfo(positions);
+  
+  const {
+    operaciones: operacionesFromHook,
+    dividendos,
+    rentas,
+    movimientosCacheInfo,
+    movimientosHistoricosCacheInfo,
+    estadoCuentaCacheInfo,
+    dolarMEP
+  } = useTickerOperations(selectedTicker, tickerInfo);
+  
+  // Usar operaciones del hook o del resumen histórico
+  const operaciones = historicalOperations.length > 0 ? historicalOperations : operacionesFromHook;
+  
   const [ppc, setPpc] = useState<number | undefined>(undefined);
   const [precioPromedioVenta, setPrecioPromedioVenta] = useState<number | undefined>(undefined);
   const [valorInicialConsolidado, setValorInicialConsolidado] = useState<number | undefined>(undefined);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [dolarMEP, setDolarMEP] = useState<number | null>(null);
-  const [operaciones, setOperaciones] = useState<Array<{
-    tipo: 'COMPRA' | 'VENTA' | 'LIC' | 'RESCATE_PARCIAL';
-    fecha: string;
-    cantidad: number;
-    precioUSD: number;
-    montoUSD: number;
-    costoOperacionUSD: number;
-    descripcion: string;
-    precioOriginal?: number;
-    costoOriginal?: number;
-    monedaOriginal: string;
-    dolarUsado: number; // Dólar histórico usado para la conversión
-  }>>([]);
-  const [dividendos, setDividendos] = useState<Array<{
-    fecha: string;
-    montoBruto: number;
-    impuestosRetenidos: number;
-    montoNeto: number;
-    moneda: string;
-  }>>([]);
-  const [rentas, setRentas] = useState<Array<{
-    fecha: string;
-    montoBruto: number;
-    impuestosRetenidos: number;
-    montoNeto: number;
-    moneda: string;
-    esInteresDevengado: boolean;
-  }>>([]);
-  const [movimientosCacheInfo, setMovimientosCacheInfo] = useState<{
-    isCached: boolean;
-    fecha: string;
-    url?: string;
-  } | null>(null);
-  const [movimientosHistoricosCacheInfo, setMovimientosHistoricosCacheInfo] = useState<{
-    isCached: boolean;
-    fecha: string;
-    url?: string;
-  } | null>(null);
-  const [estadoCuentaCacheInfo, setEstadoCuentaCacheInfo] = useState<{
-    isCached: boolean;
-    fecha: string;
-  } | null>(null);
+  
   // Usar hook para caché de ticker
   const { candlesCacheInfo, instrumentCacheInfo } = useTickerCache(selectedTicker);
   // Info de caché de cotizaciones históricas del dólar
@@ -181,19 +69,6 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
   const [historicalTickers, setHistoricalTickers] = useState<Array<{ ticker: string; lastSaleDate?: string }>>([]);
   const [tickerDescriptions, setTickerDescriptions] = useState<Map<string, string>>(new Map());
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [isHistoricalOnly, setIsHistoricalOnly] = useState(false);
-  const [historicalSummary, setHistoricalSummary] = useState<{
-    totalComprado: number;
-    totalVendido: number;
-    gananciaPerdida: number;
-    gananciaPerdidaPorcentaje: number;
-    ppc: number;
-    precioPromedioVenta: number;
-    cantidadTotalComprada: number;
-    cantidadTotalVendida: number;
-    primeraOperacion?: string;
-    ultimaOperacion?: string;
-  } | null>(null);
 
   // Calcular rendimiento a término para bonos
   const rendimientoATermino = useMemo(() => {
@@ -209,21 +84,21 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
     today.setHours(0, 0, 0, 0);
     
     // Calcular totales futuros (cupones + amortizaciones)
-    const cashFlowFuturo = tickerInfo.bond.cashFlow.filter((cf: any) => {
+    const cashFlowFuturo = tickerInfo.bond.cashFlow.filter((cf) => {
       const cfDate = new Date(cf.date);
       cfDate.setHours(0, 0, 0, 0);
       return cfDate >= today;
     });
     
-    const valorATermino = cashFlowFuturo.reduce((acc: number, cf: any) => {
+    const valorATermino = cashFlowFuturo.reduce((acc: number, cf) => {
       return acc + (unidades * (cf.cashflow || 0));
     }, 0);
     
     // Calcular rentas pasadas usando rentas reales (de movimientos históricos)
     // Si hay rentas reales, usarlas (son las que realmente se recibieron)
     const rentasPasadas = rentas && Array.isArray(rentas) && rentas.length > 0
-      ? rentas.reduce((acc: number, renta: any) => acc + (renta.montoNeto || 0), 0)
-      : tickerInfo.bond.cashFlow.reduce((acc: number, cf: any) => {
+      ? rentas.reduce((acc: number, renta) => acc + (renta.montoNeto || 0), 0)
+      : tickerInfo.bond.cashFlow.reduce((acc: number, cf) => {
           const cfDate = new Date(cf.date);
           cfDate.setHours(0, 0, 0, 0);
           if (cfDate < today) {
@@ -320,42 +195,15 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
   };
 
   // Función para formatear fecha a DD/MM/YYYY
-  const formatDate = (dateStr: string): string => {
-    if (!dateStr) return '';
-    // Si ya está en formato YYYY-MM-DD, convertir a DD/MM/YYYY
-    if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      const [year, month, day] = dateStr.split('-');
-      return `${day}/${month}/${year}`;
-    }
-    // Si está en formato DD/MM/YYYY, retornar tal cual
-    if (dateStr.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-      return dateStr;
-    }
-    // Intentar parsear como Date
-    try {
-      const date = new Date(dateStr);
-      if (!isNaN(date.getTime())) {
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-      }
-    } catch (e) {
-      // Ignorar error
-    }
-    return dateStr;
-  };
+  // Usar función centralizada para formatear fechas
+  const formatDate = formatearFechaParaMostrar;
 
   // Cargar tickers históricos desde movimientos
   useEffect(() => {
     const loadHistoricalTickers = async () => {
       try {
-        const fechaHasta = new Date();
-        const fechaDesde = new Date('2021-09-05');
-        const fechaDesdeStr = fechaDesde.toISOString().split('T')[0].replace(/-/g, '');
-        const fechaHastaStr = fechaHasta.toISOString().split('T')[0].replace(/-/g, '');
-        
-        const movimientosResult = await getMovimientosHistoricosConCache(fechaDesdeStr, fechaHastaStr);
+        const { fechaDesde, fechaHasta } = getFechaRangoHistorico();
+        const movimientosResult = await getMovimientosHistoricosConCache(fechaDesde, fechaHasta);
         
         if (movimientosResult.data && movimientosResult.data.length > 0) {
           // Mapa para almacenar la última fecha de venta por ticker
@@ -450,13 +298,10 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
         if (!newDescriptions.has(ticker)) {
           try {
             // Cargar movimientos para detección de fondos
-            let movimientosHistoricos: any[] = [];
+            let movimientosHistoricos: MovimientoHistorico[] = [];
             try {
-              const fechaHasta = new Date();
-              const fechaDesde = new Date('2021-09-05');
-              const fechaDesdeStr = fechaDesde.toISOString().split('T')[0].replace(/-/g, '');
-              const fechaHastaStr = fechaHasta.toISOString().split('T')[0].replace(/-/g, '');
-              const movimientosResult = await getMovimientosHistoricosConCache(fechaDesdeStr, fechaHastaStr);
+              const { fechaDesde, fechaHasta } = getFechaRangoHistorico();
+              const movimientosResult = await getMovimientosHistoricosConCache(fechaDesde, fechaHasta);
               movimientosHistoricos = movimientosResult.data || [];
             } catch (error) {
               // Ignorar errores
@@ -535,772 +380,10 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
   // Cargar información del ticker cuando cambia la selección
   useEffect(() => {
     if (selectedTicker) {
-      // Resetear estados al cambiar ticker
-      setIsHistoricalOnly(false);
-      setHistoricalSummary(null);
-      setError(null);
-      fetchTickerInfo(selectedTicker);
+      fetchTickerInfo(selectedTicker, dolarMEP);
     }
-  }, [selectedTicker]);
+  }, [selectedTicker, fetchTickerInfo, dolarMEP]);
 
-  // Cargar operaciones históricas del ticker
-  useEffect(() => {
-    const loadOperaciones = async () => {
-      if (!selectedTicker) return;
-      
-      try {
-        
-        // Obtener estado de cuenta para obtener dolarMEP (opcional - solo para mostrar operaciones)
-        let dolarMEP: number | null = null;
-        try {
-          const estadoCuentaResult = await getEstadoCuentaConCache();
-          
-          // Guardar información de caché del estado de cuenta
-          if (estadoCuentaResult.isCached && estadoCuentaResult.fecha) {
-            setEstadoCuentaCacheInfo({
-              isCached: true,
-              fecha: estadoCuentaResult.fecha
-            });
-          } else {
-            setEstadoCuentaCacheInfo(null);
-          }
-          
-          if (estadoCuentaResult.data && estadoCuentaResult.data.cotizacionesDolar) {
-            const dolarMEPValue = getDolarMEP(estadoCuentaResult.data.cotizacionesDolar);
-            setDolarMEP(dolarMEPValue);
-            dolarMEP = dolarMEPValue;
-          } else {
-            console.warn('⚠️ No se pudo obtener cotizaciones - continuando sin operaciones');
-          }
-        } catch (error) {
-          console.warn('⚠️ Error al obtener estado de cuenta - continuando sin operaciones:', error);
-        }
-
-
-
-        // Cargar cotizaciones históricas del dólar para usar en las conversiones
-        let cotizacionesHistoricas: any[] = [];
-        try {
-          cotizacionesHistoricas = await getCotizacionesHistoricas();
-        } catch (error) {
-          console.warn('⚠️ Error al cargar cotizaciones históricas, usando dolarMEP como fallback:', error);
-        }
-
-        // Intentar obtener movimientos (no crítico - puede fallar)
-        // Permitir mostrar operaciones si el instrumento es en USD aunque no haya dolarMEP
-        const isUSDInstrument = tickerInfo?.currency === 'USD' || tickerInfo?.tickerCurrency === 'USD';
-        if (dolarMEP || isUSDInstrument || cotizacionesHistoricas.length > 0) {
-          try {
-            const fechaHasta = new Date();
-            const fechaDesde = new Date('2021-09-05');
-            // Formato YYYYMMDD requerido por la API
-            const fechaDesdeStr = fechaDesde.toISOString().split('T')[0].replace(/-/g, '');
-            const fechaHastaStr = fechaHasta.toISOString().split('T')[0].replace(/-/g, '');
-            const ordenesResult = await getOrdenesHistoricasConCache(fechaDesdeStr, fechaHastaStr);
-            // Guardar info de caché de órdenes
-            const ordenesUrl = `https://clientes.balanz.com/api/v1/reportehistoricoordenes/222233?FechaDesde=${fechaDesdeStr}&FechaHasta=${fechaHastaStr}`;
-            const ordenesFecha = ordenesResult.cacheAge 
-              ? new Date(Date.now() - ordenesResult.cacheAge * 60 * 60 * 1000).toISOString().split('T')[0]
-              : new Date().toISOString().split('T')[0];
-            setMovimientosCacheInfo({
-              isCached: ordenesResult.isCached,
-              fecha: ordenesFecha,
-              url: ordenesUrl
-            });
-            // Filtrar y mapear operaciones del ticker seleccionado al modelo esperado por TickerOrders
-            // Incluir órdenes con Estado "Ejecutada" o "Parcialmente Cancelada"
-            // Usar comparación normalizada para manejar variaciones con espacios
-            const tickerNormalizado = normalizeTicker(selectedTicker);
-            const ordenesTicker = ordenesResult.data.filter((o: any) => 
-              tickersMatch(o.Ticker, tickerNormalizado) && (o.Estado === 'Ejecutada' || o.Estado === 'Parcialmente Cancelada')
-            );
-            // Mapear al modelo esperado por TickerOrders
-            const operacionesMapped = ordenesTicker.map((o: any) => {
-              let tipo: 'COMPRA' | 'VENTA' | 'LIC' | 'RESCATE_PARCIAL' = 'VENTA';
-              const operacionStr = typeof o.Operacion === 'string' ? o.Operacion.toUpperCase() : '';
-              if (operacionStr.includes('RESCATE PARCIAL') || operacionStr.includes('RESCATE_PARCIAL')) {
-                tipo = 'RESCATE_PARCIAL';
-              } else if (operacionStr.includes('LICITACIÓN') || operacionStr.includes('LICITACION')) {
-                tipo = 'LIC';
-              } else if (operacionStr.includes('COMPRA')) {
-                tipo = 'COMPRA';
-              }
-              // Mejorar detección de moneda en pesos
-              let moneda = String(o.Moneda || '');
-              if (moneda.toUpperCase() === 'PESOS') moneda = 'ARS';
-              if (moneda.toUpperCase().includes('ARS')) moneda = 'ARS';
-              const montoOriginal = typeof o.Monto === 'number' ? o.Monto : undefined;
-              const costoOriginal = typeof o.Costos === 'number' ? o.Costos : 0;
-              
-              // Obtener cantidad para usar en cálculos - priorizar CantidadOperada
-              const cantidad = Number(
-                (o.CantidadOperada !== undefined && o.CantidadOperada !== -1) 
-                  ? o.CantidadOperada 
-                  : (o.Cantidad ?? 0)
-              );
-              
-              // Determinar precio original: priorizar PrecioOperado sobre Precio
-              let precioOriginal: number | undefined;
-              const precioValue = typeof o.Precio === 'number' ? o.Precio : undefined;
-              const precioOperadoValue = typeof o['Precio Operado'] === 'number' ? o['Precio Operado'] : undefined;
-              
-              // Priorizar PrecioOperado si está disponible y es válido
-              if (precioOperadoValue !== undefined && precioOperadoValue !== -1) {
-                precioOriginal = precioOperadoValue;
-              } else if (precioValue !== undefined && precioValue !== -1) {
-                precioOriginal = precioValue;
-              } else if (montoOriginal !== undefined && cantidad > 0) {
-                // Calcular precio dividiendo monto por cantidad
-                precioOriginal = montoOriginal / cantidad;
-              } else {
-                precioOriginal = undefined;
-              }
-              
-              // Calcular monto ajustado: usar CantidadOperada * PrecioOperado cuando estén disponibles
-              let montoAjustado: number | undefined;
-              const cantidadOperada = (o.CantidadOperada !== undefined && o.CantidadOperada !== -1) ? o.CantidadOperada : undefined;
-              const precioOperado = (o['Precio Operado'] !== undefined && o['Precio Operado'] !== -1) ? o['Precio Operado'] : undefined;
-              
-              if (cantidadOperada !== undefined && precioOperado !== undefined && cantidadOperada > 0) {
-                // Calcular monto usando cantidad y precio realmente operados
-                montoAjustado = cantidadOperada * precioOperado;
-              } else if (montoOriginal !== undefined && cantidad > 0 && precioOriginal !== undefined) {
-                // Calcular monto usando cantidad ajustada y precio
-                montoAjustado = cantidad * precioOriginal;
-              } else {
-                // Fallback al monto original si no se puede calcular
-                montoAjustado = montoOriginal;
-              }
-              
-              let precioUSD = precioOriginal || 0;
-              let montoUSD = montoAjustado || 0;
-              let costoOperacionUSD = 0;
-              let dolarUsado = 0;
-              // Si la operación es en ARS, convertir a USD usando el dólar histórico de la fecha
-              if (moneda === 'ARS' && precioOriginal && montoAjustado) {
-                // Obtener la fecha de la operación en formato YYYY-MM-DD
-                const fechaRaw = String(o.Fecha || o.FechaLiquidacion || '');
-                let fechaOp = fechaRaw.split('T')[0].trim();
-                
-                // Si la fecha viene en formato DD/MM/YYYY, convertirla a YYYY-MM-DD
-                if (fechaOp && fechaOp.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-                  const [dia, mes, anio] = fechaOp.split('/');
-                  fechaOp = `${anio}-${mes}-${dia}`;
-                }
-                
-                // Validar que la fecha tenga el formato correcto antes de buscar
-                if (fechaOp && fechaOp.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                  // Buscar el dólar histórico para la fecha de la operación
-                  if (cotizacionesHistoricas.length > 0) {
-                    dolarUsado = getDolarParaFechaDesdeCotizaciones(cotizacionesHistoricas, fechaOp) || 0;
-                    if (!dolarUsado || dolarUsado === 0) {
-                      console.warn(`⚠️ No se encontró dólar histórico para fecha ${fechaOp}`);
-                    }
-                  }
-                } else {
-                  console.warn(`⚠️ Fecha de operación inválida o vacía: "${fechaRaw}" -> "${fechaOp}"`);
-                }
-                
-                // Si no se encontró dólar histórico, usar dolarMEP como fallback
-                if (!dolarUsado || dolarUsado === 0) {
-                  dolarUsado = dolarMEP || 0;
-                  if (dolarUsado > 0) {
-                    console.warn(`⚠️ Usando dolarMEP actual (${dolarUsado}) como fallback para fecha ${fechaOp || fechaRaw}`);
-                  }
-                }
-                
-                if (dolarUsado > 0) {
-                  precioUSD = precioOriginal / dolarUsado;
-                  montoUSD = montoAjustado / dolarUsado;
-                  costoOperacionUSD = costoOriginal / dolarUsado;
-                } else {
-                  console.warn(`⚠️ No se pudo obtener dólar para fecha ${fechaOp}, operación sin convertir`);
-                }
-              } else {
-                // Si ya está en USD, usar los valores ajustados
-                precioUSD = precioOriginal || 0;
-                montoUSD = montoAjustado || 0;
-                costoOperacionUSD = costoOriginal || 0;
-              }
-              
-              // Normalizar fecha a formato YYYY-MM-DD
-              const fechaRaw = String(o.Fecha || o.FechaLiquidacion || '');
-              const fechaNormalizada = normalizarFecha(fechaRaw);
-              
-              return {
-                tipo,
-                fecha: fechaNormalizada,
-                cantidad: Number(
-                  (o.CantidadOperada !== undefined && o.CantidadOperada !== -1) 
-                    ? o.CantidadOperada 
-                    : (o.Cantidad ?? 0)
-                ),
-                precioUSD,
-                montoUSD,
-                costoOperacionUSD,
-                descripcion: String(o.Operacion || ''),
-                precioOriginal,
-                montoOriginal: montoAjustado, // Usar monto ajustado como montoOriginal
-                costoOriginal,
-                monedaOriginal: moneda,
-                dolarUsado
-              };
-            });
-            
-            // También obtener operaciones desde movimientos históricos (incluye rescates parciales)
-            let operacionesDesdeMovimientos: typeof operacionesMapped = [];
-            try {
-              const fechaHasta = new Date();
-              const fechaDesde = new Date('2021-09-05');
-              const fechaDesdeStr = fechaDesde.toISOString().split('T')[0].replace(/-/g, '');
-              const fechaHastaStr = fechaHasta.toISOString().split('T')[0].replace(/-/g, '');
-              const movimientosResult = await getMovimientosHistoricosConCache(fechaDesdeStr, fechaHastaStr);
-              
-              if (movimientosResult.data && dolarMEP) {
-                const opsDesdeMovs = await getOperacionesPorTicker(
-                  movimientosResult.data,
-                  selectedTicker,
-                  dolarMEP
-                );
-                // Mapear al tipo de operaciones esperado y normalizar fechas
-                operacionesDesdeMovimientos = opsDesdeMovs.map(op => ({
-                  tipo: op.tipo,
-                  fecha: normalizarFecha(op.fecha),
-                  cantidad: op.cantidad,
-                  precioUSD: op.precioUSD,
-                  montoUSD: op.montoUSD,
-                  costoOperacionUSD: op.costoOperacionUSD,
-                  descripcion: op.descripcion,
-                  precioOriginal: op.precioOriginal,
-                  montoOriginal: op.precioOriginal && op.cantidad > 0 ? op.precioOriginal * op.cantidad : undefined,
-                  costoOriginal: op.costoOriginal,
-                  monedaOriginal: op.monedaOriginal,
-                  dolarUsado: op.dolarUsado
-                }));
-              }
-            } catch (error) {
-              console.warn('⚠️ Error al cargar operaciones desde movimientos históricos:', error);
-            }
-            
-            // Priorizar órdenes sobre movimientos para evitar duplicados
-            // Estrategia: usar órdenes como fuente principal, y solo agregar rescates parciales de movimientos
-            const operacionesAgrupadas = new Map<string, typeof operacionesMapped[0]>();
-            
-            // Primero, agregar todas las operaciones de órdenes (fuente principal)
-            operacionesMapped.forEach(op => {
-              if (op.tipo === 'RESCATE_PARCIAL') {
-                // Para rescates parciales, agrupar por fecha y sumar cantidades
-                const key = `${op.tipo}_${op.fecha}`;
-                if (operacionesAgrupadas.has(key)) {
-                  const existente = operacionesAgrupadas.get(key)!;
-                  existente.cantidad += op.cantidad;
-                  existente.montoUSD += op.montoUSD;
-                  if (existente.cantidad > 0) {
-                    existente.precioUSD = existente.montoUSD / existente.cantidad;
-                  }
-                } else {
-                  operacionesAgrupadas.set(key, { ...op });
-                }
-              } else if (op.tipo === 'LIC' || op.tipo === 'COMPRA') {
-                // Para LIC y COMPRA, buscar si ya existe una operación similar (misma fecha, cantidad, precio similar)
-                let esDuplicado = false;
-                
-                for (const [existingKey, existingOp] of operacionesAgrupadas.entries()) {
-                  if (existingOp.fecha === op.fecha && 
-                      existingOp.cantidad === op.cantidad &&
-                      (existingOp.tipo === 'LIC' || existingOp.tipo === 'COMPRA')) {
-                    // Verificar si el precio es similar (tolerancia de $0.10 o 0.5%)
-                    const diferenciaAbsoluta = Math.abs(existingOp.precioUSD - op.precioUSD);
-                    const diferenciaPorcentual = existingOp.precioUSD > 0 ? (diferenciaAbsoluta / existingOp.precioUSD) * 100 : 0;
-                    
-                    if (diferenciaAbsoluta < 0.10 || diferenciaPorcentual < 0.5) {
-                      esDuplicado = true;
-                      // Priorizar LIC sobre COMPRA
-                      if (op.tipo === 'LIC' && existingOp.tipo === 'COMPRA') {
-                        operacionesAgrupadas.set(existingKey, { ...op });
-                      }
-                      break;
-                    }
-                  }
-                }
-                
-                if (!esDuplicado) {
-                  const key = `LIC_COMPRA_${op.fecha}_${op.cantidad}_${Math.round(op.precioUSD * 100) / 100}`;
-                  operacionesAgrupadas.set(key, { ...op });
-                }
-              } else {
-                // Para VENTA, buscar duplicados similares
-                let esDuplicado = false;
-                for (const [, existingOp] of operacionesAgrupadas.entries()) {
-                  if (existingOp.fecha === op.fecha && 
-                      existingOp.cantidad === op.cantidad &&
-                      existingOp.tipo === op.tipo) {
-                    const diferenciaAbsoluta = Math.abs(existingOp.precioUSD - op.precioUSD);
-                    const diferenciaPorcentual = existingOp.precioUSD > 0 ? (diferenciaAbsoluta / existingOp.precioUSD) * 100 : 0;
-                    
-                    if (diferenciaAbsoluta < 0.10 || diferenciaPorcentual < 0.5) {
-                      esDuplicado = true;
-                      break;
-                    }
-                  }
-                }
-                
-                if (!esDuplicado) {
-                  const key = `${op.tipo}_${op.fecha}_${op.cantidad}_${Math.round(op.precioUSD * 100) / 100}`;
-                  operacionesAgrupadas.set(key, { ...op });
-                }
-              }
-            });
-            
-            // Luego, agregar solo rescates parciales de movimientos (que no están en órdenes)
-            // SOLO procesar rescates parciales, ignorar COMPRA y VENTA de movimientos
-            operacionesDesdeMovimientos.forEach(op => {
-              if (op.tipo === 'RESCATE_PARCIAL') {
-                // Para rescates parciales, agrupar por fecha y sumar cantidades
-                const key = `${op.tipo}_${op.fecha}`;
-                if (operacionesAgrupadas.has(key)) {
-                  const existente = operacionesAgrupadas.get(key)!;
-                  existente.cantidad += op.cantidad;
-                  existente.montoUSD += op.montoUSD;
-                  if (existente.cantidad > 0) {
-                    existente.precioUSD = existente.montoUSD / existente.cantidad;
-                  }
-                } else {
-                  operacionesAgrupadas.set(key, { ...op });
-                }
-              }
-              // Ignorar completamente COMPRA y VENTA de movimientos
-            });
-            
-            const operacionesUnicas = Array.from(operacionesAgrupadas.values());
-            
-            // Ordenar por fecha descendente
-            operacionesUnicas.sort((a, b) => b.fecha.localeCompare(a.fecha));
-            
-            setOperaciones(operacionesUnicas);
-          } catch (error) {
-            console.warn('⚠️ Error al cargar movimientos - continuando sin operaciones:', error);
-            setOperaciones([]);
-            setMovimientosCacheInfo(null);
-          }
-        } else {
-          setOperaciones([]);
-          setMovimientosCacheInfo(null);
-        }
-      } catch (error) {
-        console.error('❌ Error al cargar operaciones:', error);
-        setOperaciones([]);
-      }
-
-      // Cargar dividendos y rentas desde movimientos históricos
-      try {
-        const fechaHasta = new Date();
-        const fechaDesde = new Date('2021-09-05');
-        const fechaDesdeStr = fechaDesde.toISOString().split('T')[0].replace(/-/g, '');
-        const fechaHastaStr = fechaHasta.toISOString().split('T')[0].replace(/-/g, '');
-        
-        const movimientosResult = await getMovimientosHistoricosConCache(fechaDesdeStr, fechaHastaStr);
-        
-        // Guardar información de caché de movimientos históricos
-        const movimientosUrl = `https://clientes.balanz.com/api/movimientos/222233?FechaDesde=${fechaDesdeStr}&FechaHasta=${fechaHastaStr}&ic=0`;
-        const movimientosFecha = movimientosResult.cacheAge 
-          ? new Date(Date.now() - movimientosResult.cacheAge * 60 * 60 * 1000).toISOString().split('T')[0]
-          : new Date().toISOString().split('T')[0];
-        setMovimientosHistoricosCacheInfo({
-          isCached: movimientosResult.isCached,
-          fecha: movimientosFecha,
-          url: movimientosUrl
-        });
-        
-        // Obtener dividendos
-        const dividendosData = await getDividendosPorTicker(movimientosResult.data, selectedTicker);
-        setDividendos(dividendosData);
-        
-        // Obtener rentas
-        const rentasData = await getRentasPorTicker(movimientosResult.data, selectedTicker);
-        setRentas(rentasData);
-      } catch (error) {
-        console.warn('⚠️ Error al cargar dividendos y rentas:', error);
-        setDividendos([]);
-        setRentas([]);
-        setMovimientosHistoricosCacheInfo(null);
-      }
-    };
-
-    loadOperaciones();
-  }, [selectedTicker]);
-
-  const fetchTickerInfo = async (ticker: string) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Cargar movimientos históricos para detectar fondos históricos
-      let movimientosHistoricos: any[] = [];
-      try {
-        const fechaHasta = new Date();
-        const fechaDesde = new Date('2021-09-05');
-        const fechaDesdeStr = fechaDesde.toISOString().split('T')[0].replace(/-/g, '');
-        const fechaHastaStr = fechaHasta.toISOString().split('T')[0].replace(/-/g, '');
-        const movimientosResult = await getMovimientosHistoricosConCache(fechaDesdeStr, fechaHastaStr);
-        movimientosHistoricos = movimientosResult.data || [];
-      } catch (error) {
-        console.warn('⚠️ No se pudieron cargar movimientos para detección de fondos:', error);
-      }
-      
-      // El hook useTickerCache ya maneja la verificación de caché
-      // Intentar cargar datos de cotización y datos históricos en paralelo
-      const [quoteResult, candlesResult] = await Promise.allSettled([
-        getTickerQuote(ticker, positions, movimientosHistoricos),
-        getTickerCandles(ticker, 3650, positions, movimientosHistoricos) // Últimos 10 años
-      ]);
-      
-      // Extraer quote si fue exitoso
-      const quote = quoteResult.status === 'fulfilled' ? quoteResult.value : null;
-      
-      // Extraer candles si fue exitoso
-      const candles = candlesResult.status === 'fulfilled' 
-        ? candlesResult.value 
-        : { data: [], sourceUrl: '', source: 'cache' as const, cacheDate: undefined };
-      
-      // Si tenemos datos históricos pero no quote, usar datos del caché/histórico
-      if (!quote && candles.data.length > 0) {
-        console.warn('⚠️ No se pudo obtener cotización en vivo, usando datos históricos');
-        const lastCandle = candles.data[candles.data.length - 1];
-        const prevCandle = candles.data[candles.data.length - 2];
-        
-        const info: TickerInfo = {
-          ticker: ticker,
-          name: ticker,
-          price: lastCandle.close,
-          change: prevCandle ? lastCandle.close - prevCandle.close : 0,
-          changePercent: prevCandle ? ((lastCandle.close - prevCandle.close) / prevCandle.close) * 100 : 0,
-          currency: 'USD',
-          marketCap: undefined,
-          volume: undefined,
-          mappedSymbol: undefined,
-          description: undefined,
-          type: undefined,
-          category: undefined,
-          lastClose: undefined,
-          open: undefined,
-          marketId: undefined,
-          tickerCurrency: undefined,
-          ratio: undefined,
-          bond: undefined,
-        };
-
-        setTickerInfo(info);
-        setHistoricalData(candles.data);
-        setLoading(false);
-        return; // Salir aquí, ya tenemos lo necesario
-      }
-      
-      // Si no tenemos ni quote ni datos históricos, marcar como histórico solamente
-      if (!quote) {
-        setIsHistoricalOnly(true);
-        setTickerInfo(null);
-        setHistoricalData([]);
-        setLoading(false);
-        // Calcular resumen desde operaciones históricas
-        await calcularResumenHistorico(ticker);
-        return;
-      }
-      
-      // Si tenemos quote, no es histórico solamente
-      setIsHistoricalOnly(false);
-
-      // Caso normal: tenemos quote (con o sin candles)
-      const info: TickerInfo = {
-        ticker: ticker,
-        name: quote.name,
-        price: quote.price,
-        change: quote.change,
-        changePercent: quote.changePercent,
-        currency: quote.currency,
-        marketCap: quote.marketCap ? formatLargeNumber(quote.marketCap) : undefined,
-        volume: quote.volume ? formatLargeNumber(quote.volume) : undefined,
-        mappedSymbol: quote.mappedSymbol,
-        description: quote.description,
-        type: quote.type,
-        category: quote.category,
-        lastClose: quote.lastClose,
-        open: quote.open,
-        marketId: quote.marketId,
-        tickerCurrency: quote.tickerCurrency,
-        ratio: quote.ratio,
-        bond: quote.bond,
-      };
-
-      setTickerInfo(info);
-      setHistoricalData(candles.data);
-      
-      // Siempre calcular resumen histórico si hay operaciones, incluso cuando tenemos datos de la API
-      // Esto permite mostrar el resumen histórico junto con la información del ticker
-      await calcularResumenHistorico(ticker);
-    } catch (err) {
-      console.error('❌ Error al obtener información:', err);
-      // Si es error de "No se encontró información", intentar formato histórico
-      if (err instanceof Error && err.message.includes('No se encontró información')) {
-        setIsHistoricalOnly(true);
-        setTickerInfo(null);
-        setHistoricalData([]);
-        setError(null);
-        // Calcular resumen desde operaciones históricas
-        await calcularResumenHistorico(selectedTicker);
-      } else {
-      setError('No se pudo obtener información del ticker. Por favor verifica que el símbolo sea correcto.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Calcular resumen histórico desde operaciones
-  const calcularResumenHistorico = async (ticker: string) => {
-    try {
-      // Obtener operaciones históricas
-      const fechaHasta = new Date();
-      const fechaDesde = new Date('2021-09-05');
-      const fechaDesdeStr = fechaDesde.toISOString().split('T')[0].replace(/-/g, '');
-      const fechaHastaStr = fechaHasta.toISOString().split('T')[0].replace(/-/g, '');
-      
-      const [movimientosResult, ordenesResult] = await Promise.all([
-        getMovimientosHistoricosConCache(fechaDesdeStr, fechaHastaStr),
-        getOrdenesHistoricasConCache(fechaDesdeStr, fechaHastaStr)
-      ]);
-
-      // Obtener dolarMEP para conversiones
-      let dolarMEPValue = dolarMEP;
-      if (!dolarMEPValue) {
-        try {
-          const estadoCuentaResult = await getEstadoCuentaConCache();
-          if (estadoCuentaResult.data?.cotizacionesDolar) {
-            dolarMEPValue = getDolarMEP(estadoCuentaResult.data.cotizacionesDolar);
-          }
-        } catch (e) {
-          console.warn('No se pudo obtener dolarMEP');
-        }
-      }
-
-      // Obtener operaciones desde movimientos
-      let operacionesDesdeMovimientos: typeof operaciones = [];
-      if (movimientosResult.data && dolarMEPValue) {
-        const opsDesdeMovs = await getOperacionesPorTicker(
-          movimientosResult.data,
-          ticker,
-          dolarMEPValue
-        );
-        operacionesDesdeMovimientos = opsDesdeMovs.map(op => ({
-          tipo: op.tipo,
-          fecha: normalizarFecha(op.fecha),
-          cantidad: op.cantidad,
-          precioUSD: op.precioUSD,
-          montoUSD: op.montoUSD,
-          costoOperacionUSD: op.costoOperacionUSD,
-          descripcion: op.descripcion,
-          precioOriginal: op.precioOriginal,
-          montoOriginal: op.precioOriginal && op.cantidad > 0 ? op.precioOriginal * op.cantidad : undefined,
-          costoOriginal: op.costoOriginal,
-          monedaOriginal: op.monedaOriginal,
-          dolarUsado: op.dolarUsado
-        }));
-      }
-
-      // Obtener operaciones desde órdenes
-      let operacionesDesdeOrdenes: typeof operaciones = [];
-      if (ordenesResult.data && dolarMEPValue) {
-        // Usar comparación normalizada para manejar variaciones con espacios
-        const tickerNormalizado = normalizeTicker(ticker);
-        const ordenesTicker = ordenesResult.data.filter((o: any) => 
-          tickersMatch(o.Ticker, tickerNormalizado) && (o.Estado === 'Ejecutada' || o.Estado === 'Parcialmente Cancelada')
-        );
-
-        // Obtener cotizaciones históricas del dólar
-        const cotizacionesHistoricas = await getCotizacionesHistoricas();
-
-        operacionesDesdeOrdenes = ordenesTicker.map((o: any) => {
-          let tipo: 'COMPRA' | 'VENTA' | 'LIC' | 'RESCATE_PARCIAL' = 'VENTA';
-          const operacionStr = typeof o.Operacion === 'string' ? o.Operacion.toUpperCase() : '';
-          if (operacionStr.includes('RESCATE PARCIAL') || operacionStr.includes('RESCATE_PARCIAL')) {
-            tipo = 'RESCATE_PARCIAL';
-          } else if (operacionStr.includes('LICITACIÓN') || operacionStr.includes('LICITACION')) {
-            tipo = 'LIC';
-          } else if (operacionStr.includes('SUSCRIPCIÓN') || operacionStr.includes('SUSCRIPCION')) {
-            tipo = 'COMPRA'; // Suscripciones de fondos son compras
-          } else if (operacionStr.includes('COMPRA')) {
-            tipo = 'COMPRA';
-          }
-
-          let moneda = String(o.Moneda || '');
-          if (moneda.toUpperCase() === 'PESOS') moneda = 'ARS';
-          if (moneda.toUpperCase().includes('ARS')) moneda = 'ARS';
-
-          // Para suscripciones, usar CantidadOperada cuando Cantidad es -1
-          const cantidad = Number(
-            (o.Cantidad === -1 && o.CantidadOperada !== undefined && o.CantidadOperada !== -1)
-              ? o.CantidadOperada
-              : (o.CantidadOperada !== undefined && o.CantidadOperada !== -1) 
-                ? o.CantidadOperada 
-                : (o.Cantidad ?? 0)
-          );
-
-          let precioOriginal: number | undefined;
-          const precioValue = typeof o.Precio === 'number' ? o.Precio : undefined;
-          const precioOperadoValue = typeof o['Precio Operado'] === 'number' ? o['Precio Operado'] : undefined;
-          
-          // Para suscripciones, si PrecioOperado es -1, calcular desde Monto y CantidadOperada
-          if (tipo === 'COMPRA' && (operacionStr.includes('SUSCRIPCIÓN') || operacionStr.includes('SUSCRIPCION'))) {
-            const montoOriginal = typeof o.Monto === 'number' ? o.Monto : undefined;
-            if (montoOriginal && cantidad > 0) {
-              precioOriginal = montoOriginal / cantidad;
-            } else if (precioOperadoValue !== undefined && precioOperadoValue !== -1) {
-              precioOriginal = precioOperadoValue;
-            } else if (precioValue !== undefined && precioValue !== -1) {
-              precioOriginal = precioValue;
-            }
-          } else {
-            if (precioOperadoValue !== undefined && precioOperadoValue !== -1) {
-              precioOriginal = precioOperadoValue;
-            } else if (precioValue !== undefined && precioValue !== -1) {
-              precioOriginal = precioValue;
-            }
-          }
-
-          const montoOriginal = typeof o.Monto === 'number' ? o.Monto : undefined;
-          const costoOriginal = typeof o.Costos === 'number' ? o.Costos : 0;
-
-          // Obtener fecha raw antes de cualquier procesamiento
-          const fechaRaw = String(o.Fecha || o.FechaLiquidacion || '');
-
-          let precioUSD = precioOriginal || 0;
-          let montoUSD = montoOriginal || 0;
-          let costoOperacionUSD = 0;
-          let dolarUsado = 0;
-
-          if (moneda === 'ARS' && precioOriginal && montoOriginal) {
-            let fechaOp = fechaRaw.split('T')[0].trim();
-            
-            if (fechaOp && fechaOp.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-              const [dia, mes, anio] = fechaOp.split('/');
-              fechaOp = `${anio}-${mes}-${dia}`;
-            }
-            
-            if (fechaOp && fechaOp.match(/^\d{4}-\d{2}-\d{2}$/)) {
-              if (cotizacionesHistoricas.length > 0) {
-                dolarUsado = getDolarParaFechaDesdeCotizaciones(cotizacionesHistoricas, fechaOp) || 0;
-              }
-            }
-            
-            if (!dolarUsado || dolarUsado === 0) {
-              dolarUsado = dolarMEPValue || 0;
-            }
-            
-            if (dolarUsado > 0) {
-              precioUSD = precioOriginal / dolarUsado;
-              montoUSD = montoOriginal / dolarUsado;
-              costoOperacionUSD = costoOriginal / dolarUsado;
-            }
-          } else {
-            precioUSD = precioOriginal || 0;
-            montoUSD = montoOriginal || 0;
-            costoOperacionUSD = costoOriginal || 0;
-          }
-
-          const fechaNormalizada = normalizarFecha(fechaRaw);
-
-          return {
-            tipo,
-            fecha: fechaNormalizada,
-            cantidad,
-            precioUSD,
-            montoUSD,
-            costoOperacionUSD,
-            descripcion: String(o.Operacion || ''),
-            precioOriginal,
-            montoOriginal,
-            costoOriginal,
-            monedaOriginal: moneda,
-            dolarUsado
-          };
-        });
-      }
-
-      // Combinar operaciones (priorizar órdenes, agregar rescates de movimientos)
-      const todasLasOperaciones = [...operacionesDesdeOrdenes];
-      operacionesDesdeMovimientos.forEach(op => {
-        if (op.tipo === 'RESCATE_PARCIAL') {
-          // Solo agregar rescates parciales que no estén en órdenes
-          const existe = todasLasOperaciones.some(existente => 
-            existente.tipo === 'RESCATE_PARCIAL' && existente.fecha === op.fecha
-          );
-          if (!existe) {
-            todasLasOperaciones.push(op);
-          }
-        }
-      });
-
-      // Ordenar por fecha
-      todasLasOperaciones.sort((a, b) => a.fecha.localeCompare(b.fecha));
-
-      // Calcular resumen
-      const compras = todasLasOperaciones.filter(op => op.tipo === 'COMPRA' || op.tipo === 'LIC');
-      const ventas = todasLasOperaciones.filter(op => op.tipo === 'VENTA');
-      const rescates = todasLasOperaciones.filter(op => op.tipo === 'RESCATE_PARCIAL');
-
-      const totalComprado = compras.reduce((sum, op) => sum + op.montoUSD + op.costoOperacionUSD, 0);
-      const totalVendido = ventas.reduce((sum, op) => sum + op.montoUSD, 0);
-      const totalRescates = rescates.reduce((sum, op) => sum + op.montoUSD, 0);
-
-      const cantidadTotalComprada = compras.reduce((sum, op) => sum + op.cantidad, 0);
-      const cantidadTotalVendida = ventas.reduce((sum, op) => sum + op.cantidad, 0);
-      const cantidadTotalRescatada = rescates.reduce((sum, op) => sum + op.cantidad, 0);
-
-      const ppc = cantidadTotalComprada > 0 ? totalComprado / cantidadTotalComprada : 0;
-      const precioPromedioVenta = cantidadTotalVendida > 0 
-        ? totalVendido / cantidadTotalVendida 
-        : 0;
-
-      const gananciaPerdida = totalVendido + totalRescates - totalComprado;
-      const gananciaPerdidaPorcentaje = totalComprado > 0 
-        ? (gananciaPerdida / totalComprado) * 100 
-        : 0;
-
-      const primeraOperacion = todasLasOperaciones.length > 0 
-        ? todasLasOperaciones[0].fecha 
-        : undefined;
-      const ultimaOperacion = todasLasOperaciones.length > 0 
-        ? todasLasOperaciones[todasLasOperaciones.length - 1].fecha 
-        : undefined;
-
-      setHistoricalSummary({
-        totalComprado,
-        totalVendido: totalVendido + totalRescates,
-        gananciaPerdida,
-        gananciaPerdidaPorcentaje,
-        ppc,
-        precioPromedioVenta,
-        cantidadTotalComprada,
-        cantidadTotalVendida: cantidadTotalVendida + cantidadTotalRescatada,
-        primeraOperacion,
-        ultimaOperacion
-      });
-
-      // También establecer las operaciones para mostrar en TickerOrders
-      setOperaciones(todasLasOperaciones);
-    } catch (error) {
-      console.error('❌ Error al calcular resumen histórico:', error);
-      setHistoricalSummary(null);
-    }
-  };
-
-  const formatLargeNumber = (num: number): string => {
-    if (num >= 1e12) return `${(num / 1e12).toFixed(2)}T`;
-    if (num >= 1e9) return `${(num / 1e9).toFixed(2)}B`;
-    if (num >= 1e6) return `${(num / 1e6).toFixed(2)}M`;
-    if (num >= 1e3) return `${(num / 1e3).toFixed(2)}K`;
-    return num.toFixed(2);
-  };
 
   // Obtener valores calculados desde el servicio (PPC, inversión consolidada, precio promedio de venta)
   useEffect(() => {
@@ -1743,7 +826,7 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
                       clearCache(`balanz_ordenes_${fechaDesde}_${fechaHasta}`);
                     }
                   });
-                  if (selectedTicker) fetchTickerInfo(selectedTicker);
+                  if (selectedTicker) fetchTickerInfo(selectedTicker, dolarMEP);
                 }
               } : null,
               // Movimientos históricos (para dividendos y rentas)
@@ -1761,7 +844,7 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
                       clearCache(`balanz_movimientos_${fechaDesde}_${fechaHasta}`);
                     }
                   });
-                  if (selectedTicker) fetchTickerInfo(selectedTicker);
+                  if (selectedTicker) fetchTickerInfo(selectedTicker, dolarMEP);
                 }
               } : null,
               // Estado de cuenta
@@ -1772,7 +855,7 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
                 url: 'https://clientes.balanz.com/api/v1/estadocuenta',
                 onClear: () => {
                   clearEstadoCuentaCache();
-                  if (selectedTicker) fetchTickerInfo(selectedTicker);
+                  if (selectedTicker) fetchTickerInfo(selectedTicker, dolarMEP);
                 }
               } : null,
               // Info instrumento
@@ -1783,7 +866,7 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
                 url: `https://clientes.balanz.com/api/cotizacioninstrumento?plazo=1&idCuenta=222233&ticker=${selectedTicker}`,
                 onClear: () => {
                   clearTickerCache(selectedTicker);
-                  fetchTickerInfo(selectedTicker);
+                  fetchTickerInfo(selectedTicker, dolarMEP);
                 }
               } : null,
               // Histórico de precios (candles)
@@ -1799,7 +882,7 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
                   } else {
                     clearTickerCache(selectedTicker);
                   }
-                  fetchTickerInfo(selectedTicker);
+                  fetchTickerInfo(selectedTicker, dolarMEP);
                 }
               } : null,
               // Cotizaciones históricas del dólar
@@ -1810,10 +893,10 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
                 url: 'https://api.argentinadatos.com/v1/cotizaciones/dolares',
                 onClear: () => {
                   clearDolarHistoricoCache();
-                  if (selectedTicker) fetchTickerInfo(selectedTicker);
+                  if (selectedTicker) fetchTickerInfo(selectedTicker, dolarMEP);
                 }
               } : null,
-            ].filter(Boolean) as any}
+            ].filter((item): item is NonNullable<typeof item> => Boolean(item))}
           />
 
           {/* Links externos */}

@@ -1,7 +1,6 @@
 // Servicio para obtener y calcular todos los datos de tenencia de un ticker
 // Unifica la lógica para CarteraActual y TickerHolding
 
-
 import { getEstadoCuentaConCache, getMovimientosHistoricosConCache, getOperacionesPorTicker } from './balanzApi';
 import { getDolarParaFecha } from './dolarHistoricoApi';
 import { normalizeTicker, tickersMatch } from '../utils/tickerHelpers';
@@ -118,7 +117,7 @@ async function calcularDesdeOperacionesHistoricas(ticker: string, dolarMEP: numb
 }
 
 // Recibe el ticker y todas las posiciones (de la API) y retorna los datos calculados
-export async function getTickerHoldingData(ticker: string, positions: any[], dolarMEP: number): Promise<TickerHoldingData | null> {
+export async function getTickerHoldingData(ticker: string, positions: Position[], dolarMEP: number): Promise<TickerHoldingData | null> {
   // Normalizar ticker para comparación
   const tickerNormalizado = normalizeTicker(ticker);
   
@@ -128,9 +127,9 @@ export async function getTickerHoldingData(ticker: string, positions: any[], dol
 
   // Obtener tenencia actual desde la API
   const estadoCuenta = await getEstadoCuentaConCache();
-  let preciosMap: Map<string, any> = new Map();
+  let preciosMap: Map<string, Position> = new Map();
   if (estadoCuenta.data && estadoCuenta.data.tenencia) {
-    estadoCuenta.data.tenencia.forEach((tenencia: any) => {
+    estadoCuenta.data.tenencia.forEach((tenencia: Position) => {
       preciosMap.set(tenencia.Ticker, tenencia);
     });
   }

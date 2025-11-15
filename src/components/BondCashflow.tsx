@@ -3,26 +3,7 @@ import { createPortal } from 'react-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { getDolarParaFecha } from '../services/dolarHistoricoApi';
 import { getEstadoCuentaConCache, getDolarMEP } from '../services/balanzApi';
-
-// Función para formatear fecha
-function formatearFecha(fecha: string): string {
-  if (!fecha) return '';
-  if (fecha.match(/^\d{2}\/\d{2}\/\d{4}$/)) return fecha;
-  if (fecha.match(/^\d{4}-\d{2}-\d{2}/)) {
-    const [anio, mes, dia] = fecha.split('-');
-    return `${dia}/${mes}/${anio}`;
-  }
-  try {
-    const date = new Date(fecha);
-    if (!isNaN(date.getTime())) {
-      const dia = String(date.getDate()).padStart(2, '0');
-      const mes = String(date.getMonth() + 1).padStart(2, '0');
-      const anio = date.getFullYear();
-      return `${dia}/${mes}/${anio}`;
-    }
-  } catch (e) {}
-  return fecha;
-}
+import { formatearFecha } from '../utils/chartHelpers';
 
 interface CashFlowItem {
   date: string;
@@ -496,21 +477,13 @@ const BondCashflow: React.FC<BondCashflowProps> = ({
           </p>
         </div>
       )}
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4">
         <h4 className="text-xl font-semibold text-white">
           💰 Cashflow del Bono
           <span className="text-sm font-normal text-slate-400 ml-2">
             ({unidades} {unidades === 1 ? 'unidad' : 'unidades'})
           </span>
         </h4>
-        {showOnlyFuture && futureCount < cashFlow.length && (
-          <button
-            onClick={() => setShowAll(!showAll)}
-            className="text-sm px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition"
-          >
-            {showAll ? 'Mostrar solo futuros' : `Mostrar todos (${cashFlow.length})`}
-          </button>
-        )}
       </div>
 
       {/* Cuentas lado a lado */}
@@ -640,9 +613,19 @@ const BondCashflow: React.FC<BondCashflowProps> = ({
 
       {/* Gráfico de barras */}
       <div className="mb-6 bg-slate-800/50 rounded-lg p-6">
-        <h5 className="text-sm font-semibold text-slate-300 mb-6">
-          Gráfico de Cashflow por Mes
-        </h5>
+        <div className="flex items-center justify-between mb-6">
+          <h5 className="text-sm font-semibold text-slate-300">
+            Cashflow por Mes
+          </h5>
+          {showOnlyFuture && futureCount < cashFlow.length && (
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="text-sm px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition"
+            >
+              {showAll ? 'Mostrar solo futuros' : `Mostrar todos (${cashFlow.length})`}
+            </button>
+          )}
+        </div>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart
             data={chartData}

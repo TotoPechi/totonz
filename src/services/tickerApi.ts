@@ -2,10 +2,98 @@
 // Usando Balanz API como fuente única de datos
 
 import { preserveAuthTokens } from '../utils/cacheHelpers';
-import { clearCache, clearCacheByPattern, getCachedData, getCachedDataExpired, getCachedDataWithValidator, setCachedData, setCachedDataCustom } from '../utils/cacheManager';
+import {
+  clearCache,
+  clearCacheByPattern,
+  getCachedData,
+  getCachedDataExpired,
+  getCachedDataWithValidator,
+  setCachedData,
+  setCachedDataCustom
+} from '../utils/cacheManager';
 import { tickersMatch } from '../utils/tickerHelpers';
 import { getCachedAccessToken } from './balanzAuth';
 import { getCotizacionesHistoricas, getDolarParaFechaDesdeCotizaciones } from './dolarHistoricoApi';
+import { Position } from '../types/balanz';
+import { MovimientoHistorico } from './balanzApi';
+
+// --- Tipos para datos de API ---
+
+/**
+ * Datos históricos de fondo desde la API
+ */
+interface FondoHistoricoItem {
+  fecha: string;
+  valorcuotaparte: number;
+}
+
+/**
+ * Datos completos de instrumento desde la API de Balanz
+ */
+interface InstrumentFullData {
+  Cotizacion?: {
+    Descripcion?: string;
+    tipo?: string;
+    currencies?: string[][];
+    Ratio?: string;
+    industryGroup?: string;
+    industrySector?: string;
+    industrySubgroup?: string;
+    PrecioCierreAnterior?: number;
+    PrecioApertura?: number;
+    MarketID?: string;
+  };
+  bond?: {
+    type?: string;
+    couponType?: string;
+    coupon?: string;
+    nextPaymentDate?: string;
+    nextPaymentDays?: number;
+    currentYield?: string;
+    frequency?: string;
+    description?: string;
+    issuanceDate?: string;
+    jurisdiction?: string;
+    maturity?: string;
+    yield?: string;
+    cashFlow?: Array<{
+      date: string;
+      coupon: string;
+      amortization: string;
+      effectiveRent: string;
+      residualValue: number;
+      amortizationValue: number;
+      rent: number;
+      cashflow: number;
+      currency: number;
+    }>;
+  };
+  description?: string;
+  usdTicker?: string;
+}
+
+/**
+ * Cotización histórica del dólar desde Argentina Datos
+ */
+interface CotizacionDolarHistorica {
+  casa: string;
+  compra: number;
+  venta: number;
+  fecha: string;
+}
+
+// --- Funciones helper ---
+
+/**
+ * Maneja errores de autenticación limpiando el token del caché
+ */
+function handleAuthError(response: Response): void {
+  if (response.status === 520 || response.status === 403 || response.status === 401) {
+    console.error('🔒 Error de autenticación - Token posiblemente expirado');
+    localStorage.removeItem('balanz_access_token');
+    localStorage.removeItem('balanz_token_timestamp');
+  }
+}
 
 interface TickerQuote {
   symbol: string;
@@ -112,10 +200,10 @@ export async function getBalanzInstrumentInfo(ticker: string): Promise<{
       currency: number;
     }>;
   };
-  fullData?: any; // Data completa para uso interno
+  fullData?: InstrumentFullData; // Data completa para uso interno
 }> {
   // Helper para procesar data completa del API y extraer lo necesario
-  const processInstrumentData = (fullData: any, ticker: string) => {
+  const processInstrumentData = (fullData: InstrumentFullData, ticker: string) => {
     // Si es el formato antiguo (solo los campos básicos), retornarlo directamente
     if (fullData.description !== undefined || fullData.usdTicker !== undefined) {
       return fullData;
@@ -193,7 +281,7 @@ export async function getBalanzInstrumentInfo(ticker: string): Promise<{
     const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 horas
     
     // Verificar si hay datos en caché válidos (menos de 24 horas)
-    const cachedFullData = getCachedData<any>(cacheKey, CACHE_DURATION);
+    const cachedFullData = getCachedData<InstrumentFullData>(cacheKey, CACHE_DURATION);
     if (cachedFullData) {
       return processInstrumentData(cachedFullData, ticker);
     }
@@ -214,16 +302,10 @@ export async function getBalanzInstrumentInfo(ticker: string): Promise<{
     if (!response.ok) {
       console.warn(`⚠️ Error ${response.status} al obtener info del instrumento`);
       
-      // Si es error 520, 403 o 401, limpiar el token y mostrar mensaje
-      if (response.status === 520 || response.status === 403 || response.status === 401) {
-        console.error('🔒 Error de autenticación - Token posiblemente expirado');
-        // Limpiar token del caché para que se regenere en el próximo intento
-        localStorage.removeItem('balanz_access_token');
-        localStorage.removeItem('balanz_token_timestamp');
-      }
+      handleAuthError(response);
       
       // Si hay error pero tenemos caché antiguo, usarlo como fallback
-      const expiredCache = getCachedDataExpired<any>(cacheKey);
+      const expiredCache = getCachedDataExpired<InstrumentFullData>(cacheKey);
       if (expiredCache) {
         return processInstrumentData(expiredCache, ticker);
       }
@@ -237,7 +319,7 @@ export async function getBalanzInstrumentInfo(ticker: string): Promise<{
       console.warn('⚠️ No hay datos de cotización');
       
       // Si no hay datos pero tenemos caché, usarlo
-      const expiredCache = getCachedDataExpired<any>(cacheKey);
+      const expiredCache = getCachedDataExpired<InstrumentFullData>(cacheKey);
       if (expiredCache) {
         return processInstrumentData(expiredCache, ticker);
       }
@@ -329,7 +411,7 @@ export async function getBalanzInstrumentInfo(ticker: string): Promise<{
     
     // Intentar usar caché como último recurso
     const cacheKey = `instrument_info_${ticker}`;
-    const expiredCache = getCachedDataExpired<any>(cacheKey);
+      const expiredCache = getCachedDataExpired<InstrumentFullData>(cacheKey);
     if (expiredCache) {
       return processInstrumentData(expiredCache, ticker);
     }
@@ -339,7 +421,7 @@ export async function getBalanzInstrumentInfo(ticker: string): Promise<{
 }
 
 // Función para obtener cotización de un ticker
-export async function getTickerQuote(symbol: string, positions?: any[], movimientos?: any[]): Promise<TickerQuote | null> {
+export async function getTickerQuote(symbol: string, positions?: Position[], movimientos?: MovimientoHistorico[]): Promise<TickerQuote | null> {
   try {
     try {
       // Detectar si es un fondo
@@ -466,7 +548,7 @@ export async function getTickerQuote(symbol: string, positions?: any[], movimien
  * Detecta si un ticker es un fondo de inversión
  * Puede detectarse desde positions, movimientos históricos, o desde la respuesta de la API
  */
-export function isFondo(ticker: string, positions?: any[], movimientos?: any[]): boolean {
+export function isFondo(ticker: string, positions?: Position[], movimientos?: MovimientoHistorico[]): boolean {
   // 1. Buscar en positions
   if (positions) {
     const position = positions.find(p => p.Ticker === ticker);
@@ -513,45 +595,131 @@ export function isFondo(ticker: string, positions?: any[], movimientos?: any[]):
   return false;
 }
 
+// --- Funciones auxiliares para fondos ---
+
+/**
+ * Detecta si un fondo es en ARS basándose en la información del caché o API
+ */
+async function detectFondoCurrency(ticker: string, fondoInfoCached?: InstrumentFullData): Promise<boolean> {
+  if (fondoInfoCached?.Cotizacion) {
+    const cotizacion = fondoInfoCached.Cotizacion;
+    const monedaStr = (cotizacion.Moneda || '').toLowerCase();
+    const idMoneda = cotizacion.idMoneda;
+    return idMoneda === 1 || monedaStr.includes('pesos') || monedaStr === 'ars';
+  }
+  
+  // Si no hay caché, obtener la información del fondo
+  const fondoInfo = await getBalanzFondoInfo(ticker);
+  if (fondoInfo.tickerCurrency) {
+    const monedaLower = fondoInfo.tickerCurrency.toLowerCase();
+    return monedaLower === 'ars' || monedaLower.includes('pesos');
+  }
+  
+  return false;
+}
+
+/**
+ * Convierte datos del caché de fondo de ARS a USD
+ */
+async function convertCachedFondoDataToUSD(
+  ticker: string,
+  cachedData: HistoricalData[]
+): Promise<HistoricalData[]> {
+  console.log(`💱 Aplicando conversión a USD a datos del caché para ${ticker}...`);
+  try {
+    const cotizacionesHistoricas = await getCotizacionesHistoricas();
+    console.log(`✅ Obtenidas ${cotizacionesHistoricas.length} cotizaciones históricas del dólar para convertir caché`);
+    
+    const convertedData = cachedData.map((candle) => {
+      const dolarHistorico = getDolarParaFechaDesdeCotizaciones(cotizacionesHistoricas, candle.time);
+      if (dolarHistorico && dolarHistorico > 0) {
+        const valorConvertido = candle.close / dolarHistorico;
+        return {
+          ...candle,
+          open: valorConvertido,
+          high: valorConvertido,
+          low: valorConvertido,
+          close: valorConvertido,
+        };
+      }
+      return candle;
+    });
+    
+    console.log(`✅ Conversión aplicada a caché: primer valor ${cachedData[0]?.close} -> ${convertedData[0]?.close}`);
+    return convertedData;
+  } catch (error) {
+    console.warn('⚠️ Error convirtiendo datos del caché, retornando datos originales:', error);
+    return cachedData;
+  }
+}
+
+/**
+ * Convierte datos históricos de fondo de ARS a USD
+ */
+function convertFondoHistoricoToUSD(
+  ticker: string,
+  historico: FondoHistoricoItem[],
+  cotizacionesHistoricas: CotizacionDolarHistorica[]
+): HistoricalData[] {
+  let conversionesExitosas = 0;
+  let conversionesFallidas = 0;
+  
+  const candles: HistoricalData[] = historico
+    .map((item) => {
+      const fecha = item.fecha;
+      let valorcuotaparte = item.valorcuotaparte || 0;
+      const valorOriginal = valorcuotaparte;
+      
+      const dolarHistorico = getDolarParaFechaDesdeCotizaciones(cotizacionesHistoricas, fecha);
+      if (dolarHistorico && dolarHistorico > 0) {
+        valorcuotaparte = valorcuotaparte / dolarHistorico;
+        conversionesExitosas++;
+        if (conversionesExitosas <= 3 || conversionesExitosas === historico.length) {
+          console.log(`💱 Convertido ${ticker} ${fecha}: ${valorOriginal.toFixed(2)} ARS / ${dolarHistorico.toFixed(2)} = ${valorcuotaparte.toFixed(4)} USD`);
+        }
+      } else {
+        conversionesFallidas++;
+        console.warn(`⚠️ No se encontró dólar histórico para fecha ${fecha}, usando valor en ARS: ${valorcuotaparte}`);
+      }
+      
+      return {
+        time: fecha,
+        open: valorcuotaparte,
+        high: valorcuotaparte,
+        low: valorcuotaparte,
+        close: valorcuotaparte,
+        volume: 0,
+      };
+    })
+    .filter((candle: HistoricalData) => candle.close > 0 && candle.time)
+    .sort((a, b) => a.time.localeCompare(b.time));
+  
+  if (conversionesExitosas > 0 || conversionesFallidas > 0) {
+    console.log(`📊 Resumen conversión ${ticker}: ${conversionesExitosas} exitosas, ${conversionesFallidas} fallidas de ${historico.length} totales`);
+    if (candles.length > 0) {
+      const primerValor = candles[0].close;
+      const ultimoValor = candles[candles.length - 1].close;
+      console.log(`📈 Rango de valores convertidos: ${primerValor.toFixed(4)} - ${ultimoValor.toFixed(4)} USD`);
+    }
+  }
+  
+  return candles;
+}
+
 /**
  * Obtiene datos históricos de un fondo desde la API cotizacionhistorico
  */
 async function getBalanzFondoHistorico(ticker: string, days: number = 3650): Promise<HistoricalData[]> {
   try {
-    // --- CACHÉ ---
     const cacheKey = `fondo_history_${ticker}_v1`;
-    const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 horas
-    
-    // Siempre obtener información del fondo para saber la moneda (necesario para conversión)
+    const CACHE_DURATION = 24 * 60 * 60 * 1000;
     const fondoInfoCacheKey = `fondo_info_${ticker}`;
-    let esARS = false;
-    let fondoInfoCached = getCachedData<any>(fondoInfoCacheKey, 24 * 60 * 60 * 1000);
     
-    if (fondoInfoCached?.Cotizacion) {
-      const cotizacion = fondoInfoCached.Cotizacion;
-      const monedaStr = (cotizacion.Moneda || '').toLowerCase();
-      const idMoneda = cotizacion.idMoneda;
-      esARS = idMoneda === 1 || monedaStr.includes('pesos') || monedaStr === 'ars';
-      console.log(`💰 Fondo ${ticker} - Moneda desde caché (antes de obtener histórico):`, {
-        idMoneda,
-        Moneda: cotizacion.Moneda,
-        monedaStr,
-        esARS
-      });
-    } else {
-      const fondoInfo = await getBalanzFondoInfo(ticker);
-      if (fondoInfo.tickerCurrency) {
-        const monedaLower = fondoInfo.tickerCurrency.toLowerCase();
-        esARS = monedaLower === 'ars' || monedaLower.includes('pesos');
-        console.log(`💰 Fondo ${ticker} - Moneda desde API (antes de obtener histórico):`, {
-          tickerCurrency: fondoInfo.tickerCurrency,
-          monedaLower,
-          esARS
-        });
-      }
-    }
+    // Detectar moneda del fondo
+    const fondoInfoCached = getCachedData<InstrumentFullData>(fondoInfoCacheKey, CACHE_DURATION);
+    let esARS = await detectFondoCurrency(ticker, fondoInfoCached);
     
-    // Validar que el cache tenga menos de 24h y la misma cantidad de días
+    // Verificar caché
     const cachedData = getCachedDataWithValidator<HistoricalData[]>(
       cacheKey,
       (cache) => {
@@ -561,42 +729,12 @@ async function getBalanzFondoHistorico(ticker: string, days: number = 3650): Pro
       }
     );
     
-    // Si hay caché, verificar si necesita conversión
     if (cachedData) {
       console.log(`📦 Datos históricos de ${ticker} encontrados en caché (${cachedData.length} registros)`);
-      
-      // Si es ARS y los datos del caché no están convertidos, aplicar conversión
       if (esARS) {
-        console.log(`💱 Aplicando conversión a USD a datos del caché para ${ticker}...`);
-        try {
-          const cotizacionesHistoricas = await getCotizacionesHistoricas();
-          console.log(`✅ Obtenidas ${cotizacionesHistoricas.length} cotizaciones históricas del dólar para convertir caché`);
-          
-          const convertedData = cachedData.map((candle) => {
-            const dolarHistorico = getDolarParaFechaDesdeCotizaciones(cotizacionesHistoricas, candle.time);
-            if (dolarHistorico && dolarHistorico > 0) {
-              const valorConvertido = candle.close / dolarHistorico;
-              return {
-                ...candle,
-                open: valorConvertido,
-                high: valorConvertido,
-                low: valorConvertido,
-                close: valorConvertido,
-              };
-            }
-            return candle;
-          });
-          
-          console.log(`✅ Conversión aplicada a caché: primer valor ${cachedData[0]?.close} -> ${convertedData[0]?.close}`);
-          return convertedData;
-        } catch (error) {
-          console.warn('⚠️ Error convirtiendo datos del caché, retornando datos originales:', error);
-          return cachedData;
-        }
-      } else {
-        console.log(`💵 Fondo ${ticker} es USD - Retornando datos del caché sin conversión`);
+        return await convertCachedFondoDataToUSD(ticker, cachedData);
       }
-      
+      console.log(`💵 Fondo ${ticker} es USD - Retornando datos del caché sin conversión`);
       return cachedData;
     }
 
@@ -614,125 +752,64 @@ async function getBalanzFondoHistorico(ticker: string, days: number = 3650): Pro
       const errorText = await response.text();
       console.error(`❌ Error ${response.status} al obtener histórico de fondo`);
       console.error(`📄 Response body:`, errorText.substring(0, 500));
-      if (response.status === 520 || response.status === 403 || response.status === 401) {
-        console.error('🔒 Error de autenticación - Token posiblemente expirado');
-        localStorage.removeItem('balanz_access_token');
-        localStorage.removeItem('balanz_token_timestamp');
-      }
+      handleAuthError(response);
       return [];
     }
     
     const text = await response.text();
-    let data;
+    let data: { historico?: FondoHistoricoItem[] } | FondoHistoricoItem[];
     try {
-      data = JSON.parse(text);
+      data = JSON.parse(text) as { historico?: FondoHistoricoItem[] } | FondoHistoricoItem[];
     } catch (parseError) {
       console.error('❌ Error parseando respuesta de fondo como JSON:', parseError);
       console.error('📄 Texto completo recibido:', text);
       return [];
     }
     
-    const historico = data?.historico || [];
+    const historico = (Array.isArray(data) ? data : data?.historico) || [];
     if (!historico || !Array.isArray(historico) || historico.length === 0) {
       console.warn('⚠️ No hay datos históricos de fondo para', ticker);
       return [];
     }
     
-    // Si aún no tenemos la información de moneda (porque no había caché de fondo_info), obtenerla ahora
-    if (!fondoInfoCached?.Cotizacion) {
-      fondoInfoCached = getCachedData<any>(fondoInfoCacheKey, 24 * 60 * 60 * 1000);
+    // Verificar moneda nuevamente si no estaba determinada
+        if (!fondoInfoCached?.Cotizacion) {
+          const fondoInfoCachedAfter = getCachedData<InstrumentFullData>(fondoInfoCacheKey, CACHE_DURATION);
+      esARS = await detectFondoCurrency(ticker, fondoInfoCachedAfter);
     }
     
-    // Si aún no tenemos la moneda determinada, obtenerla desde la API
-    if (fondoInfoCached?.Cotizacion) {
-      const cotizacion = fondoInfoCached.Cotizacion;
-      const monedaStr = (cotizacion.Moneda || '').toLowerCase();
-      const idMoneda = cotizacion.idMoneda;
-      // Verificar si es ARS/pesos (case insensitive): idMoneda === 1 o Moneda contiene "pesos" o es "ars"
-      esARS = idMoneda === 1 || monedaStr.includes('pesos') || monedaStr === 'ars';
-      console.log(`💰 Fondo ${ticker} - Moneda desde caché (al procesar datos):`, {
-        idMoneda,
-        Moneda: cotizacion.Moneda,
-        monedaStr,
-        esARS
-      });
-    } else {
-      // Si no hay caché, obtener la información del fondo
-      const fondoInfo = await getBalanzFondoInfo(ticker);
-      if (fondoInfo.tickerCurrency) {
-        const monedaLower = fondoInfo.tickerCurrency.toLowerCase();
-        esARS = monedaLower === 'ars' || monedaLower.includes('pesos');
-        console.log(`💰 Fondo ${ticker} - Moneda desde API (al procesar datos):`, {
-          tickerCurrency: fondoInfo.tickerCurrency,
-          monedaLower,
-          esARS
-        });
-      } else {
-        console.warn(`⚠️ Fondo ${ticker} - No se pudo determinar la moneda desde fondo_info`);
-      }
-    }
-    
-    // Si es ARS, obtener cotizaciones históricas del dólar para convertir
-    let cotizacionesHistoricas: any[] = [];
+    // Convertir datos si es ARS
+    let candles: HistoricalData[];
     if (esARS) {
       console.log(`💱 Fondo ${ticker} es ARS - Obteniendo cotizaciones históricas para convertir a USD...`);
       try {
-        cotizacionesHistoricas = await getCotizacionesHistoricas();
+        const cotizacionesHistoricas = await getCotizacionesHistoricas();
         console.log(`✅ Obtenidas ${cotizacionesHistoricas.length} cotizaciones históricas del dólar`);
+        candles = convertFondoHistoricoToUSD(ticker, historico, cotizacionesHistoricas);
       } catch (error) {
         console.warn('⚠️ No se pudieron obtener cotizaciones históricas para convertir fondo a USD:', error);
+        // Retornar datos sin convertir si falla la conversión
+        candles = historico.map((item) => ({
+          time: item.fecha,
+          open: item.valorcuotaparte || 0,
+          high: item.valorcuotaparte || 0,
+          low: item.valorcuotaparte || 0,
+          close: item.valorcuotaparte || 0,
+          volume: 0,
+        })).filter((candle: HistoricalData) => candle.close > 0 && candle.time)
+          .sort((a, b) => a.time.localeCompare(b.time));
       }
     } else {
       console.log(`💵 Fondo ${ticker} es USD - No se requiere conversión`);
-    }
-    
-    // Convertir formato de fondo al formato esperado
-    let conversionesExitosas = 0;
-    let conversionesFallidas = 0;
-    
-    const candles: HistoricalData[] = historico
-      .map((item: any) => {
-        const fecha = item.fecha;
-        let valorcuotaparte = item.valorcuotaparte || 0;
-        const valorOriginal = valorcuotaparte;
-        
-        // Si el fondo es en ARS, convertir a USD usando el dólar histórico de esa fecha
-        if (esARS && cotizacionesHistoricas.length > 0) {
-          // La fecha viene en formato YYYY-MM-DD
-          const dolarHistorico = getDolarParaFechaDesdeCotizaciones(cotizacionesHistoricas, fecha);
-          if (dolarHistorico && dolarHistorico > 0) {
-            valorcuotaparte = valorcuotaparte / dolarHistorico;
-            conversionesExitosas++;
-            if (conversionesExitosas <= 3 || conversionesExitosas === historico.length) {
-              console.log(`💱 Convertido ${ticker} ${fecha}: ${valorOriginal.toFixed(2)} ARS / ${dolarHistorico.toFixed(2)} = ${valorcuotaparte.toFixed(4)} USD`);
-            }
-          } else {
-            conversionesFallidas++;
-            console.warn(`⚠️ No se encontró dólar histórico para fecha ${fecha}, usando valor en ARS: ${valorcuotaparte}`);
-          }
-        }
-        
-        // Para fondos, open/high/low/close son el mismo valor (valorcuotaparte)
-        return {
-          time: fecha,
-          open: valorcuotaparte,
-          high: valorcuotaparte,
-          low: valorcuotaparte,
-          close: valorcuotaparte,
-          volume: 0, // Los fondos no tienen volumen
-        };
-      })
-      .filter((candle: HistoricalData) => candle.close > 0 && candle.time)
-      .sort((a, b) => a.time.localeCompare(b.time));
-    
-    // Log resumen de conversiones
-    if (esARS) {
-      console.log(`📊 Resumen conversión ${ticker}: ${conversionesExitosas} exitosas, ${conversionesFallidas} fallidas de ${historico.length} totales`);
-      if (candles.length > 0) {
-        const primerValor = candles[0].close;
-        const ultimoValor = candles[candles.length - 1].close;
-        console.log(`📈 Rango de valores convertidos: ${primerValor.toFixed(4)} - ${ultimoValor.toFixed(4)} USD`);
-      }
+      candles = historico.map((item) => ({
+        time: item.fecha,
+        open: item.valorcuotaparte || 0,
+        high: item.valorcuotaparte || 0,
+        low: item.valorcuotaparte || 0,
+        close: item.valorcuotaparte || 0,
+        volume: 0,
+      })).filter((candle: HistoricalData) => candle.close > 0 && candle.time)
+        .sort((a, b) => a.time.localeCompare(b.time));
     }
     
     // Guardar en caché con formato personalizado
@@ -763,14 +840,14 @@ async function getBalanzFondoInfo(ticker: string): Promise<{
   lastClose?: number;
   open?: number;
   tickerCurrency?: string;
-  fullData?: any;
+  fullData?: InstrumentFullData;
 }> {
   try {
     const cacheKey = `fondo_info_${ticker}`;
     const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 horas
     
     // Verificar caché
-    const cachedData = getCachedData<any>(cacheKey, CACHE_DURATION);
+    const cachedData = getCachedData<InstrumentFullData>(cacheKey, CACHE_DURATION);
     if (cachedData) {
       return processFondoData(cachedData);
     }
@@ -788,14 +865,10 @@ async function getBalanzFondoInfo(ticker: string): Promise<{
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`❌ Error ${response.status} al obtener info de fondo:`, errorText);
-      if (response.status === 520 || response.status === 403 || response.status === 401) {
-        console.error('🔒 Error de autenticación - Token posiblemente expirado');
-        localStorage.removeItem('balanz_access_token');
-        localStorage.removeItem('balanz_token_timestamp');
-      }
+      handleAuthError(response);
       
       // Intentar usar caché expirado
-      const expiredCache = getCachedDataExpired<any>(cacheKey);
+      const expiredCache = getCachedDataExpired<InstrumentFullData>(cacheKey);
       if (expiredCache) {
         return processFondoData(expiredCache);
       }
@@ -804,12 +877,12 @@ async function getBalanzFondoInfo(ticker: string): Promise<{
     }
     
     const text = await response.text();
-    let data;
+    let data: InstrumentFullData;
     try {
-      data = JSON.parse(text);
+      data = JSON.parse(text) as InstrumentFullData;
     } catch (parseError) {
       console.error('❌ Error parseando respuesta de fondo como JSON:', parseError);
-      const expiredCache = getCachedDataExpired<any>(cacheKey);
+      const expiredCache = getCachedDataExpired<InstrumentFullData>(cacheKey);
       if (expiredCache) {
         return processFondoData(expiredCache);
       }
@@ -823,7 +896,7 @@ async function getBalanzFondoInfo(ticker: string): Promise<{
   } catch (error) {
     console.error('❌ Error obteniendo info de fondo:', error);
     const cacheKey = `fondo_info_${ticker}`;
-    const expiredCache = getCachedDataExpired<any>(cacheKey);
+    const expiredCache = getCachedDataExpired<InstrumentFullData>(cacheKey);
     if (expiredCache) {
       return processFondoData(expiredCache);
     }
@@ -834,7 +907,7 @@ async function getBalanzFondoInfo(ticker: string): Promise<{
 /**
  * Procesa los datos de un fondo desde la API cotizacioncuotaparte
  */
-function processFondoData(fullData: any) {
+function processFondoData(fullData: InstrumentFullData) {
   if (!fullData.Cotizacion) {
     return {};
   }
@@ -914,17 +987,13 @@ async function getBalanzHistorico(tickerUSD: string, days: number = 3650): Promi
       const errorText = await response.text();
       console.error(`❌ Error ${response.status} al obtener datos de Balanz`);
       console.error(`📄 Response body:`, errorText.substring(0, 500));
-      if (response.status === 520 || response.status === 403 || response.status === 401) {
-        console.error('🔒 Error de autenticación - Token posiblemente expirado');
-        localStorage.removeItem('balanz_access_token');
-        localStorage.removeItem('balanz_token_timestamp');
-      }
+      handleAuthError(response);
       return [];
     }
     const text = await response.text();
-    let data;
+    let data: { historico?: unknown[] } | unknown[];
     try {
-      data = JSON.parse(text);
+      data = JSON.parse(text) as { historico?: unknown[] } | unknown[];
     } catch (parseError) {
       console.error('❌ Error parseando respuesta de Balanz como JSON:', parseError);
       console.error('📄 Texto completo recibido:', text);
@@ -937,7 +1006,7 @@ async function getBalanzHistorico(tickerUSD: string, days: number = 3650): Promi
       return [];
     }
     const candles: HistoricalData[] = historico
-      .map((item: any) => {
+      .map((item: { fecha: string; precioapertura?: number; preciocierre?: number; preciomaximo?: number; preciominimo?: number; ultimoprecio?: number; volumen?: number }) => {
         const fecha = item.fecha;
         const open = item.precioapertura || item.preciocierre || 0;
         const high = item.preciomaximo || item.preciocierre || 0;
@@ -971,9 +1040,16 @@ async function getBalanzHistorico(tickerUSD: string, days: number = 3650): Promi
   }
 }
 
-// Función centralizada para obtener datos históricos de la API historico/eventos de Balanz
-// O de la API cotizacionhistorico si es un fondo
-export async function getTickerCandles(symbol: string, days: number = 3650, positions?: any[], movimientos?: any[]): Promise<HistoricalDataResponse> {
+/**
+ * Función centralizada para obtener datos históricos de precios
+ * Usa la API historico/eventos de Balanz para acciones/bonos o cotizacionhistorico para fondos
+ * @param symbol - Ticker del instrumento
+ * @param days - Número de días de histórico a obtener (default: 3650 = ~10 años)
+ * @param positions - Array de posiciones (opcional, para detectar fondos)
+ * @param movimientos - Array de movimientos (opcional, para detectar fondos)
+ * @returns Promise con datos históricos y metadatos de la fuente
+ */
+export async function getTickerCandles(symbol: string, days: number = 3650, positions?: Position[], movimientos?: MovimientoHistorico[]): Promise<HistoricalDataResponse> {
   try {
     // Detectar si es un fondo
     const esFondo = isFondo(symbol, positions, movimientos);

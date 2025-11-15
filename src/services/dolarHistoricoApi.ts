@@ -114,7 +114,7 @@ export function getDolarParaFechaDesdeCotizaciones(cotizaciones: CotizacionDolar
   // Buscar en orden de prioridad: bolsa > contadoconliqui > blue > oficial
   const prioridad = ['bolsa', 'contadoconliqui', 'blue', 'oficial'];
   
-    for (const casa of prioridad) {
+  for (const casa of prioridad) {
     const cotizacion = cotizacionesFecha.find(c => c.casa === casa);
     if (cotizacion) {
       // Usar promedio entre compra y venta

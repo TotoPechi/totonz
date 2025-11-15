@@ -1,45 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, ReferenceDot, Area } from 'recharts';
+import { formatearFecha } from '../utils/chartHelpers';
+import { normalizarFecha } from '../utils/tickerHelpers';
 
-// Función para formatear fecha de YYYY-MM-DD a DD/MM/YYYY
-function formatearFecha(fecha: string): string {
-  if (!fecha) return '';
-  
-  // Si ya está en formato DD/MM/YYYY, retornarlo
-  if (fecha.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-    return fecha;
-  }
-  
-  // Si está en formato YYYY-MM-DD
-  if (fecha.match(/^\d{4}-\d{2}-\d{2}/)) {
-    const [anio, mes, dia] = fecha.split('-');
-    return `${dia}/${mes}/${anio}`;
-  }
-  
-  // Intentar parsear como Date
-  try {
-    const date = new Date(fecha);
-    if (!isNaN(date.getTime())) {
-      const dia = String(date.getDate()).padStart(2, '0');
-      const mes = String(date.getMonth() + 1).padStart(2, '0');
-      const anio = date.getFullYear();
-      return `${dia}/${mes}/${anio}`;
-    }
-  } catch (e) {
-    // Ignorar error
-  }
-  
-  return fecha; // Retornar original si no se pudo formatear
-}
-
-interface CandleData {
-  time: string;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
-}
+import { CandleData } from '../types';
 
 interface TickerChartProps {
   data: CandleData[];
@@ -170,39 +134,8 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
 
   const dateFormat = getDateFormat(timeRange);
   
-  // Función para parsear DD/MM/YYYY a YYYY-MM-DD sin problemas de zona horaria
-  const parsearFechaYYYYMMDD = (fechaStr: string): string => {
-    if (!fechaStr) return '';
-    
-    // Si ya está en formato ISO (YYYY-MM-DD o YYYY-MM-DDTHH:mm:ss)
-    if (fechaStr.match(/^\d{4}-\d{2}-\d{2}/)) {
-      return fechaStr.slice(0, 10);
-    }
-    
-    // Si está en formato DD/MM/YYYY
-    const partes = fechaStr.split('/');
-    if (partes.length === 3) {
-      const [dia, mes, año] = partes;
-      const añoCompleto = año.length === 2 ? `20${año}` : año;
-      return `${añoCompleto.padStart(4, '0')}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
-    }
-    
-    // Si es un objeto Date o timestamp, extraer la fecha en zona horaria local
-    try {
-      const date = new Date(fechaStr);
-      if (!isNaN(date.getTime())) {
-        // Usar getFullYear, getMonth, getDate para evitar problemas de zona horaria
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-      }
-    } catch (e) {
-      // Ignorar error de parsing
-    }
-    
-    return '';
-  };
+  // Usar función centralizada para normalizar fechas
+  const parsearFechaYYYYMMDD = normalizarFecha;
   
   // Calcular tenencias históricas basándose en las operaciones
   const tenenciasHistoricas = useMemo(() => {
@@ -394,18 +327,6 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
   const cantidades = chartData.map(d => d.cantidadTenencias);
   const maxCantidad = Math.max(...cantidades, 0);
   const cantidadYMax = maxCantidad > 0 ? maxCantidad * 1.1 : 1; // Agregar 10% de margen
-
-  const getRangeLabel = (range: TimeRange): string => {
-    switch (range) {
-      case '1W': return '1 Semana';
-      case '1M': return '1 Mes';
-      case '6M': return '6 Meses';
-      case '1Y': return '1 Año';
-      case '2Y': return '2 Años';
-      case 'MAX': return 'Máximo';
-      default: return '1 Año';
-    }
-  };
 
   // Calcular intervalo de labels según el período
   const getXAxisInterval = (range: TimeRange, dataLength: number, filteredData?: any[]): number => {

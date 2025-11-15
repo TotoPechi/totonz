@@ -4,10 +4,11 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { getFlujosProyectadosConCache, getEstadoCuentaConCache, getDolarMEP, FlujoProyectado, getMovimientosHistoricosConCache, getIngresosYEgresos, getSaldosActuales } from '../services/balanzApi';
 import { getDolarParaFecha } from '../services/dolarHistoricoApi';
 import { getTickerHoldingData } from '../services/tickerHoldingData';
+import { Position } from '../types/balanz';
 import ResumenFlujosProyectados from './flujos/ResumenFlujosProyectados';
 
 interface FlujosProyectadosProps {
-  positions?: any[];
+  positions?: Position[];
   loading?: boolean;
   apiError?: string | null;
 }
@@ -45,7 +46,7 @@ const getBonoColor = (codigo: string): string => {
 };
 
 // Función para obtener el sufijo (B) o (C) según el tipo de instrumento
-const getTickerSuffix = (ticker: string, positions: any[]): string => {
+const getTickerSuffix = (ticker: string, positions: Position[]): string => {
   const position = positions.find(p => p.Ticker === ticker);
   const tipo = position?.Tipo?.toLowerCase() || '';
   
@@ -142,9 +143,9 @@ const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ positions = [], l
 
         setBonosConvertidos(bonosConvertidosSet);
         setFlujos(flujosConvertidos);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error cargando flujos proyectados:', err);
-        setError(err?.message || 'Error al cargar flujos proyectados');
+        setError((err instanceof Error ? err.message : 'Error al cargar flujos proyectados'));
       } finally {
         setIsLoading(false);
       }
@@ -170,7 +171,7 @@ const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ positions = [], l
         const tickersUnicos = Array.from(new Set(positions.map((p) => p.Ticker).filter(Boolean)));
 
         // Calcular valor actual por ticker
-        const grouped: Record<string, any> = {};
+        const grouped: Record<string, { tipo?: string; valorActual: number }> = {};
         await Promise.all(
           tickersUnicos.map(async (ticker) => {
             const data = await getTickerHoldingData(ticker, positions, dolarMEP);
@@ -193,7 +194,7 @@ const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ positions = [], l
         const tickersCorporativos = ['YMCXO', 'TLC1O'];
         const tickersCedears = ['VIST'];
 
-        Object.entries(grouped).forEach(([ticker, item]: [string, any]) => {
+        Object.entries(grouped).forEach(([ticker, item]) => {
           const tipo = item.tipo?.toLowerCase() || '';
           const valorActual = item.valorActual || 0;
           
@@ -233,12 +234,8 @@ const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ positions = [], l
   useEffect(() => {
     const calcularMontoInvertido = async () => {
       try {
-        const fechaHasta = new Date();
-        const fechaDesde = new Date('2021-09-05');
-        const fechaDesdeStr = fechaDesde.toISOString().split('T')[0].replace(/-/g, '');
-        const fechaHastaStr = fechaHasta.toISOString().split('T')[0].replace(/-/g, '');
-
-        const movimientosResult = await getMovimientosHistoricosConCache(fechaDesdeStr, fechaHastaStr);
+        const { fechaDesde, fechaHasta } = getFechaRangoHistorico();
+        const movimientosResult = await getMovimientosHistoricosConCache(fechaDesde, fechaHasta);
         if (movimientosResult.data && movimientosResult.data.length > 0) {
           const { ingresos, egresos } = await getIngresosYEgresos(movimientosResult.data);
           const totalIngresosUSD = ingresos.reduce((sum, ing) => sum + ing.importeUSD, 0);
@@ -325,7 +322,7 @@ const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ positions = [], l
       const anos = Array.from(porAno.keys()).sort();
       const data = anos.map(ano => {
         const bonosDelAno = porAno.get(ano)!;
-        const entry: any = { periodo: ano.toString() };
+        const entry: Record<string, number | string> = { periodo: ano.toString() };
         
         bonosArray.forEach(bono => {
           entry[bono] = bonosDelAno.get(bono) || 0;
@@ -398,7 +395,7 @@ const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ positions = [], l
         const [ano, mes] = mesAnoKey.split('-');
         const mesIndex = parseInt(mes) - 1;
         const mesNombre = meses[mesIndex];
-        const entry: any = { periodo: `${mesNombre} ${ano}` };
+        const entry: Record<string, number | string> = { periodo: `${mesNombre} ${ano}` };
         
         // Obtener valores del mes si existen, sino usar 0
         const bonosDelMes = porMes.get(mesAnoKey) || new Map();
@@ -443,7 +440,7 @@ const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ positions = [], l
       const anos = Array.from(porAno.keys()).sort();
       const data = anos.map(ano => {
         const bonosDelAno = porAno.get(ano)!;
-        const entry: any = { periodo: ano.toString() };
+        const entry: Record<string, number | string> = { periodo: ano.toString() };
         
         bonosArray.forEach(bono => {
           entry[bono] = bonosDelAno.get(bono) || 0;
@@ -516,7 +513,7 @@ const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ positions = [], l
         const [ano, mes] = mesAnoKey.split('-');
         const mesIndex = parseInt(mes) - 1;
         const mesNombre = meses[mesIndex];
-        const entry: any = { periodo: `${mesNombre} ${ano}` };
+        const entry: Record<string, number | string> = { periodo: `${mesNombre} ${ano}` };
         
         // Obtener valores del mes si existen, sino usar 0
         const bonosDelMes = porMes.get(mesAnoKey) || new Map();

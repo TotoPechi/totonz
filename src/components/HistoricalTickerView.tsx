@@ -1,4 +1,5 @@
 import React from 'react';
+import { Operacion } from '../types';
 import HistoricalSummary from './HistoricalSummary';
 import TickerOrders from './TickerOrders';
 
@@ -13,20 +14,6 @@ interface HistoricalSummaryData {
   cantidadTotalVendida: number;
   primeraOperacion?: string;
   ultimaOperacion?: string;
-}
-
-interface Operacion {
-  tipo: 'COMPRA' | 'VENTA' | 'LIC' | 'RESCATE_PARCIAL';
-  fecha: string;
-  cantidad: number;
-  precioUSD: number;
-  montoUSD: number;
-  costoOperacionUSD: number;
-  descripcion: string;
-  precioOriginal?: number;
-  costoOriginal?: number;
-  monedaOriginal: string;
-  dolarUsado: number;
 }
 
 interface HistoricalTickerViewProps {

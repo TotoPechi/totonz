@@ -4,9 +4,10 @@ import { getDolarMEP } from '../services/balanzApi';
 import { formatCurrency } from '../utils/chartHelpers';
 import { getTickerHoldingData } from '../services/tickerHoldingData';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { Position } from '../types/balanz';
 
 interface CarteraActualProps {
-  positions: any[];
+  positions: Position[];
   onTickerClick?: (ticker: string) => void;
   loading?: boolean;
   apiError?: string | null;
@@ -45,14 +46,8 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick,
   const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set());
   const [groupedPositions, setGroupedPositions] = useState<Record<string, any>>({});
 
-  // Ya no se carga precios actuales desde la API aquí, solo se usan los props
-
-  // Calcular dolarMEP desde las posiciones (si está disponible)
   const dolarMEP = getDolarMEP(positions[0]?.cotizacionesDolar || []);
-  // Usar un valor por defecto si dolarMEP es null (para evitar errores de tipo)
-  const dolarMEPValue = dolarMEP ?? 1000; // Valor por defecto razonable para dólar MEP
-
-  // Agrupar posiciones por ticker usando la función unificada
+  const dolarMEPValue = dolarMEP ?? 1000;
   useEffect(() => {
     const agrupar = async () => {
       if (!positions || positions.length === 0) return;
@@ -61,7 +56,6 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick,
       await Promise.all(tickers.map(async (ticker) => {
         const data = await getTickerHoldingData(ticker, positions, dolarMEPValue);
         if (data) {
-          // Usar inversión consolidada si está disponible, sino usar valorInicial de la API
           const valorInicialFinal = data.valorInicialConsolidado !== undefined 
             ? data.valorInicialConsolidado 
             : data.valorInicial;
@@ -72,10 +66,10 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick,
             tipo: positions.find(p => p.Ticker === ticker)?.Tipo || '',
             cantidadTotal: data.cantidadTotal,
             ppc: data.ppc,
-            valorInicial: valorInicialFinal, // Usar inversión consolidada si está disponible
+            valorInicial: valorInicialFinal,
             precioActual: data.precioActual,
             valorActual: data.valorActual,
-            rendimiento: data.valorActual - valorInicialFinal, // Recalcular rendimiento
+            rendimiento: data.valorActual - valorInicialFinal,
             rendimientoPorcentaje: valorInicialFinal > 0 ? ((data.valorActual - valorInicialFinal) / valorInicialFinal) * 100 : 0,
             operaciones: data.operaciones
           };
@@ -85,10 +79,6 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick,
     };
     agrupar();
   }, [positions, dolarMEPValue]);
-
-  // Ya no se usa preciosActuales, los datos vienen directamente de groupedPositions
-
-  // Usar groupedPositions para la agrupación y visualización
   const groupedByType: Record<string, any> = {};
   Object.values(groupedPositions).forEach(position => {
     // Normalizar tipo: eliminar sufijos de moneda y agrupar por tipo base
@@ -124,20 +114,17 @@ const CarteraActual: React.FC<CarteraActualProps> = ({ positions, onTickerClick,
   });
 
   const sortedTypes = Object.values(groupedByType).sort((a, b) => (b as any).totalValor - (a as any).totalValor);
-  // Inicializar tipos expandidos con todos los tipos normalizados (solo la primera vez)
   if (expandedTypes.size === 0 && sortedTypes.length > 0) {
     setExpandedTypes(new Set(sortedTypes.map((t: any) => t.tipo)));
   }
-  // Ordenar monedas dentro de cada tipo y posiciones dentro de cada moneda
   sortedTypes.forEach((typeGroup: any) => {
     typeGroup.currencies.sort((a: any, b: any) => b.totalValor - a.totalValor);
     typeGroup.currencies.forEach((currencyGroup: any) => {
       currencyGroup.positions.sort((a: any, b: any) => b.valorInicial - a.valorInicial);
     });
   });
-  // Inversión consolidada total: suma de la INVERSIÓN CONSOLIDADA de cada instrumento
+  
   const totalValorInicial = Object.values(groupedPositions).reduce((sum: number, position: any) => sum + (position.valorInicial || 0), 0);
-  // Valor actual total: suma del VALOR ACTUAL de todos los instrumentos
   const totalValorActual = Object.values(groupedPositions).reduce((sum: number, position: any) => sum + (position.valorActual || 0), 0);
   const rendimientoTotal = totalValorActual - totalValorInicial;
   const rendimientoTotalPorcentaje = totalValorInicial > 0 ? (rendimientoTotal / totalValorInicial) * 100 : 0;

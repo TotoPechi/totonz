@@ -84,6 +84,43 @@ export interface BalanzPosition {
   DolarOficial: number;
 }
 
+/**
+ * Tipo de posición de cartera (tenencia) desde la API de Balanz
+ * Usado en componentes y servicios que trabajan con posiciones actuales
+ */
+export interface Position {
+  Tipo: string;
+  Ticker: string;
+  idMoneda: number;
+  Moneda: string;
+  Descripcion: string;
+  Cantidad: number;
+  Precio: number;
+  PPP: number;
+  ValorInicial: number;
+  ValorActual: number;
+  ValorActualPesos: number;
+  PorcTenencia: number;
+  NoRealizado: number;
+  PorcRendimiento: number;
+  TNA: string;
+  Variacion: string;
+  PrecioAnterior: number;
+  FechaUltimoOperado: string;
+  DiasPromedioTenencia: number;
+  cotizacionesDolar?: CotizacionDolar[];
+}
+
+/**
+ * Cotización de dólar desde la API de Balanz
+ */
+export interface CotizacionDolar {
+  tipo: number;
+  Descripcion: string;
+  PrecioCompra: number;
+  PrecioVenta: number;
+}
+
 export interface BalanzData {
   boletos: {
     boletos: Boleto[];

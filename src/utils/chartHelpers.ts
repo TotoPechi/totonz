@@ -1,4 +1,5 @@
 import { CandlestickData } from '../types';
+import { formatearFechaParaMostrar } from './tickerHelpers';
 
 /**
  * Genera datos de ejemplo para gráficos de velas (candlestick)
@@ -56,17 +57,26 @@ export const formatPercent = (value: number): string => {
 };
 
 /**
- * Formatea volumen en formato abreviado (K, M, B)
+ * Formatea números grandes en formato abreviado (K, M, B, T)
+ * Útil para volumen, market cap, etc.
  */
-export const formatVolume = (value: number): string => {
-  if (value >= 1000000000) {
-    return `${(value / 1000000000).toFixed(2)}B`;
-  }
-  if (value >= 1000000) {
-    return `${(value / 1000000).toFixed(2)}M`;
-  }
-  if (value >= 1000) {
-    return `${(value / 1000).toFixed(2)}K`;
-  }
-  return value.toString();
+export const formatLargeNumber = (value: number): string => {
+  if (value >= 1e12) return `${(value / 1e12).toFixed(2)}T`;
+  if (value >= 1e9) return `${(value / 1e9).toFixed(2)}B`;
+  if (value >= 1e6) return `${(value / 1e6).toFixed(2)}M`;
+  if (value >= 1e3) return `${(value / 1e3).toFixed(2)}K`;
+  return value.toFixed(2);
 };
+
+/**
+ * Formatea volumen en formato abreviado (K, M, B)
+ * @deprecated Usar formatLargeNumber en su lugar
+ */
+export const formatVolume = formatLargeNumber;
+
+/**
+ * Formatea una fecha a formato DD/MM/YYYY
+ * Acepta varios formatos de entrada: YYYY-MM-DD, DD/MM/YYYY, o Date object
+ * @deprecated Usar formatearFechaParaMostrar de tickerHelpers.ts en su lugar
+ */
+export const formatearFecha = formatearFechaParaMostrar;

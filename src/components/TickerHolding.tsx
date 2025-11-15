@@ -1,26 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getTickerHoldingData } from '../services/tickerHoldingData';
 import { getDolarMEP, getEstadoCuentaConCache } from '../services/balanzApi';
-
-// Función para formatear fecha
-function formatearFecha(fecha: string): string {
-  if (!fecha) return '';
-  if (fecha.match(/^\d{2}\/\d{2}\/\d{4}$/)) return fecha;
-  if (fecha.match(/^\d{4}-\d{2}-\d{2}/)) {
-    const [anio, mes, dia] = fecha.split('-');
-    return `${dia}/${mes}/${anio}`;
-  }
-  try {
-    const date = new Date(fecha);
-    if (!isNaN(date.getTime())) {
-      const dia = String(date.getDate()).padStart(2, '0');
-      const mes = String(date.getMonth() + 1).padStart(2, '0');
-      const anio = date.getFullYear();
-      return `${dia}/${mes}/${anio}`;
-    }
-  } catch (e) {}
-  return fecha;
-}
+import { formatearFecha } from '../utils/chartHelpers';
 
 interface TickerHoldingProps {
   positions: any[];

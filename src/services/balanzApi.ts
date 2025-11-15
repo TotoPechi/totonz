@@ -1,20 +1,81 @@
-import { Orden } from '../types/balanz';
+// Servicio para obtener datos de la API de Balanz
+// Usa autenticación dinámica con token obtenido del flujo de login
+
+import { Orden, Position, CotizacionDolar } from '../types/balanz';
 import { CacheResult } from '../types/cache';
-import { getCachedDataByDate, setCachedDataWithDate, getCachedDataExpired, getCachedDataFull, getCachedData, setCachedData, clearCache, getCacheInfo } from '../utils/cacheManager';
+import { TipoOperacion, Operacion } from '../types';
+import { 
+  getCachedDataByDate, 
+  setCachedDataWithDate, 
+  getCachedDataExpired, 
+  getCachedDataFull, 
+  getCachedData, 
+  setCachedData, 
+  clearCache, 
+  getCacheInfo 
+} from '../utils/cacheManager';
+import { preserveAuthTokens } from '../utils/cacheHelpers';
+import { normalizeTicker, tickersMatch, fechaToAPIFormat } from '../utils/tickerHelpers';
+import { getCachedAccessToken } from './balanzAuth';
+import { getDolarParaFecha } from './dolarHistoricoApi';
 import { getBalanzInstrumentInfo } from './tickerApi';
 
-// --- Órdenes históricas con caché ---
-export type OrdenesConCache = CacheResult<Orden[]>;
+// ID de cuenta de Balanz
+const BALANZ_ACCOUNT_ID = '222233';
+
+// --- Funciones helper ---
 
 /**
- * Obtiene las órdenes históricas con información de caché
+ * Maneja errores de autenticación limpiando el token del caché
+ */
+function handleAuthError(response: Response): void {
+  if (response.status === 520 || response.status === 403 || response.status === 401) {
+    console.error('🔒 Error de autenticación - Token posiblemente expirado');
+    localStorage.removeItem('balanz_access_token');
+    localStorage.removeItem('balanz_token_timestamp');
+  }
+}
+
+/**
+ * Maneja errores de sesión expirada (403 específico)
+ * @param response - Response object
+ * @param text - Texto de la respuesta (opcional, si ya fue leído)
+ */
+async function handleSessionExpired(response: Response, text?: string): Promise<void> {
+  if (response.status === 403) {
+    try {
+      const responseText = text || await response.text();
+      const errorData = JSON.parse(responseText);
+      if (errorData.CodigoError === -1001 || errorData.Descripcion?.includes('Sesion Expirada')) {
+        console.error('🔒 Sesión expirada - Token de Balanz inválido');
+        localStorage.setItem('balanz_session_expired', 'true');
+      }
+    } catch (e) {
+      // Ignorar error de parsing
+    }
+  }
+}
+
+// --- Tipos e Interfaces ---
+
+export type OrdenesConCache = CacheResult<Orden[]>;
+
+// ============================================================================
+// --- ÓRDENES HISTÓRICAS ---
+// ============================================================================
+
+/**
+ * Obtiene órdenes históricas desde la API de Balanz con sistema de caché
+ * @param fechaDesde - Fecha de inicio en formato YYYYMMDD (default: '20210905')
+ * @param fechaHasta - Fecha de fin en formato YYYYMMDD (opcional, default: hoy)
+ * @returns Promise con las órdenes y información del caché
  */
 export async function getOrdenesHistoricasConCache(
   fechaDesde: string = '20210905',
   fechaHasta?: string
 ): Promise<OrdenesConCache> {
   try {
-    const hoy = fechaHasta || new Date().toISOString().split('T')[0].replace(/-/g, '');
+    const hoy = fechaHasta || fechaToAPIFormat(new Date());
     const cacheKey = `balanz_ordenes_${fechaDesde}_${hoy}`;
     const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 horas
     
@@ -45,11 +106,7 @@ export async function getOrdenesHistoricasConCache(
 
     if (!response.ok) {
       console.error(`❌ Error ${response.status} al obtener órdenes históricas`);
-      if (response.status === 520 || response.status === 403 || response.status === 401) {
-        console.error('🔒 Error de autenticación - Token posiblemente expirado');
-        localStorage.removeItem('balanz_access_token');
-        localStorage.removeItem('balanz_token_timestamp');
-      }
+      handleAuthError(response);
       // Si hay error, intentar usar caché expirado como fallback
       const expiredCache = getCachedDataExpired<Orden[]>(cacheKey);
       if (expiredCache) {
@@ -79,49 +136,15 @@ export async function getOrdenesHistoricasConCache(
     return { data: [], isCached: false };
   }
 }
-// Servicio para obtener datos de la API de Balanz
-// Usa autenticación dinámica con token obtenido del flujo de login
 
-import { getCachedAccessToken } from './balanzAuth';
-import { getDolarParaFecha } from './dolarHistoricoApi';
-import { preserveAuthTokens } from '../utils/cacheHelpers';
+// --- Interfaces ---
 
-// ID de cuenta de Balanz (reemplazar con tu ID real)
-const BALANZ_ACCOUNT_ID = '222233';
-
-interface BalanzTenencia {
-  Tipo: string;
-  Ticker: string;
-  idMoneda: number;
-  Moneda: string;
-  Descripcion: string;
-  Cantidad: number;
-  Precio: number;
-  PPP: number;
-  ValorInicial: number;
-  ValorActual: number;
-  ValorActualPesos: number;
-  PorcTenencia: number;
-  NoRealizado: number;
-  PorcRendimiento: number;
-  TNA: string;
-  Variacion: string;
-  PrecioAnterior: number;
-  FechaUltimoOperado: string;
-  DiasPromedioTenencia: number;
-}
+import { Position, CotizacionDolar } from '../types/balanz';
 
 interface BalanzEstadoCuenta {
-  tenenciaAgrupada: any[];
-  tenencia: BalanzTenencia[];
+  tenenciaAgrupada: Position[];
+  tenencia: Position[];
   cotizacionesDolar: CotizacionDolar[];
-}
-
-interface CotizacionDolar {
-  tipo: number;
-  Descripcion: string;
-  PrecioCompra: number;
-  PrecioVenta: number;
 }
 
 interface BalanzCacheData {
@@ -129,6 +152,10 @@ interface BalanzCacheData {
   fecha: string; // YYYY-MM-DD
   timestamp: number;
 }
+
+// ============================================================================
+// --- ESTADO DE CUENTA ---
+// ============================================================================
 
 /**
  * Obtiene el estado de cuenta directamente desde la API de Balanz
@@ -167,26 +194,8 @@ export async function getEstadoCuenta(fecha?: string): Promise<BalanzEstadoCuent
       console.error('❌ Error al obtener estado de cuenta:', response.statusText);
       console.error('📄 Response body:', text.substring(0, 500));
       
-      // Detectar si es error de sesión expirada o autenticación
-      if (response.status === 403 || response.status === 401 || response.status === 520) {
-        console.error('🔒 Error de autenticación - Token posiblemente expirado');
-        // Limpiar token del caché
-        localStorage.removeItem('balanz_access_token');
-        localStorage.removeItem('balanz_token_timestamp');
-        
-        // Para error 403, intentar parsear el mensaje específico
-        if (response.status === 403) {
-          try {
-            const errorData = JSON.parse(text);
-            if (errorData.CodigoError === -1001 || errorData.Descripcion?.includes('Sesion Expirada')) {
-              console.error('🔒 Sesión expirada - Token de Balanz inválido');
-              localStorage.setItem('balanz_session_expired', 'true');
-            }
-          } catch (e) {
-            // Ignorar error de parsing
-          }
-        }
-      }
+      handleAuthError(response);
+      await handleSessionExpired(response, text);
       
       // Si hay error, intentar usar caché expirado como fallback
       const expiredCache = getCachedDataExpired<BalanzEstadoCuenta>(cacheKey);
@@ -327,6 +336,10 @@ export function clearEstadoCuentaCache(): void {
   clearCache('balanz_estado_cuenta');
 }
 
+// ============================================================================
+// --- MOVIMIENTOS HISTÓRICOS ---
+// ============================================================================
+
 /**
  * Limpia el caché de movimientos históricos
  */
@@ -392,7 +405,7 @@ export async function getMovimientosHistoricos(
 ): Promise<MovimientoHistorico[]> {
   try {
     // Si no se proporciona fechaHasta, usar fecha actual
-    const hoy = fechaHasta || new Date().toISOString().split('T')[0].replace(/-/g, '');
+    const hoy = fechaHasta || fechaToAPIFormat(new Date());
     
     // Verificar caché primero (válido por 24 horas)
     const cacheKey = `balanz_movimientos_${fechaDesde}_${hoy}`;
@@ -416,13 +429,7 @@ export async function getMovimientosHistoricos(
     
     if (!response.ok) {
       console.error(`❌ Error ${response.status} al obtener movimientos históricos`);
-      
-      // Si es error de autenticación, limpiar token
-      if (response.status === 520 || response.status === 403 || response.status === 401) {
-        console.error('🔒 Error de autenticación - Token posiblemente expirado');
-        localStorage.removeItem('balanz_access_token');
-        localStorage.removeItem('balanz_token_timestamp');
-      }
+      handleAuthError(response);
       
       // Si hay error, intentar usar caché expirado como fallback
       const expiredCache = getCachedDataExpired<MovimientoHistorico[]>(cacheKey);
@@ -477,14 +484,17 @@ export interface MovimientoHistorico {
 export type MovimientosConCache = CacheResult<MovimientoHistorico[]>;
 
 /**
- * Obtiene los movimientos históricos con información de caché
+ * Obtiene movimientos históricos desde la API de Balanz con sistema de caché
+ * @param fechaDesde - Fecha de inicio en formato YYYYMMDD (default: '20210905')
+ * @param fechaHasta - Fecha de fin en formato YYYYMMDD (opcional, default: hoy)
+ * @returns Promise con los movimientos y información del caché
  */
 export async function getMovimientosHistoricosConCache(
   fechaDesde: string = '20210905',
   fechaHasta?: string
 ): Promise<MovimientosConCache> {
   try {
-    const hoy = fechaHasta || new Date().toISOString().split('T')[0].replace(/-/g, '');
+    const hoy = fechaHasta || fechaToAPIFormat(new Date());
     const cacheKey = `balanz_movimientos_${fechaDesde}_${hoy}`;
     const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 horas
     
@@ -520,6 +530,228 @@ export async function getMovimientosHistoricosConCache(
   }
 }
 
+// ============================================================================
+// --- OPERACIONES POR TICKER ---
+// ============================================================================
+
+// --- Tipos para operaciones ---
+
+import { TipoOperacion, Operacion } from '../types';
+
+// --- Funciones auxiliares para procesamiento de operaciones ---
+
+/**
+ * Procesa rescates parciales agrupados por fecha
+ */
+async function processRescatesParciales(
+  rescatesParcialesPorFecha: Map<string, MovimientoHistorico[]>,
+  movimientosTicker: MovimientoHistorico[],
+  ticker: string,
+  dolarMEPActual: number
+): Promise<Operacion[]> {
+  const operaciones: Operacion[] = [];
+
+  for (const [fecha, movs] of rescatesParcialesPorFecha.entries()) {
+    const cantidadTotal = movs.reduce((sum, m) => sum + Math.abs(m.cantidad), 0);
+    if (cantidadTotal === 0) continue;
+
+    let dolarHistorico = await getDolarParaFecha(fecha);
+    if (!dolarHistorico) {
+      console.warn(`⚠️ Usando dólar MEP actual como fallback para ${fecha}`);
+      dolarHistorico = dolarMEPActual;
+    }
+
+    // Buscar movimiento anterior relacionado con rescate (hasta 3 semanas antes)
+    const fechaRescate = new Date(fecha);
+    const fechaLimite = new Date(fechaRescate);
+    fechaLimite.setDate(fechaLimite.getDate() - 21);
+
+    const movimientosAnteriores = movimientosTicker.filter(m => {
+      const fechaMov = new Date(m.Concertacion);
+      return fechaMov >= fechaLimite &&
+        fechaMov < fechaRescate &&
+        m.ticker === ticker &&
+        (m.descripcion.toLowerCase().includes('rescate') ||
+          m.descripcion.toLowerCase().includes('prima por rescate')) &&
+        m.importe > 0;
+    });
+
+    movimientosAnteriores.sort((a, b) =>
+      new Date(b.Concertacion).getTime() - new Date(a.Concertacion).getTime()
+    );
+
+    const movimientoConMonto = movimientosAnteriores[0];
+    let precioUSD = 0;
+    let montoUSD = 0;
+    let precioOriginal: number | undefined = undefined;
+    let monedaOriginal = movs[0].moneda || '';
+
+    if (movimientoConMonto && movimientoConMonto.importe > 0) {
+      let dolarMovAnterior = await getDolarParaFecha(movimientoConMonto.Concertacion);
+      if (!dolarMovAnterior) {
+        dolarMovAnterior = dolarHistorico;
+      }
+
+      const importeTotal = Math.abs(movimientoConMonto.importe);
+      const importeUSD = movimientoConMonto.moneda.toLowerCase().includes('pesos') || movimientoConMonto.idMoneda === 1
+        ? importeTotal / dolarMovAnterior
+        : importeTotal;
+
+      precioUSD = cantidadTotal > 0 ? importeUSD / cantidadTotal : 0;
+      montoUSD = importeUSD;
+      precioOriginal = importeTotal / cantidadTotal;
+      monedaOriginal = movimientoConMonto.moneda || monedaOriginal;
+      dolarHistorico = dolarMovAnterior;
+    }
+
+    operaciones.push({
+      tipo: 'RESCATE_PARCIAL',
+      fecha,
+      cantidad: cantidadTotal,
+      precioUSD,
+      montoUSD,
+      costoOperacionUSD: 0,
+      descripcion: movs[0].descripcion,
+      precioOriginal,
+      costoOriginal: undefined,
+      monedaOriginal,
+      dolarUsado: dolarHistorico
+    });
+  }
+
+  return operaciones;
+}
+
+/**
+ * Procesa operaciones en USD
+ */
+async function processOperacionesUSD(
+  movs: MovimientoHistorico[],
+  dolarHistorico: number,
+  esRescateParcial: boolean
+): Promise<Operacion | null> {
+  if (movs.length === 2) {
+    const registroConPrecio = movs.find(m => m.precio > 0);
+    const registroConCosto = movs.find(m => m.precio <= 0 || m === movs.find(m => m.precio > 0 && m.idMoneda === 1));
+    if (!registroConPrecio) return null;
+
+    const tipo: TipoOperacion = esRescateParcial ? 'RESCATE_PARCIAL' : (registroConPrecio.importe < 0 ? 'COMPRA' : 'VENTA');
+    const precioUSD = registroConPrecio.precio;
+    const cantidad = Math.abs(registroConPrecio.cantidad);
+    const montoUSD = precioUSD * cantidad;
+
+    let costoUSD: number;
+    let costoOriginal: number | undefined;
+    if (registroConCosto && registroConCosto !== registroConPrecio) {
+      costoOriginal = Math.abs(registroConCosto.importe);
+      costoUSD = costoOriginal / dolarHistorico;
+    } else {
+      costoUSD = Math.abs(registroConPrecio.importe) - montoUSD;
+    }
+
+    return {
+      tipo,
+      fecha: registroConPrecio.Concertacion,
+      cantidad,
+      precioUSD,
+      montoUSD,
+      costoOperacionUSD: costoUSD,
+      descripcion: registroConPrecio.descripcion,
+      precioOriginal: undefined,
+      costoOriginal,
+      monedaOriginal: registroConCosto?.moneda || registroConPrecio.moneda,
+      dolarUsado: dolarHistorico
+    };
+  } else if (movs.length === 1) {
+    const mov = movs[0];
+    if (mov.precio <= 0) return null;
+
+    const tipo: TipoOperacion = esRescateParcial ? 'RESCATE_PARCIAL' : (mov.importe < 0 ? 'COMPRA' : 'VENTA');
+    const cantidad = Math.abs(mov.cantidad);
+    const precioUSD = mov.precio;
+    const montoUSD = precioUSD * cantidad;
+
+    return {
+      tipo,
+      fecha: mov.Concertacion,
+      cantidad,
+      precioUSD,
+      montoUSD,
+      costoOperacionUSD: 0,
+      descripcion: mov.descripcion,
+      precioOriginal: undefined,
+      costoOriginal: undefined,
+      monedaOriginal: mov.moneda,
+      dolarUsado: dolarHistorico
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Procesa operaciones en pesos
+ */
+async function processOperacionesPesos(
+  mov: MovimientoHistorico,
+  dolarHistorico: number
+): Promise<Operacion | null> {
+  const descripcionLower = mov.descripcion?.toLowerCase() || mov.descripcionCorta?.toLowerCase() || '';
+  const esSuscripcion = mov.tipo === 'Liquidación Fondo' &&
+    (descripcionLower.includes('suscripción') ||
+      descripcionLower.includes('suscribiste') ||
+      descripcionLower.includes('suscripcion'));
+
+  if (esSuscripcion && mov.cantidad > 0 && mov.importe > 0) {
+    const precioOriginal = mov.precio > 0 ? mov.precio : (mov.importe / mov.cantidad);
+    const precioUSD = precioOriginal / dolarHistorico;
+    const cantidad = Math.abs(mov.cantidad);
+    const montoUSD = precioUSD * cantidad;
+    const importeTotal = Math.abs(mov.importe) / dolarHistorico;
+    const costoUSD = importeTotal - montoUSD;
+    const costoOriginal = costoUSD * dolarHistorico;
+
+    return {
+      tipo: 'COMPRA',
+      fecha: mov.Concertacion,
+      cantidad,
+      precioUSD,
+      montoUSD,
+      costoOperacionUSD: costoUSD,
+      descripcion: mov.descripcion || mov.descripcionCorta,
+      precioOriginal,
+      costoOriginal,
+      monedaOriginal: mov.moneda,
+      dolarUsado: dolarHistorico
+    };
+  }
+
+  if (mov.precio <= 0) return null;
+
+  const tipo: TipoOperacion = mov.importe < 0 ? 'COMPRA' : 'VENTA';
+  const cantidad = Math.abs(mov.cantidad);
+  const precioOriginal = mov.precio;
+  const precioUSD = precioOriginal / dolarHistorico;
+  const montoUSD = precioUSD * cantidad;
+  const importeTotal = Math.abs(mov.importe) / dolarHistorico;
+  const costoUSD = importeTotal - montoUSD;
+  const costoOriginal = costoUSD * dolarHistorico;
+
+  return {
+    tipo,
+    fecha: mov.Concertacion,
+    cantidad,
+    precioUSD,
+    montoUSD,
+    costoOperacionUSD: costoUSD,
+    descripcion: mov.descripcion,
+    precioOriginal,
+    costoOriginal,
+    monedaOriginal: mov.moneda,
+    dolarUsado: dolarHistorico
+  };
+}
+
 /**
  * Filtra y agrupa los movimientos por ticker
  * Maneja dos casos:
@@ -528,46 +760,31 @@ export async function getMovimientosHistoricosConCache(
  * 
  * IMPORTANTE: Usa dólar histórico de la fecha de la operación (bolsa > blue > oficial)
  */
-import { normalizeTicker, tickersMatch } from '../utils/tickerHelpers';
-
+/**
+ * Procesa movimientos históricos y los convierte en operaciones estructuradas por ticker
+ * Maneja rescates parciales, operaciones en USD y en pesos (con conversión)
+ * @param movimientos - Array de movimientos históricos de Balanz
+ * @param ticker - Ticker a filtrar
+ * @param dolarMEPActual - Dólar MEP actual para conversión de operaciones en pesos
+ * @returns Promise con array de operaciones procesadas
+ */
 export async function getOperacionesPorTicker(
   movimientos: MovimientoHistorico[],
   ticker: string,
-  dolarMEPActual: number // Solo como fallback
-): Promise<Array<{
-  tipo: 'COMPRA' | 'VENTA' | 'RESCATE_PARCIAL';
-  fecha: string;
-  cantidad: number;
-  precioUSD: number;
-  montoUSD: number;
-  costoOperacionUSD: number;
-  descripcion: string;
-  precioOriginal?: number; // Precio original en pesos si fue convertido
-  costoOriginal?: number; // Costo original en pesos si fue convertido
-  monedaOriginal: string; // "Pesos" o nombre de la moneda original
-  dolarUsado: number; // Dólar usado para la conversión (histórico o actual)
-}>> {
-  // Normalizar el ticker buscado
+  dolarMEPActual: number
+): Promise<Operacion[]> {
   const tickerNormalizado = normalizeTicker(ticker);
-  
-  // Filtrar movimientos del ticker (comparando de forma normalizada)
   const movimientosTicker = movimientos.filter(m => tickersMatch(m.ticker, tickerNormalizado));
-  
-  // Primero, agrupar rescates parciales por fecha (para calcular monto total correctamente)
+
+  // Separar rescates parciales de otras operaciones
   const rescatesParcialesPorFecha = new Map<string, MovimientoHistorico[]>();
   const otrosMovimientos: MovimientoHistorico[] = [];
-  
+
   movimientosTicker.forEach(mov => {
-    // Solo procesar movimientos con cantidad (compras/ventas reales)
-    if (mov.cantidad === 0) {
-      return;
-    }
-    
-    const descripcionLower = mov.descripcion.toLowerCase();
-    const esRescateParcial = descripcionLower.includes('rescate parcial');
-    
+    if (mov.cantidad === 0) return;
+
+    const esRescateParcial = mov.descripcion.toLowerCase().includes('rescate parcial');
     if (esRescateParcial) {
-      // Agrupar rescates parciales por fecha
       const key = mov.Concertacion;
       if (!rescatesParcialesPorFecha.has(key)) {
         rescatesParcialesPorFecha.set(key, []);
@@ -577,273 +794,60 @@ export async function getOperacionesPorTicker(
       otrosMovimientos.push(mov);
     }
   });
-  
-  // Agrupar otros movimientos por descripción y fecha para combinar registros relacionados
+
+  // Agrupar otros movimientos por descripción y fecha
   const operacionesMap = new Map<string, MovimientoHistorico[]>();
-  
   otrosMovimientos.forEach(mov => {
-    // Usar descripción + fecha como clave para agrupar
     const key = `${mov.descripcion}_${mov.Concertacion}`;
     if (!operacionesMap.has(key)) {
       operacionesMap.set(key, []);
     }
     operacionesMap.get(key)!.push(mov);
   });
-  
-  // Convertir cada grupo de movimientos a operación
-  const operaciones: Array<{
-    tipo: 'COMPRA' | 'VENTA' | 'RESCATE_PARCIAL';
-    fecha: string;
-    cantidad: number;
-    precioUSD: number;
-    montoUSD: number;
-    costoOperacionUSD: number;
-    descripcion: string;
-    precioOriginal?: number;
-    costoOriginal?: number;
-    monedaOriginal: string;
-    dolarUsado: number;
-  }> = [];
-  
-  // Procesar rescates parciales agrupados por fecha
-  for (const [fecha, movs] of rescatesParcialesPorFecha.entries()) {
-    // Sumar todas las cantidades de rescates parciales de la misma fecha
-    const cantidadTotal = movs.reduce((sum, m) => sum + Math.abs(m.cantidad), 0);
-    
-    if (cantidadTotal === 0) continue;
-    
-    // Obtener dólar histórico para la fecha
-    let dolarHistorico = await getDolarParaFecha(fecha);
-    if (!dolarHistorico) {
-      console.warn(`⚠️ Usando dólar MEP actual como fallback para ${fecha}`);
-      dolarHistorico = dolarMEPActual;
-    }
-    
-    // Buscar movimiento anterior relacionado con rescate (hasta 3 semanas antes)
-    const fechaRescate = new Date(fecha);
-    const fechaLimite = new Date(fechaRescate);
-    fechaLimite.setDate(fechaLimite.getDate() - 21); // 3 semanas = 21 días
-    
-    // Buscar movimientos anteriores del mismo ticker relacionados con rescate
-    const movimientosAnteriores = movimientosTicker.filter(m => {
-      const fechaMov = new Date(m.Concertacion);
-      return fechaMov >= fechaLimite && 
-             fechaMov < fechaRescate &&
-             m.ticker === ticker &&
-             (m.descripcion.toLowerCase().includes('rescate') || 
-              m.descripcion.toLowerCase().includes('prima por rescate')) &&
-             m.importe > 0; // Solo movimientos con importe positivo
-    });
-    
-    // Ordenar por fecha descendente (más reciente primero)
-    movimientosAnteriores.sort((a, b) => 
-      new Date(b.Concertacion).getTime() - new Date(a.Concertacion).getTime()
-    );
-    
-    // Tomar el movimiento más reciente que tenga importe
-    const movimientoConMonto = movimientosAnteriores[0];
-    
-    let precioUSD = 0;
-    let montoUSD = 0;
-    let precioOriginal: number | undefined = undefined;
-    let monedaOriginal = movs[0].moneda || '';
-    
-    if (movimientoConMonto && movimientoConMonto.importe > 0) {
-      // Obtener dólar histórico para la fecha del movimiento anterior
-      let dolarMovAnterior = await getDolarParaFecha(movimientoConMonto.Concertacion);
-      if (!dolarMovAnterior) {
-        dolarMovAnterior = dolarHistorico; // Usar dólar del rescate como fallback
-      }
-      
-      // Convertir importe a USD
-      const importeTotal = Math.abs(movimientoConMonto.importe);
-      const importeUSD = movimientoConMonto.moneda.toLowerCase().includes('pesos') || movimientoConMonto.idMoneda === 1
-        ? importeTotal / dolarMovAnterior
-        : importeTotal;
-      
-      // Calcular precio y monto basado en la cantidad total
-      precioUSD = cantidadTotal > 0 ? importeUSD / cantidadTotal : 0;
-      montoUSD = importeUSD; // El monto total es el importe encontrado
-      precioOriginal = importeTotal / cantidadTotal;
-      monedaOriginal = movimientoConMonto.moneda || monedaOriginal;
-      dolarHistorico = dolarMovAnterior; // Usar dólar del movimiento anterior
-    }
-    
-    // Crear una sola operación de rescate parcial con la cantidad total
-    operaciones.push({
-      tipo: 'RESCATE_PARCIAL',
-      fecha,
-      cantidad: cantidadTotal,
-      precioUSD,
-      montoUSD,
-      costoOperacionUSD: 0,
-      descripcion: movs[0].descripcion, // Usar la descripción del primer movimiento
-      precioOriginal,
-      costoOriginal: undefined,
-      monedaOriginal,
-      dolarUsado: dolarHistorico
-    });
-  }
-  
-  // Procesar cada operación de forma asíncrona para obtener dólar histórico
+
+  // Procesar rescates parciales
+  const operacionesRescates = await processRescatesParciales(
+    rescatesParcialesPorFecha,
+    movimientosTicker,
+    ticker,
+    dolarMEPActual
+  );
+
+  // Procesar otras operaciones
+  const operaciones: Operacion[] = [...operacionesRescates];
+
   for (const [key, movs] of operacionesMap.entries()) {
-    // Obtener dólar histórico para la fecha de la operación
     const fecha = movs[0].Concertacion;
     let dolarHistorico = await getDolarParaFecha(fecha);
-    
-    // Si no hay dólar histórico, usar el actual como fallback
     if (!dolarHistorico) {
       console.warn(`⚠️ Usando dólar MEP actual como fallback para ${fecha}`);
       dolarHistorico = dolarMEPActual;
     }
-    
-    // Detectar si es un rescate parcial
+
     const descripcionLower = movs[0].descripcion.toLowerCase();
     const esRescateParcial = descripcionLower.includes('rescate parcial');
-    
-    // Determinar si es operación en USD o en pesos
     const esOperacionUSD = descripcionLower.includes('/ usd') || descripcionLower.includes('/ u$s');
-    
+
     if (esOperacionUSD) {
-      // CASO 1: Operación en USD
-      if (movs.length === 2) {
-        // Un registro tiene el precio en USD, el otro tiene el costo en pesos
-        const registroConPrecio = movs.find(m => m.precio > 0);
-        const registroConCosto = movs.find(m => m.precio <= 0 || m === movs.find(m => m.precio > 0 && m.idMoneda === 1));
-        if (!registroConPrecio) continue;
-        const tipo: 'COMPRA' | 'VENTA' | 'RESCATE_PARCIAL' = esRescateParcial ? 'RESCATE_PARCIAL' : (registroConPrecio.importe < 0 ? 'COMPRA' : 'VENTA');
-        const precioUSD = registroConPrecio.precio;
-        const cantidad = Math.abs(registroConPrecio.cantidad);
-        const montoUSD = precioUSD * cantidad;
-        // El costo está en el registro en pesos (si existe)
-        let costoUSD: number;
-        let costoOriginal: number | undefined;
-        if (registroConCosto && registroConCosto !== registroConPrecio) {
-          // Hay un registro separado con el costo en pesos
-          costoOriginal = Math.abs(registroConCosto.importe);
-          costoUSD = costoOriginal / dolarHistorico;
-        } else {
-          // Solo hay un registro, usar el importe total
-          costoUSD = Math.abs(registroConPrecio.importe) - montoUSD;
-        }
-        operaciones.push({
-          tipo,
-          fecha: registroConPrecio.Concertacion,
-          cantidad,
-          precioUSD,
-          montoUSD,
-          costoOperacionUSD: costoUSD,
-          descripcion: registroConPrecio.descripcion,
-          precioOriginal: undefined,
-          costoOriginal,
-          monedaOriginal: registroConCosto?.moneda || registroConPrecio.moneda,
-          dolarUsado: dolarHistorico
-        });
-      } else if (movs.length === 1) {
-        // Solo hay un registro: tomar precio y monto del registro, costo 0
-        const mov = movs[0];
-        if (mov.precio <= 0) continue;
-        const tipo: 'COMPRA' | 'VENTA' | 'RESCATE_PARCIAL' = esRescateParcial ? 'RESCATE_PARCIAL' : (mov.importe < 0 ? 'COMPRA' : 'VENTA');
-        const cantidad = Math.abs(mov.cantidad);
-        const precioUSD = mov.precio;
-        const montoUSD = precioUSD * cantidad;
-        operaciones.push({
-          tipo,
-          fecha: mov.Concertacion,
-          cantidad,
-          precioUSD,
-          montoUSD,
-          costoOperacionUSD: 0,
-          descripcion: mov.descripcion,
-          precioOriginal: undefined,
-          costoOriginal: undefined,
-          monedaOriginal: mov.moneda,
-          dolarUsado: dolarHistorico
-        });
-      }
-    } else if (movs.length === 1 || !esOperacionUSD) {
-      // CASO 2: Operación en pesos con 1 registro
-      const mov = movs[0];
-      
-      // Los rescates parciales ya fueron procesados antes, saltarlos aquí
-      if (esRescateParcial) {
-        continue;
-      }
-      
-      // Detectar suscripciones de fondos
-      const descripcionLower = mov.descripcion?.toLowerCase() || mov.descripcionCorta?.toLowerCase() || '';
-      const esSuscripcion = mov.tipo === 'Liquidación Fondo' && 
-                           (descripcionLower.includes('suscripción') || 
-                            descripcionLower.includes('suscribiste') ||
-                            descripcionLower.includes('suscripcion'));
-      
-      if (esSuscripcion && mov.cantidad > 0 && mov.importe > 0) {
-        // Suscripción de fondo: tratar como COMPRA
-        // Precio puede ser válido o -1, usar precio del movimiento o calcular desde importe
-        const precioOriginal = mov.precio > 0 ? mov.precio : (mov.importe / mov.cantidad);
-        const precioUSD = precioOriginal / dolarHistorico;
-        const cantidad = Math.abs(mov.cantidad);
-        const montoUSD = precioUSD * cantidad;
-        
-        // Costo = importe total (ya incluye costos)
-        const importeTotal = Math.abs(mov.importe) / dolarHistorico;
-        const costoUSD = importeTotal - montoUSD;
-        const costoOriginal = costoUSD * dolarHistorico;
-        
-        operaciones.push({
-          tipo: 'COMPRA',
-          fecha: mov.Concertacion,
-          cantidad,
-          precioUSD,
-          montoUSD,
-          costoOperacionUSD: costoUSD,
-          descripcion: mov.descripcion || mov.descripcionCorta,
-          precioOriginal,
-          costoOriginal,
-          monedaOriginal: mov.moneda,
-          dolarUsado: dolarHistorico
-        });
-        continue;
-      }
-      
-      if (mov.precio <= 0) continue; // Ignorar si no tiene precio válido
-      
-      const tipo: 'COMPRA' | 'VENTA' | 'RESCATE_PARCIAL' = mov.importe < 0 ? 'COMPRA' : 'VENTA';
-      const cantidad = Math.abs(mov.cantidad);
-      
-      // Precio en pesos, convertir a USD usando dólar histórico
-      const precioOriginal = mov.precio;
-      const precioUSD = precioOriginal / dolarHistorico;
-      
-      // Monto = precio * cantidad
-      const montoUSD = precioUSD * cantidad;
-      
-      // Costo = |importe| - monto
-      const importeTotal = Math.abs(mov.importe) / dolarHistorico;
-      const costoUSD = importeTotal - montoUSD;
-      const costoOriginal = (costoUSD * dolarHistorico);
-      
-      operaciones.push({
-        tipo,
-        fecha: mov.Concertacion,
-        cantidad,
-        precioUSD,
-        montoUSD,
-        costoOperacionUSD: costoUSD,
-        descripcion: mov.descripcion,
-        precioOriginal,
-        costoOriginal,
-        monedaOriginal: mov.moneda,
-        dolarUsado: dolarHistorico
-      });
+      const operacion = await processOperacionesUSD(movs, dolarHistorico, esRescateParcial);
+      if (operacion) operaciones.push(operacion);
+    } else if (movs.length === 1) {
+      if (esRescateParcial) continue; // Ya procesados antes
+
+      const operacion = await processOperacionesPesos(movs[0], dolarHistorico);
+      if (operacion) operaciones.push(operacion);
     }
   }
-  
+
   // Ordenar por fecha descendente (más recientes primero)
   operaciones.sort((a, b) => b.fecha.localeCompare(a.fecha));
-  
+
   return operaciones;
 }
+
+// ============================================================================
+// --- DIVIDENDOS Y RENTAS ---
+// ============================================================================
 
 /**
  * Extrae los pagos de dividendos para un ticker específico
@@ -1013,7 +1017,10 @@ export async function getRentasPorTicker(
   return rentas;
 }
 
-// Interfaz para ingresos y egresos
+// ============================================================================
+// --- INGRESOS Y EGRESOS ---
+// ============================================================================
+
 export interface IngresoEgreso {
   fecha: string;
   descripcion: string;
@@ -1228,7 +1235,10 @@ export async function getSaldosActuales(): Promise<{ usd: number; cable: number;
   }
 }
 
-// Interfaz para flujos proyectados
+// ============================================================================
+// --- FLUJOS PROYECTADOS ---
+// ============================================================================
+
 export interface FlujoProyectado {
   codigoespeciebono: string;
   fecha: string;
@@ -1351,12 +1361,8 @@ export async function getFlujosProyectados(): Promise<FlujoProyectado[]> {
       console.error('❌ Error al obtener flujos proyectados:', response.statusText);
       console.error('📄 Response body:', text.substring(0, 500));
       
-      // Detectar si es error de sesión expirada o autenticación
-      if (response.status === 403 || response.status === 401 || response.status === 520) {
-        console.error('🔒 Error de autenticación - Token posiblemente expirado');
-        localStorage.removeItem('balanz_access_token');
-        localStorage.removeItem('balanz_token_timestamp');
-      }
+      handleAuthError(response);
+      await handleSessionExpired(response, text);
       
       // Si hay error, intentar usar caché expirado como fallback
       const expiredCache = getCachedDataExpired<FlujoProyectado[]>(cacheKey);

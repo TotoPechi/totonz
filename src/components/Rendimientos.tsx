@@ -6,17 +6,19 @@ import {
   getRentasTotales,
   getSaldosActuales,
   getEstadoCuentaConCache,
+  getDolarMEP,
   IngresoEgreso,
 } from '../services/balanzApi';
 import { getTickerHoldingData } from '../services/tickerHoldingData';
-import { getDolarMEP } from '../services/balanzApi';
+import { Position } from '../types/balanz';
+import { formatearFechaParaMostrar, getFechaRangoHistorico } from '../utils/tickerHelpers';
 import ResumenCards from './rendimientos/ResumenCards';
 import ResumenCharts from './rendimientos/ResumenCharts';
 import MovimientosChart from './rendimientos/MovimientosChart';
 import MovimientosTable from './rendimientos/MovimientosTable';
 
 interface RendimientosProps {
-  positions: any[];
+  positions: Position[];
   loading?: boolean;
   apiError?: string | null;
 }
@@ -45,12 +47,8 @@ const Rendimientos: React.FC<RendimientosProps> = ({ positions, loading, apiErro
 
       try {
         // Obtener movimientos históricos
-        const fechaHasta = new Date();
-        const fechaDesde = new Date('2021-09-05');
-        const fechaDesdeStr = fechaDesde.toISOString().split('T')[0].replace(/-/g, '');
-        const fechaHastaStr = fechaHasta.toISOString().split('T')[0].replace(/-/g, '');
-
-        const movimientosResult = await getMovimientosHistoricosConCache(fechaDesdeStr, fechaHastaStr);
+        const { fechaDesde, fechaHasta } = getFechaRangoHistorico();
+        const movimientosResult = await getMovimientosHistoricosConCache(fechaDesde, fechaHasta);
 
         if (!movimientosResult.data || movimientosResult.data.length === 0) {
           setError('No se encontraron movimientos históricos');
@@ -214,21 +212,8 @@ const Rendimientos: React.FC<RendimientosProps> = ({ positions, loading, apiErro
     return movimientos.sort((a, b) => b.fecha.localeCompare(a.fecha));
   }, [ingresos, egresos]);
 
-  // Función para formatear fecha de YYYY-MM-DD a DD/MM/YYYY
-  const formatearFechaGrafico = (fecha: string): string => {
-    // Si ya está en formato DD/MM/YYYY, retornarlo
-    if (fecha.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-      return fecha;
-    }
-    
-    // Si está en formato YYYY-MM-DD
-    if (fecha.match(/^\d{4}-\d{2}-\d{2}/)) {
-      const [anio, mes, dia] = fecha.split('-');
-      return `${dia}/${mes}/${anio}`;
-    }
-    
-    return fecha;
-  };
+  // Usar función centralizada para formatear fechas
+  const formatearFechaGrafico = formatearFechaParaMostrar;
 
   // Datos para gráfico de movimientos con acumulado
   const chartDataMovimientos = useMemo(() => {

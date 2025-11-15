@@ -1,28 +1,4 @@
 /**
- * Realiza logout en la API de Balanz
- * Es importante enviar el header Authorization con el accessToken actual
- */
-export async function logoutBalanz(): Promise<void> {
-  const token = localStorage.getItem('balanz_access_token');
-  if (!token) {
-    throw new Error('No hay token de sesión para logout');
-  }
-  const response = await fetch('/api/v1/logout', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': token,
-      'Lang': 'es',
-    },
-  });
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('❌ Error en logout:', response.status, errorText);
-    throw new Error(`Error en logout: ${response.status} ${response.statusText}`);
-  }
-}
-/**
  * Servicio de autenticación para Balanz
  * Maneja el flujo de login automático en dos pasos:
  * 1. POST /auth/init - Obtiene el nonce
@@ -32,7 +8,20 @@ export async function logoutBalanz(): Promise<void> {
  * para evitar problemas de CORS
  */
 
-const API_BASE = '/api'; // Usa el proxy de Vite configurado en vite.config.ts
+const API_BASE = '/api';
+
+// --- Constantes de almacenamiento ---
+
+const TOKEN_STORAGE_KEY = 'balanz_access_token';
+const TOKEN_TIMESTAMP_KEY = 'balanz_token_timestamp';
+const TOKEN_FAIL_KEY = 'balanz_token_last_fail';
+const TOKEN_EXPIRY_MS = 30 * 60 * 1000; // 30 minutos
+const TOKEN_FAIL_COOLDOWN_MS = 2 * 60 * 1000; // 2 minutos de cooldown después de un fallo
+
+// Variable para prevenir múltiples intentos simultáneos
+let authPromise: Promise<string> | null = null;
+
+// --- Interfaces ---
 
 interface AuthInitResponse {
   tipoAutenticacion: number;
@@ -137,6 +126,35 @@ async function authLogin(user: string, pass: string, nonce: string): Promise<str
   return data.AccessToken;
 }
 
+// ============================================================================
+// --- FUNCIONES PÚBLICAS ---
+// ============================================================================
+
+/**
+ * Realiza logout en la API de Balanz
+ * Es importante enviar el header Authorization con el accessToken actual
+ */
+export async function logoutBalanz(): Promise<void> {
+  const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+  if (!token) {
+    throw new Error('No hay token de sesión para logout');
+  }
+  const response = await fetch('/api/v1/logout', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': token,
+      'Lang': 'es',
+    },
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('❌ Error en logout:', response.status, errorText);
+    throw new Error(`Error en logout: ${response.status} ${response.statusText}`);
+  }
+}
+
 /**
  * Obtiene el accessToken completo realizando el flujo de autenticación
  */
@@ -163,20 +181,8 @@ export async function getAccessToken(): Promise<string> {
 }
 
 /**
- * Gestión de token con caché en localStorage
- * El token se almacena con un timestamp y se renueva automáticamente si está vencido
- */
-const TOKEN_STORAGE_KEY = 'balanz_access_token';
-const TOKEN_TIMESTAMP_KEY = 'balanz_token_timestamp';
-const TOKEN_FAIL_KEY = 'balanz_token_last_fail';
-const TOKEN_EXPIRY_MS = 30 * 60 * 1000; // 30 minutos
-const TOKEN_FAIL_COOLDOWN_MS = 2 * 60 * 1000; // 2 minutos de cooldown después de un fallo
-
-// Variable para prevenir múltiples intentos simultáneos
-let authPromise: Promise<string> | null = null;
-
-/**
  * Obtiene el accessToken, usando caché si está disponible y válido
+ * El token se almacena con un timestamp y se renueva automáticamente si está vencido
  */
 export async function getCachedAccessToken(): Promise<string> {
   // 1. Verificar si hay un intento de autenticación en progreso
@@ -184,9 +190,7 @@ export async function getCachedAccessToken(): Promise<string> {
     return authPromise;
   }
 
-
-
-  // 3. Verificar caché de token válido
+  // 2. Verificar caché de token válido
   const cachedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
   const cachedTimestamp = localStorage.getItem(TOKEN_TIMESTAMP_KEY);
 

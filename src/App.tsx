@@ -4,6 +4,7 @@ import CarteraActual from './components/CarteraActual';
 import TickerLookup from './components/TickerLookup';
 import Rendimientos from './components/Rendimientos';
 import FlujosProyectados from './components/FlujosProyectados';
+import GestionCache from './components/GestionCache';
 import { getEstadoCuentaConCache } from './services/balanzApi';
 import Menu from './components/Menu';
 import LoggedOut from './components/LoggedOut';
@@ -43,15 +44,13 @@ function App() {
         if (result.data && result.data.tenencia) {
           setPositions(result.data.tenencia);
           // Extraer tickers únicos y ordenados
-          const tickers: string[] = [];
-          const seen = new Set<string>();
+          const tickersSet = new Set<string>();
           result.data.tenencia.forEach((t: any) => {
-            if (!seen.has(t.Ticker)) {
-              seen.add(t.Ticker);
-              tickers.push(t.Ticker);
+            if (t.Ticker) {
+              tickersSet.add(t.Ticker);
             }
           });
-          setAvailableTickers(tickers);
+          setAvailableTickers(Array.from(tickersSet).sort());
         } else {
           setPositions([]);
           setAvailableTickers([]);
@@ -150,8 +149,6 @@ function App() {
                 <TickerLookup 
                   availableTickers={availableTickers}
                   positions={positions}
-                  loading={loading}
-                  apiError={apiError}
                 />
               } 
             />
@@ -174,6 +171,10 @@ function App() {
                   apiError={apiError}
                 />
               } 
+            />
+            <Route 
+              path="/gestion-cache" 
+              element={<GestionCache />} 
             />
             <Route path="/logout" element={<LoggedOut />} />
           </Routes>
