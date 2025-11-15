@@ -216,7 +216,7 @@ const TickerHolding: React.FC<TickerHoldingProps> = ({ positions, selectedTicker
                   </tr>
                   <tr>
                     <td className="text-sm font-bold text-slate-200 pt-2 whitespace-nowrap">
-                      <span>Rendimiento</span>
+                      <span>Rendimiento a termino</span>
                     </td>
                     <td className="text-right text-sm font-bold pt-2 whitespace-nowrap">
                       <span>

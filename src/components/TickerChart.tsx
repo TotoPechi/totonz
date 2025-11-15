@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, ReferenceDot } from 'recharts';
+import React, { useState, useMemo } from 'react';
+import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, ReferenceDot, Area } from 'recharts';
 
 // Función para formatear fecha de YYYY-MM-DD a DD/MM/YYYY
 function formatearFecha(fecha: string): string {
@@ -63,12 +63,13 @@ interface TickerChartProps {
   hoveredOperacionIndex?: number | null;
 }
 
-type TimeRange = '1W' | '1M' | '6M' | '1Y' | '2Y';
+type TimeRange = '1W' | '1M' | '6M' | '1Y' | '2Y' | 'MAX';
 
 const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioPromedioVenta, operaciones, dividendos, rentas, hoveredOperacionIndex }) => {
   const [timeRange, setTimeRange] = useState<TimeRange>('1Y');
   const [hoveredLegendType, setHoveredLegendType] = useState<string | null>(null);
   const [hoveredMarker, setHoveredMarker] = useState<{ type: string; index: number } | null>(null);
+  const [showTenencias, setShowTenencias] = useState<boolean>(false);
 
   // Determinar número de decimales según el ticker
   const getDecimalPlaces = (tickerSymbol: string): number => {
@@ -118,13 +119,14 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
   }
 
   // Filtrar datos según el período seleccionado
-  const getDaysForRange = (range: TimeRange): number => {
+  const getDaysForRange = (range: TimeRange): number | null => {
     switch (range) {
       case '1W': return 7;
       case '1M': return 30;
       case '6M': return 180;
       case '1Y': return 365;
       case '2Y': return 730;
+      case 'MAX': return null; // null significa mostrar todos los datos
       default: return 365;
     }
   };
@@ -134,15 +136,21 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
   // Filtrar por fecha real, no solo por cantidad de elementos
   // Obtener la fecha más reciente de los datos
   const latestDate = data.length > 0 ? new Date(data[data.length - 1].time) : new Date();
-  // Calcular la fecha de inicio (hace N días desde la fecha más reciente)
-  const startDate = new Date(latestDate);
-  startDate.setDate(startDate.getDate() - daysToShow);
   
-  // Filtrar datos que estén dentro del rango de fechas
-  const filteredData = data.filter(item => {
-    const itemDate = new Date(item.time);
-    return itemDate >= startDate && itemDate <= latestDate;
-  });
+  // Si daysToShow es null (MAX), mostrar todos los datos sin filtrar
+  const filteredData = daysToShow === null 
+    ? data 
+    : (() => {
+        // Calcular la fecha de inicio (hace N días desde la fecha más reciente)
+        const startDate = new Date(latestDate);
+        startDate.setDate(startDate.getDate() - daysToShow);
+        
+        // Filtrar datos que estén dentro del rango de fechas
+        return data.filter(item => {
+          const itemDate = new Date(item.time);
+          return itemDate >= startDate && itemDate <= latestDate;
+        });
+      })();
 
   // Formatear datos para el gráfico
   const getDateFormat = (range: TimeRange) => {
@@ -154,24 +162,14 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
         return { day: 'numeric', month: 'short' }; // "5 nov"
       case '1Y':
       case '2Y':
+      case 'MAX':
       default:
         return { day: 'numeric', month: 'numeric', year: '2-digit' }; // "5/11/24"
     }
   };
 
   const dateFormat = getDateFormat(timeRange);
-  const chartData = filteredData.map(item => ({
-    date: new Date(item.time).toLocaleDateString('es-AR', dateFormat as any),
-    fullDate: item.time,
-    price: item.close,
-    ppc: ppc, // Agregar PPC a cada punto
-    precioPromedioVenta: precioPromedioVenta, // Agregar precio promedio de venta a cada punto
-  }));
-
-  // Determinar rango de fechas del gráfico
-  const minChartDate = filteredData.length > 0 ? new Date(filteredData[0].time) : null;
-  const maxChartDate = filteredData.length > 0 ? new Date(filteredData[filteredData.length - 1].time) : null;
-
+  
   // Función para parsear DD/MM/YYYY a YYYY-MM-DD sin problemas de zona horaria
   const parsearFechaYYYYMMDD = (fechaStr: string): string => {
     if (!fechaStr) return '';
@@ -205,6 +203,75 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
     
     return '';
   };
+  
+  // Calcular tenencias históricas basándose en las operaciones
+  const tenenciasHistoricas = useMemo(() => {
+    if (!operaciones || operaciones.length === 0) {
+      return new Map<string, number>();
+    }
+    
+    // Ordenar operaciones por fecha
+    const operacionesOrdenadas = [...operaciones].sort((a, b) => 
+      a.fecha.localeCompare(b.fecha)
+    );
+    
+    // Crear un mapa de fecha -> cantidad acumulada
+    const tenenciasMap = new Map<string, number>();
+    let cantidadAcumulada = 0;
+    
+    // Procesar cada operación
+    operacionesOrdenadas.forEach(op => {
+      const fechaOp = parsearFechaYYYYMMDD(op.fecha);
+      if (!fechaOp) return;
+      
+      if (op.tipo === 'COMPRA' || op.tipo === 'LIC') {
+        cantidadAcumulada += op.cantidad;
+      } else if (op.tipo === 'VENTA' || op.tipo === 'RESCATE_PARCIAL') {
+        cantidadAcumulada -= op.cantidad;
+        if (cantidadAcumulada < 0) cantidadAcumulada = 0; // No permitir negativos
+      }
+      
+      tenenciasMap.set(fechaOp, cantidadAcumulada);
+    });
+    
+    return tenenciasMap;
+  }, [operaciones]);
+  
+  // Calcular tenencias para cada punto del gráfico
+  // Convertir el mapa a un array ordenado para búsqueda más eficiente
+  const tenenciasArray = Array.from(tenenciasHistoricas.entries())
+    .sort((a, b) => a[0].localeCompare(b[0]));
+  
+  const chartData = filteredData.map(item => {
+    const itemDateStr = parsearFechaYYYYMMDD(item.time);
+    let cantidadTenencias = 0;
+    
+    // Buscar la cantidad de tenencias más reciente hasta esta fecha
+    if (tenenciasArray.length > 0) {
+      // Buscar la operación más reciente antes o en esta fecha
+      // Recorrer desde el final hacia atrás para encontrar la más reciente
+      for (let i = tenenciasArray.length - 1; i >= 0; i--) {
+        const [fecha, cantidad] = tenenciasArray[i];
+        if (fecha <= itemDateStr) {
+          cantidadTenencias = cantidad;
+          break;
+        }
+      }
+    }
+    
+    return {
+      date: new Date(item.time).toLocaleDateString('es-AR', dateFormat as any),
+      fullDate: item.time,
+      price: item.close,
+      ppc: ppc, // Agregar PPC a cada punto
+      precioPromedioVenta: precioPromedioVenta, // Agregar precio promedio de venta a cada punto
+      cantidadTenencias: cantidadTenencias, // Agregar cantidad de tenencias
+    };
+  });
+
+  // Determinar rango de fechas del gráfico
+  const minChartDate = filteredData.length > 0 ? new Date(filteredData[0].time) : null;
+  const maxChartDate = filteredData.length > 0 ? new Date(filteredData[filteredData.length - 1].time) : null;
 
   // Filtrar operaciones por rango de fechas del gráfico antes de mapear
   const operacionesPuntos = operaciones?.map((op, originalIndex) => {
@@ -322,6 +389,11 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
   const priceRange = maxPrice - minPrice;
   const yMin = minPrice - (priceRange * 0.1);
   const yMax = maxPrice + (priceRange * 0.1);
+  
+  // Calcular rango de cantidades para el eje Y secundario
+  const cantidades = chartData.map(d => d.cantidadTenencias);
+  const maxCantidad = Math.max(...cantidades, 0);
+  const cantidadYMax = maxCantidad > 0 ? maxCantidad * 1.1 : 1; // Agregar 10% de margen
 
   const getRangeLabel = (range: TimeRange): string => {
     switch (range) {
@@ -330,18 +402,32 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
       case '6M': return '6 Meses';
       case '1Y': return '1 Año';
       case '2Y': return '2 Años';
+      case 'MAX': return 'Máximo';
       default: return '1 Año';
     }
   };
 
   // Calcular intervalo de labels según el período
-  const getXAxisInterval = (range: TimeRange, dataLength: number): number => {
+  const getXAxisInterval = (range: TimeRange, dataLength: number, filteredData?: any[]): number => {
     switch (range) {
       case '1W': return 0; // Mostrar todos los días
-      case '1M': return Math.max(1, Math.floor(dataLength / 20)); 
-      case '6M': return Math.max(1, Math.floor(dataLength / 15)); 
-      case '1Y': return Math.max(1, Math.floor(dataLength / 10));
-      case '2Y': return Math.max(1, Math.floor(dataLength / 10));
+      case '1M': return Math.max(1, Math.floor(dataLength / 10)); 
+      case '6M': return Math.max(1, Math.floor(dataLength / 8)); 
+      case '1Y': return Math.max(1, Math.floor(dataLength / 8));
+      case '2Y': return Math.max(1, Math.floor(dataLength / 8));
+      case 'MAX': 
+        // Calcular intervalo para mostrar un label por año
+        if (filteredData && filteredData.length > 0) {
+          const firstDate = new Date(filteredData[0].time);
+          const lastDate = new Date(filteredData[filteredData.length - 1].time);
+          const yearsDiff = (lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+          const numberOfYears = Math.max(1, Math.ceil(yearsDiff));
+          // Calcular cuántos puntos de datos hay por año
+          const pointsPerYear = dataLength / numberOfYears;
+          // Mostrar un label por año, así que el intervalo debe ser aproximadamente pointsPerYear
+          return Math.max(1, Math.floor(pointsPerYear));
+        }
+        return Math.max(1, Math.floor(dataLength / 15)); // Fallback
       default: return Math.max(1, Math.floor(dataLength / 40));
     }
   };
@@ -349,11 +435,32 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
   return (
     <div className="bg-slate-800 rounded-lg p-6 shadow-lg">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-bold text-white">📈 Gráfico de {ticker} ({getRangeLabel(timeRange)})</h3>
+        <h3 className="text-xl font-bold text-white">📈 {ticker}</h3>
         
-        {/* Botones de selección de período */}
-        <div className="flex gap-2">
-          {(['1W', '1M', '6M', '1Y', '2Y'] as TimeRange[]).map((range) => (
+        {/* Controles */}
+        <div className="flex gap-2 items-center">
+          {/* Switch de tenencias */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-slate-400">Tenencias</span>
+            <button
+              onClick={() => setShowTenencias(!showTenencias)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 ${
+                showTenencias ? 'bg-cyan-500' : 'bg-slate-600'
+              }`}
+              role="switch"
+              aria-checked={showTenencias}
+              title={showTenencias ? 'Ocultar tenencias' : 'Mostrar tenencias'}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  showTenencias ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+          
+          {/* Botones de selección de período */}
+          {(['1W', '1M', '6M', '1Y', '2Y', 'MAX'] as TimeRange[]).map((range) => (
             <button
               key={range}
               onClick={() => setTimeRange(range)}
@@ -376,14 +483,25 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
             dataKey="date" 
             stroke="#94a3b8"
             tick={{ fill: '#94a3b8', fontSize: 12 }}
-            interval={getXAxisInterval(timeRange, chartData.length)}
+            interval={getXAxisInterval(timeRange, chartData.length, filteredData)}
           />
           <YAxis 
+            yAxisId="left"
             stroke="#94a3b8"
             tick={{ fill: '#94a3b8' }}
             domain={[yMin, yMax]}
             tickFormatter={(value) => `$${value.toFixed(decimals)}`}
           />
+          {showTenencias && (
+            <YAxis 
+              yAxisId="right"
+              orientation="right"
+              stroke="#94a3b8"
+              tick={{ fill: '#94a3b8' }}
+              domain={[0, cantidadYMax]}
+              tickFormatter={(value) => value.toFixed(0)}
+            />
+          )}
           <Tooltip 
             contentStyle={{ 
               backgroundColor: '#1e293b', 
@@ -435,6 +553,16 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
                       <span className="text-slate-400">PPV: </span>
                       <span className="text-orange-400 font-semibold">
                         ${precioPromedioVenta.toFixed(decimals)}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Cantidad de tenencias si existe */}
+                  {showTenencias && dataPoint && dataPoint.cantidadTenencias > 0 && (
+                    <div className="text-sm mb-2">
+                      <span className="text-slate-400">Tenencias: </span>
+                      <span className="text-cyan-400 font-semibold">
+                        {dataPoint.cantidadTenencias.toFixed(2)}
                       </span>
                     </div>
                   )}
@@ -510,7 +638,21 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
             }}
             labelStyle={{ color: '#94a3b8' }}
           />
+          {showTenencias && (
+            <Area
+              yAxisId="right"
+              type="monotone"
+              dataKey="cantidadTenencias"
+              fill="#06b6d4"
+              fillOpacity={0.05}
+              stroke="#06b6d4"
+              strokeWidth={1}
+              strokeDasharray="0"
+              dot={false}
+            />
+          )}
           <Line 
+            yAxisId="left"
             type="monotone" 
             dataKey="price" 
             stroke="#3b82f6" 
@@ -520,6 +662,7 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
           />
           {ppc && (
             <Line 
+              yAxisId="left"
               type="monotone" 
               dataKey="ppc" 
               stroke="#10b981" 
@@ -530,6 +673,7 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
           )}
           {precioPromedioVenta && (
             <Line 
+              yAxisId="left"
               type="monotone" 
               dataKey="precioPromedioVenta" 
               stroke="#f97316" 
@@ -551,6 +695,7 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
             return (
               <ReferenceDot
                 key={`op-${idx}`}
+                yAxisId="left"
                 x={op.x}
                 y={op.y}
                 r={isHovered ? 12 : isMarkerHovered ? 11 : baseRadius}
@@ -580,6 +725,7 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
             return (
               <ReferenceDot
                 key={`div-${idx}`}
+                yAxisId="left"
                 x={div.x}
                 y={div.y}
                 r={isMarkerHovered ? 8 : 5}
@@ -603,6 +749,7 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
             return (
               <ReferenceDot
                 key={`renta-${idx}`}
+                yAxisId="left"
                 x={renta.x}
                 y={renta.y}
                 r={isMarkerHovered ? 8 : 5}
@@ -629,6 +776,12 @@ const TickerChart: React.FC<TickerChartProps> = ({ data, ticker, ppc, precioProm
           <div className="w-8 h-0.5 bg-blue-500"></div>
           <span className="text-slate-400">Precio Actual</span>
         </div>
+        {showTenencias && maxCantidad > 0 && (
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-3 bg-cyan-500/20 border border-cyan-500"></div>
+            <span className="text-slate-400">Tenencias</span>
+          </div>
+        )}
         {ppc && (
           <div className="flex items-center gap-2">
             <div className="w-8 border-t-2 border-dashed border-green-500"></div>

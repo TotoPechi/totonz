@@ -22,7 +22,7 @@ const MovimientosChart: React.FC<MovimientosChartProps> = ({ chartDataMovimiento
   return (
     <div className="bg-slate-700/30 rounded-lg overflow-hidden mt-8">
       <div className="p-4 border-b border-slate-600">
-        <h3 className="text-lg font-bold text-white">Gráfico de Movimientos y Acumulado</h3>
+        <h3 className="text-lg font-bold text-white">Depositos y Extracciones</h3>
       </div>
       <div className="p-6">
         <ResponsiveContainer width="100%" height={300}>

@@ -952,7 +952,7 @@ const TickerLookup: React.FC<TickerLookupProps> = ({ availableTickers, positions
       // Intentar cargar datos de cotización y datos históricos en paralelo
       const [quoteResult, candlesResult] = await Promise.allSettled([
         getTickerQuote(ticker, positions, movimientosHistoricos),
-        getTickerCandles(ticker, 730, positions, movimientosHistoricos) // Últimos 2 años
+        getTickerCandles(ticker, 3650, positions, movimientosHistoricos) // Últimos 10 años
       ]);
       
       // Extraer quote si fue exitoso

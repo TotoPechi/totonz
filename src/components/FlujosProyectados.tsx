@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { getFlujosProyectadosConCache, getEstadoCuentaConCache, getDolarMEP, FlujoProyectado } from '../services/balanzApi';
+import { getFlujosProyectadosConCache, getEstadoCuentaConCache, getDolarMEP, FlujoProyectado, getMovimientosHistoricosConCache, getIngresosYEgresos, getSaldosActuales } from '../services/balanzApi';
 import { getDolarParaFecha } from '../services/dolarHistoricoApi';
+import { getTickerHoldingData } from '../services/tickerHoldingData';
+import ResumenFlujosProyectados from './flujos/ResumenFlujosProyectados';
 
 interface FlujosProyectadosProps {
+  positions?: any[];
   loading?: boolean;
   apiError?: string | null;
 }
@@ -41,14 +44,43 @@ const getBonoColor = (codigo: string): string => {
   return COLOR_PALETTE[index];
 };
 
-const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ loading, apiError }) => {
+// Función para obtener el sufijo (B) o (C) según el tipo de instrumento
+const getTickerSuffix = (ticker: string, positions: any[]): string => {
+  const position = positions.find(p => p.Ticker === ticker);
+  const tipo = position?.Tipo?.toLowerCase() || '';
+  
+  // Listas de tickers conocidos
+  const tickersBonos = ['AL30', 'BPOC7', 'T30J6', 'TZXD6', 'YM39O'];
+  const tickersCorporativos = ['YMCXO', 'TLC1O'];
+  
+  if (tipo.includes('bono') || tickersBonos.includes(ticker)) {
+    return ' (B)';
+  } else if (tipo.includes('corporativo') || tickersCorporativos.includes(ticker)) {
+    return ' (C)';
+  }
+  
+  return '';
+};
+
+const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ positions = [], loading, apiError }) => {
   const [flujos, setFlujos] = useState<FlujoProyectado[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dolarMEPActual, setDolarMEPActual] = useState<number | null>(null);
-  const [selectedPeriod, setSelectedPeriod] = useState<'3M' | '1Y' | '3Y' | '10Y' | 'MAX'>('MAX');
-  const [groupingMode, setGroupingMode] = useState<'year' | 'month'>('year');
+  const [selectedPeriod, setSelectedPeriod] = useState<'3M' | '1Y' | '3Y' | '10Y' | 'MAX'>('3Y');
+  const [groupingMode, setGroupingMode] = useState<'year' | 'month'>('month');
+  const [tableGroupingMode, setTableGroupingMode] = useState<'year' | 'month'>('year');
   const [bonosConvertidos, setBonosConvertidos] = useState<Set<string>>(new Set());
+  
+  // Estados para la cabecera
+  const [valorAcciones, setValorAcciones] = useState<number>(0);
+  const [valorCedear, setValorCedear] = useState<number>(0);
+  const [montoInvertido, setMontoInvertido] = useState<number>(0);
+  const [saldosActuales, setSaldosActuales] = useState<{ usd: number; cable: number; pesos: number }>({
+    usd: 0,
+    cable: 0,
+    pesos: 0,
+  });
 
   useEffect(() => {
     const loadData = async () => {
@@ -119,6 +151,120 @@ const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ loading, apiError
     };
 
     loadData();
+  }, []);
+
+  // Calcular valores de la cabecera
+  useEffect(() => {
+    const calcularValoresCabecera = async () => {
+      if (!positions || positions.length === 0) {
+        setValorAcciones(0);
+        setValorCedear(0);
+        return;
+      }
+
+      try {
+        const estadoCuenta = await getEstadoCuentaConCache();
+        const dolarMEP = getDolarMEP(estadoCuenta.data?.cotizacionesDolar || []) || 1000;
+
+        // Obtener tickers únicos
+        const tickersUnicos = Array.from(new Set(positions.map((p) => p.Ticker).filter(Boolean)));
+
+        // Calcular valor actual por ticker
+        const grouped: Record<string, any> = {};
+        await Promise.all(
+          tickersUnicos.map(async (ticker) => {
+            const data = await getTickerHoldingData(ticker, positions, dolarMEP);
+            if (data) {
+              const position = positions.find(p => p.Ticker === ticker);
+              grouped[ticker] = {
+                valorActual: data.valorActual,
+                tipo: position?.Tipo || '',
+              };
+            }
+          })
+        );
+
+        // Calcular valor de acciones y cedears (excluyendo bonos y corporativos)
+        let accionesTotal = 0;
+        let cedearsTotal = 0;
+
+        // Listas de tickers conocidos para categorización
+        const tickersBonos = ['AL30', 'BPOC7', 'T30J6', 'TZXD6', 'YM39O'];
+        const tickersCorporativos = ['YMCXO', 'TLC1O'];
+        const tickersCedears = ['VIST'];
+
+        Object.entries(grouped).forEach(([ticker, item]: [string, any]) => {
+          const tipo = item.tipo?.toLowerCase() || '';
+          const valorActual = item.valorActual || 0;
+          
+          // Categorizar por tipo primero
+          if (tipo.includes('acción') || tipo.includes('accion')) {
+            accionesTotal += valorActual;
+          } else if (tipo.includes('cedear')) {
+            cedearsTotal += valorActual;
+          } else if (tipo.includes('bono') || tipo.includes('corporativo')) {
+            // Ignorar bonos y corporativos - no se suman a tenencia no amortizable
+            return;
+          } else {
+            // Inferir por ticker si no podemos categorizar por tipo
+            if (tickersCedears.includes(ticker)) {
+              cedearsTotal += valorActual;
+            } else if (tickersBonos.includes(ticker) || tickersCorporativos.includes(ticker)) {
+              // Ignorar bonos y corporativos - no se suman a tenencia no amortizable
+              return;
+            } else {
+              // Si no está en ninguna lista conocida, asumir que es acción
+              accionesTotal += valorActual;
+            }
+          }
+        });
+
+        setValorAcciones(accionesTotal);
+        setValorCedear(cedearsTotal);
+      } catch (err) {
+        console.error('Error calculando valores de cabecera:', err);
+      }
+    };
+
+    calcularValoresCabecera();
+  }, [positions]);
+
+  // Calcular monto invertido
+  useEffect(() => {
+    const calcularMontoInvertido = async () => {
+      try {
+        const fechaHasta = new Date();
+        const fechaDesde = new Date('2021-09-05');
+        const fechaDesdeStr = fechaDesde.toISOString().split('T')[0].replace(/-/g, '');
+        const fechaHastaStr = fechaHasta.toISOString().split('T')[0].replace(/-/g, '');
+
+        const movimientosResult = await getMovimientosHistoricosConCache(fechaDesdeStr, fechaHastaStr);
+        if (movimientosResult.data && movimientosResult.data.length > 0) {
+          const { ingresos, egresos } = await getIngresosYEgresos(movimientosResult.data);
+          const totalIngresosUSD = ingresos.reduce((sum, ing) => sum + ing.importeUSD, 0);
+          const totalEgresosUSD = egresos.reduce((sum, eg) => sum + eg.importeUSD, 0);
+          setMontoInvertido(totalIngresosUSD - totalEgresosUSD);
+        }
+      } catch (err) {
+        console.error('Error calculando monto invertido:', err);
+      }
+    };
+
+    calcularMontoInvertido();
+  }, []);
+
+  // Obtener saldos actuales
+  useEffect(() => {
+    const cargarSaldos = async () => {
+      try {
+        const saldos = await getSaldosActuales();
+        setSaldosActuales(saldos);
+      } catch (err) {
+        console.error('Error cargando saldos actuales:', err);
+      }
+    };
+
+    cargarSaldos();
   }, []);
 
   // Filtrar flujos según el período seleccionado
@@ -268,6 +414,156 @@ const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ loading, apiError
     }
   }, [flujosFiltrados, groupingMode]);
 
+  // Agrupar flujos para la tabla por año o mes y por bono (independiente del gráfico)
+  // La tabla siempre muestra todos los datos, sin filtrar por período
+  const tableData = useMemo(() => {
+    const bonosUnicos = new Set<string>();
+    flujos.forEach(flujo => bonosUnicos.add(flujo.codigoespeciebono));
+    const bonosArray = Array.from(bonosUnicos).sort();
+
+    if (tableGroupingMode === 'year') {
+      // Agrupar por año
+      const porAno = new Map<number, Map<string, number>>();
+      
+      flujos.forEach((flujo) => {
+        const fecha = new Date(flujo.fecha);
+        const ano = fecha.getFullYear();
+        
+        if (!porAno.has(ano)) {
+          porAno.set(ano, new Map());
+        }
+        
+        const bonosDelAno = porAno.get(ano)!;
+        const codigo = flujo.codigoespeciebono;
+        const totalActual = bonosDelAno.get(codigo) || 0;
+        bonosDelAno.set(codigo, totalActual + flujo.total);
+      });
+
+      // Convertir a formato para la tabla
+      const anos = Array.from(porAno.keys()).sort();
+      const data = anos.map(ano => {
+        const bonosDelAno = porAno.get(ano)!;
+        const entry: any = { periodo: ano.toString() };
+        
+        bonosArray.forEach(bono => {
+          entry[bono] = bonosDelAno.get(bono) || 0;
+        });
+        
+        return entry;
+      });
+
+      return { data, bonos: bonosArray, labelKey: 'periodo' };
+    } else {
+      // Agrupar por mes-año
+      const porMes = new Map<string, Map<string, number>>();
+      const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+      
+      // Primero, encontrar el rango de fechas (usando todos los flujos, no filtrados)
+      let fechaMin: Date | null = null;
+      let fechaMax: Date | null = null;
+      
+      flujos.forEach((flujo) => {
+        const fecha = new Date(flujo.fecha);
+        if (!fechaMin || fecha < fechaMin) {
+          fechaMin = new Date(fecha);
+        }
+        if (!fechaMax || fecha > fechaMax) {
+          fechaMax = new Date(fecha);
+        }
+      });
+      
+      // Si no hay fechas, retornar datos vacíos
+      if (!fechaMin || !fechaMax) {
+        return { data: [], bonos: bonosArray, labelKey: 'periodo' };
+      }
+      
+      // Agrupar los flujos existentes por mes (usando todos los flujos, no filtrados)
+      flujos.forEach((flujo) => {
+        const fecha = new Date(flujo.fecha);
+        const ano = fecha.getFullYear();
+        const mes = fecha.getMonth();
+        const mesAnoKey = `${ano}-${String(mes + 1).padStart(2, '0')}`;
+        
+        if (!porMes.has(mesAnoKey)) {
+          porMes.set(mesAnoKey, new Map());
+        }
+        
+        const bonosDelMes = porMes.get(mesAnoKey)!;
+        const codigo = flujo.codigoespeciebono;
+        const totalActual = bonosDelMes.get(codigo) || 0;
+        bonosDelMes.set(codigo, totalActual + flujo.total);
+      });
+
+      // Generar todos los meses en el rango
+      const todosLosMeses: string[] = [];
+      const fechaActual = new Date(fechaMin);
+      fechaActual.setDate(1); // Primer día del mes
+      const fechaMaxFinal = new Date(fechaMax);
+      fechaMaxFinal.setDate(1); // Primer día del mes para comparación
+      
+      while (fechaActual <= fechaMaxFinal) {
+        const ano = fechaActual.getFullYear();
+        const mes = fechaActual.getMonth();
+        const mesAnoKey = `${ano}-${String(mes + 1).padStart(2, '0')}`;
+        todosLosMeses.push(mesAnoKey);
+        
+        // Avanzar al siguiente mes
+        fechaActual.setMonth(fechaActual.getMonth() + 1);
+      }
+
+      // Crear datos para todos los meses, usando valores de porMes si existen
+      const data = todosLosMeses.map((mesAnoKey) => {
+        const [ano, mes] = mesAnoKey.split('-');
+        const mesIndex = parseInt(mes) - 1;
+        const mesNombre = meses[mesIndex];
+        const entry: any = { periodo: `${mesNombre} ${ano}` };
+        
+        // Obtener valores del mes si existen, sino usar 0
+        const bonosDelMes = porMes.get(mesAnoKey) || new Map();
+        
+        bonosArray.forEach(bono => {
+          entry[bono] = bonosDelMes.get(bono) || 0;
+        });
+        
+        return entry;
+      });
+
+      return { data, bonos: bonosArray, labelKey: 'periodo' };
+    }
+  }, [flujos, tableGroupingMode]);
+
+  // Calcular valores para la cabecera
+  const saldosTotalUSD = useMemo(() => {
+    return saldosActuales.usd + saldosActuales.cable + saldosActuales.pesos;
+  }, [saldosActuales]);
+
+  const tenenciaNoAmortizable = useMemo(() => {
+    return valorAcciones + valorCedear + saldosTotalUSD;
+  }, [valorAcciones, valorCedear, saldosTotalUSD]);
+
+  const flujoProyectadoTotal = useMemo(() => {
+    return flujos.reduce((sum, flujo) => sum + (flujo.total || 0), 0);
+  }, [flujos]);
+
+  const fechaUltimoCobro = useMemo(() => {
+    if (flujos.length === 0) return null;
+    const fechas = flujos.map(f => new Date(f.fecha));
+    const fechaMax = new Date(Math.max(...fechas.map(d => d.getTime())));
+    return fechaMax.toISOString().split('T')[0];
+  }, [flujos]);
+
+  const tenenciaTotalATermino = useMemo(() => {
+    return flujoProyectadoTotal + tenenciaNoAmortizable;
+  }, [flujoProyectadoTotal, tenenciaNoAmortizable]);
+
+  const rendimientoATermino = useMemo(() => {
+    return tenenciaTotalATermino - montoInvertido;
+  }, [tenenciaTotalATermino, montoInvertido]);
+
+  const rendimientoPorcentaje = useMemo(() => {
+    return montoInvertido > 0 ? (rendimientoATermino / montoInvertido) * 100 : 0;
+  }, [rendimientoATermino, montoInvertido]);
+
   if (loading || isLoading) {
     return (
       <div className="bg-slate-800 rounded-lg p-6 shadow-lg">
@@ -303,56 +599,71 @@ const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ loading, apiError
 
   return (
     <div className="bg-slate-800 rounded-lg p-6 shadow-lg">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-white">📊 Flujos Proyectados</h2>
-        
-        <div className="flex items-center gap-4">
-          {/* Selector de modo de agrupación */}
-          <div className="flex gap-2 bg-slate-700 rounded-lg p-1">
-            <button
-              onClick={() => setGroupingMode('year')}
-              className={`px-3 py-1 text-sm font-semibold rounded transition ${
-                groupingMode === 'year'
-                  ? 'bg-blue-500 text-white'
-                  : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              Por Año
-            </button>
-            <button
-              onClick={() => setGroupingMode('month')}
-              className={`px-3 py-1 text-sm font-semibold rounded transition ${
-                groupingMode === 'month'
-                  ? 'bg-blue-500 text-white'
-                  : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              Por Mes
-            </button>
-          </div>
-          
-          {/* Selector de período */}
-          <div className="flex gap-2">
-            {(['3M', '1Y', '3Y', '10Y', 'MAX'] as const).map((period) => (
-              <button
-                key={period}
-                onClick={() => setSelectedPeriod(period)}
-                className={`px-3 py-1 text-sm font-semibold rounded transition ${
-                  selectedPeriod === period
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                }`}
-              >
-                {period === '3M' ? '3 Meses' : period === '1Y' ? '1 Año' : period === '3Y' ? '3 Años' : period === '10Y' ? '10 Años' : 'MAX'}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <h2 className="text-2xl font-bold text-white mb-6">📊 Flujos Proyectados</h2>
+
+      {/* Cabecera de rendimiento a término */}
+      <ResumenFlujosProyectados
+        valorAcciones={valorAcciones}
+        valorCedear={valorCedear}
+        saldosTotalUSD={saldosTotalUSD}
+        tenenciaNoAmortizable={tenenciaNoAmortizable}
+        flujoProyectadoTotal={flujoProyectadoTotal}
+        fechaUltimoCobro={fechaUltimoCobro}
+        tenenciaTotalATermino={tenenciaTotalATermino}
+        montoInvertido={montoInvertido}
+        rendimientoATermino={rendimientoATermino}
+        rendimientoPorcentaje={rendimientoPorcentaje}
+      />
 
       {/* Gráfico */}
       <div className="bg-slate-900/50 rounded-lg p-6 mb-6">
-        <h3 className="text-lg font-semibold text-slate-300 mb-4">Pago en dólares</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-slate-300">Pago en dólares</h3>
+          
+          {/* Configuradores del gráfico */}
+          <div className="flex items-center gap-4">
+            {/* Selector de modo de agrupación */}
+            <div className="flex gap-2 bg-slate-700 rounded-lg p-1">
+              <button
+                onClick={() => setGroupingMode('year')}
+                className={`px-3 py-1 text-sm font-semibold rounded transition ${
+                  groupingMode === 'year'
+                    ? 'bg-blue-500 text-white'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+              >
+                Por Año
+              </button>
+              <button
+                onClick={() => setGroupingMode('month')}
+                className={`px-3 py-1 text-sm font-semibold rounded transition ${
+                  groupingMode === 'month'
+                    ? 'bg-blue-500 text-white'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+              >
+                Por Mes
+              </button>
+            </div>
+            
+            {/* Selector de período */}
+            <div className="flex gap-2">
+              {(['3M', '1Y', '3Y', '10Y', 'MAX'] as const).map((period) => (
+                <button
+                  key={period}
+                  onClick={() => setSelectedPeriod(period)}
+                  className={`px-3 py-1 text-sm font-semibold rounded transition ${
+                    selectedPeriod === period
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                  }`}
+                >
+                  {period === '3M' ? '3 Meses' : period === '1Y' ? '1 Año' : period === '3Y' ? '3 Años' : period === '10Y' ? '10 Años' : 'MAX'}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart
             data={chartData.data}
@@ -417,7 +728,7 @@ const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ loading, apiError
                         className="text-blue-400 hover:text-blue-300 hover:underline transition text-sm"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {entry.value}
+                        {entry.value}{getTickerSuffix(entry.value, positions)}
                       </Link>
                     </div>
                   ))}
@@ -438,20 +749,49 @@ const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ loading, apiError
       </div>
 
       {/* Tabla de resumen */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-900/50">
-            <tr>
-              <th className="py-2 px-3 text-left text-slate-300 font-semibold">
-                {groupingMode === 'year' ? 'Año' : 'Mes'}
-              </th>
-              {chartData.bonos.map((bono) => (
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-slate-300">Tabla de Resumen</h3>
+          
+          {/* Selector de modo de agrupación para la tabla */}
+          <div className="flex gap-2 bg-slate-700 rounded-lg p-1">
+            <button
+              onClick={() => setTableGroupingMode('year')}
+              className={`px-3 py-1 text-sm font-semibold rounded transition ${
+                tableGroupingMode === 'year'
+                  ? 'bg-blue-500 text-white'
+                  : 'text-slate-300 hover:text-white'
+              }`}
+            >
+              Por Año
+            </button>
+            <button
+              onClick={() => setTableGroupingMode('month')}
+              className={`px-3 py-1 text-sm font-semibold rounded transition ${
+                tableGroupingMode === 'month'
+                  ? 'bg-blue-500 text-white'
+                  : 'text-slate-300 hover:text-white'
+              }`}
+            >
+              Por Mes
+            </button>
+          </div>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-900/50">
+              <tr>
+                <th className="py-2 px-3 text-left text-slate-300 font-semibold">
+                  {tableGroupingMode === 'year' ? 'Año' : 'Mes'}
+                </th>
+                {tableData.bonos.map((bono) => (
                 <th key={bono} className="py-2 px-3 text-right text-slate-300 font-semibold">
                   <Link 
                     to={`/ticker/${bono}`}
                     className="text-blue-400 hover:text-blue-300 hover:underline transition"
                   >
-                    {bono}
+                    {bono}{getTickerSuffix(bono, positions)}
                   </Link>
                 </th>
               ))}
@@ -459,15 +799,15 @@ const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ loading, apiError
             </tr>
           </thead>
           <tbody>
-            {chartData.data.map((row, idx) => {
-              const total = chartData.bonos.reduce((sum, bono) => sum + (row[bono] || 0), 0);
+            {tableData.data.map((row, idx) => {
+              const total = tableData.bonos.reduce((sum, bono) => sum + (row[bono] || 0), 0);
               return (
                 <tr
                   key={idx}
                   className="border-b border-slate-700/50 hover:bg-slate-700/30"
                 >
                   <td className="py-2 px-3 text-slate-300">{row.periodo}</td>
-                  {chartData.bonos.map((bono) => (
+                  {tableData.bonos.map((bono) => (
                     <td key={bono} className="py-2 px-3 text-right text-slate-400">
                       {row[bono] > 0
                         ? `USD ${row[bono].toLocaleString('es-AR', {
@@ -488,15 +828,15 @@ const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ loading, apiError
             })}
             {/* Fila de totales */}
             {(() => {
-              const totalesPorBono = chartData.bonos.map(bono => {
-                return chartData.data.reduce((sum, row) => sum + (row[bono] || 0), 0);
+              const totalesPorBono = tableData.bonos.map(bono => {
+                return tableData.data.reduce((sum, row) => sum + (row[bono] || 0), 0);
               });
               const totalGeneral = totalesPorBono.reduce((sum, total) => sum + total, 0);
               
               return (
                 <tr className="bg-slate-900/70 border-t-2 border-slate-600 font-bold">
                   <td className="py-3 px-3 text-left text-slate-200">Total</td>
-                  {chartData.bonos.map((bono, idx) => (
+                  {tableData.bonos.map((bono, idx) => (
                     <td key={bono} className="py-3 px-3 text-right text-slate-200">
                       USD {totalesPorBono[idx].toLocaleString('es-AR', {
                         minimumFractionDigits: 2,
@@ -515,6 +855,7 @@ const FlujosProyectados: React.FC<FlujosProyectadosProps> = ({ loading, apiError
             })()}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Advertencia sobre conversión de pesos */}

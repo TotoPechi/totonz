@@ -1,6 +1,7 @@
 import { Orden } from '../types/balanz';
 import { CacheResult } from '../types/cache';
 import { getCachedDataByDate, setCachedDataWithDate, getCachedDataExpired, getCachedDataFull, getCachedData, setCachedData, clearCache, getCacheInfo } from '../utils/cacheManager';
+import { getBalanzInstrumentInfo } from './tickerApi';
 
 // --- Órdenes históricas con caché ---
 export type OrdenesConCache = CacheResult<Orden[]>;
@@ -1239,6 +1240,14 @@ export interface FlujoProyectado {
   tipo_moneda: number; // 1 = pesos, 2 = dólares
 }
 
+// Interfaz para bonos excluidos
+interface BonoExcluido {
+  descripcionbono: string;
+  codigoespeciebono: string;
+  tenencia: number;
+  precio: number;
+}
+
 interface FlujosProyectadosCacheData {
   data: FlujoProyectado[];
   fecha: string; // YYYY-MM-DD
@@ -1248,8 +1257,68 @@ interface FlujosProyectadosCacheData {
 export type FlujosProyectadosConCache = CacheResult<FlujoProyectado[]>;
 
 /**
+ * Obtiene los flujos de un bono excluido usando instrument_info
+ */
+async function getFlujosDeBonoExcluido(bonoExcluido: BonoExcluido): Promise<FlujoProyectado[]> {
+  try {
+    const instrumentInfo = await getBalanzInstrumentInfo(bonoExcluido.codigoespeciebono);
+    
+    if (!instrumentInfo.bond?.cashFlow || !Array.isArray(instrumentInfo.bond.cashFlow)) {
+      console.warn(`⚠️ No se encontró cashFlow para el bono excluido ${bonoExcluido.codigoespeciebono}`);
+      return [];
+    }
+
+    const tenencia = bonoExcluido.tenencia;
+    const flujos: FlujoProyectado[] = [];
+
+    // Filtrar solo flujos futuros (fechas >= hoy)
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    for (const cashFlow of instrumentInfo.bond.cashFlow) {
+      const fechaFlujo = new Date(cashFlow.date);
+      fechaFlujo.setHours(0, 0, 0, 0);
+
+      // Solo incluir flujos futuros
+      if (fechaFlujo >= hoy) {
+        const renta = (cashFlow.rent || 0) * tenencia;
+        const amort = (cashFlow.amortizationValue || 0) * tenencia;
+        const total = (cashFlow.cashflow || 0) * tenencia;
+        
+        // Determinar si es renta, amortización o ambos
+        let rentaamort = '';
+        if (renta > 0 && amort > 0) {
+          rentaamort = 'Renta + Amort.';
+        } else if (renta > 0) {
+          rentaamort = 'Renta';
+        } else if (amort > 0) {
+          rentaamort = 'Amort.';
+        }
+
+        flujos.push({
+          codigoespeciebono: bonoExcluido.codigoespeciebono,
+          fecha: cashFlow.date,
+          vr: cashFlow.residualValue || 0,
+          renta: renta,
+          amort: amort,
+          rentaamort: rentaamort,
+          total: total,
+          tipo_moneda: cashFlow.currency || 2, // Default a dólares si no se especifica
+        });
+      }
+    }
+
+    return flujos;
+  } catch (error) {
+    console.error(`❌ Error obteniendo flujos del bono excluido ${bonoExcluido.codigoespeciebono}:`, error);
+    return [];
+  }
+}
+
+/**
  * Obtiene los flujos proyectados desde la API de Balanz
  * Con caché por día para evitar consultas repetidas
+ * Incluye los flujos de bonos excluidos obtenidos desde instrument_info
  */
 export async function getFlujosProyectados(): Promise<FlujoProyectado[]> {
   try {
@@ -1303,11 +1372,17 @@ export async function getFlujosProyectados(): Promise<FlujoProyectado[]> {
     
     // Intentar parsear como JSON
     let data: FlujoProyectado[];
+    let bonosExcluidos: BonoExcluido[] = [];
+    
     try {
       const parsed = JSON.parse(text);
       // La respuesta puede venir como objeto con "flujo" o directamente como array
       if (parsed.flujo && Array.isArray(parsed.flujo)) {
         data = parsed.flujo;
+        // Extraer bonos excluidos si existen
+        if (parsed.excluidos && Array.isArray(parsed.excluidos)) {
+          bonosExcluidos = parsed.excluidos;
+        }
       } else if (Array.isArray(parsed)) {
         data = parsed;
       } else {
@@ -1321,6 +1396,21 @@ export async function getFlujosProyectados(): Promise<FlujoProyectado[]> {
         return expiredCache;
       }
       return [];
+    }
+    
+    // Obtener flujos de bonos excluidos
+    if (bonosExcluidos.length > 0) {
+      console.log(`📋 Procesando ${bonosExcluidos.length} bono(s) excluido(s)...`);
+      const flujosExcluidos = await Promise.all(
+        bonosExcluidos.map(bono => getFlujosDeBonoExcluido(bono))
+      );
+      
+      // Aplanar y agregar a la lista principal
+      const flujosExcluidosAplanados = flujosExcluidos.flat();
+      if (flujosExcluidosAplanados.length > 0) {
+        console.log(`✅ Se agregaron ${flujosExcluidosAplanados.length} flujo(s) de bonos excluidos`);
+        data = [...data, ...flujosExcluidosAplanados];
+      }
     }
     
     // Guardar en caché con la fecha de hoy

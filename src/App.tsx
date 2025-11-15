@@ -78,7 +78,7 @@ function App() {
         <div className="max-w-7xl mx-auto space-y-6">
           <header className="text-center mb-8">
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
-              Panel de Trading Totonz
+              Totonz
             </h1>
             <p className="text-slate-400">
               Análisis de cartera e historial de operaciones
@@ -169,6 +169,7 @@ function App() {
               path="/flujos-proyectados" 
               element={
                 <FlujosProyectados 
+                  positions={positions}
                   loading={loading}
                   apiError={apiError}
                 />

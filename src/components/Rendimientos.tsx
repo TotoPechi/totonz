@@ -121,8 +121,7 @@ const Rendimientos: React.FC<RendimientosProps> = ({ positions, loading, apiErro
   const totalEgresosUSD = egresos.reduce((sum, eg) => sum + eg.importeUSD, 0);
   const montoInvertido = totalIngresosUSD - totalEgresosUSD;
   const saldosTotalUSD = saldosActuales.usd + saldosActuales.cable + saldosActuales.pesos;
-  const rendimientoTotal =
-    valorActualTotal + saldosTotalUSD + dividendosTotal + rentasTotal - montoInvertido;
+  const rendimientoTotal = valorActualTotal + saldosTotalUSD - montoInvertido;
   const rendimientoPorcentaje = montoInvertido > 0 ? (rendimientoTotal / montoInvertido) * 100 : 0;
 
   // Datos para gráfico de torta de valor actual de activos
@@ -322,9 +321,6 @@ const Rendimientos: React.FC<RendimientosProps> = ({ positions, loading, apiErro
     );
   }
 
-  // Calcular tenencia total
-  const tenenciaTotal = valorActualTotal + saldosTotalUSD + dividendosTotal + rentasTotal;
-
   return (
     <div className="bg-slate-800 rounded-lg p-6 shadow-lg">
       <h2 className="text-2xl font-bold text-white mb-6">💰 Rendimientos</h2>
@@ -335,9 +331,6 @@ const Rendimientos: React.FC<RendimientosProps> = ({ positions, loading, apiErro
         montoInvertido={montoInvertido}
         valorActualTotal={valorActualTotal}
         saldosTotalUSD={saldosTotalUSD}
-        dividendosTotal={dividendosTotal}
-        rentasTotal={rentasTotal}
-        tenenciaTotal={tenenciaTotal}
         rendimientoTotal={rendimientoTotal}
         rendimientoPorcentaje={rendimientoPorcentaje}
       />

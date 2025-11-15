@@ -76,7 +76,7 @@ export interface HistoricalDataResponse {
  * Incluye el ticker en USD desde Cotizacion.currencies
  * Con caché de 24 horas para evitar llamadas repetidas
  */
-async function getBalanzInstrumentInfo(ticker: string): Promise<{ 
+export async function getBalanzInstrumentInfo(ticker: string): Promise<{ 
   description?: string; 
   type?: string; 
   category?: string;
@@ -383,7 +383,7 @@ export async function getTickerQuote(symbol: string, positions?: any[], movimien
           const usdTicker = instrumentInfo.usdTicker || symbol;
           
           // Obtener datos históricos con el ticker correcto
-          const historicalData = await getBalanzHistorico(usdTicker, 730); // Últimos 2 años (730 días)
+          const historicalData = await getBalanzHistorico(usdTicker, 3650); // Últimos 10 años (3650 días)
           
           if (historicalData.length > 0) {
             const lastData = historicalData[historicalData.length - 1];
@@ -516,7 +516,7 @@ export function isFondo(ticker: string, positions?: any[], movimientos?: any[]):
 /**
  * Obtiene datos históricos de un fondo desde la API cotizacionhistorico
  */
-async function getBalanzFondoHistorico(ticker: string, days: number = 730): Promise<HistoricalData[]> {
+async function getBalanzFondoHistorico(ticker: string, days: number = 3650): Promise<HistoricalData[]> {
   try {
     // --- CACHÉ ---
     const cacheKey = `fondo_history_${ticker}_v1`;
@@ -878,7 +878,7 @@ function processFondoData(fullData: any) {
  * Para bonos, corporativos y CEDEARs
  * IMPORTANTE: Recibe el ticker ya transformado a USD (ej: YPFDD, TXD6D)
  */
-async function getBalanzHistorico(tickerUSD: string, days: number = 730): Promise<HistoricalData[]> {
+async function getBalanzHistorico(tickerUSD: string, days: number = 3650): Promise<HistoricalData[]> {
   try {
     // --- CACHÉ ---
     const cacheKey = `ticker_history_${tickerUSD}_v3`;
@@ -973,7 +973,7 @@ async function getBalanzHistorico(tickerUSD: string, days: number = 730): Promis
 
 // Función centralizada para obtener datos históricos de la API historico/eventos de Balanz
 // O de la API cotizacionhistorico si es un fondo
-export async function getTickerCandles(symbol: string, days: number = 730, positions?: any[], movimientos?: any[]): Promise<HistoricalDataResponse> {
+export async function getTickerCandles(symbol: string, days: number = 3650, positions?: any[], movimientos?: any[]): Promise<HistoricalDataResponse> {
   try {
     // Detectar si es un fondo
     const esFondo = isFondo(symbol, positions, movimientos);
